@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PagoIA</title>
+<style>
+/* ─── RESET ─────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --p1:#6c63ff;--p2:#a855f7;--p3:#ec4899;
+  --g1:linear-gradient(135deg,#6c63ff,#a855f7);
+  --g2:linear-gradient(135deg,#a855f7,#ec4899);
+  --g3:linear-gradient(135deg,#06b6d4,#6c63ff);
+  --g4:linear-gradient(135deg,#10b981,#06b6d4);
+  --bg:#0f0e17;
+  --card:#1c1b2e;
+  --card2:#232236;
+  --txt:#ffffff;
+  --txt2:#a0a0c0;
+  --green:#10b981;--red:#f43f5e;--amber:#f59e0b;
+  --border:rgba(255,255,255,0.08);
+  --nav:68px;
+  --di-w:120px;--di-h:34px;
+}
+
+html,body{
+  height:100%;
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:linear-gradient(160deg,#0d0c1d 0%,#1a0533 50%,#0d1a2e 100%);
+  display:flex;justify-content:center;align-items:center;
+  min-height:100vh;
+}
+
+/* ─── PHONE SHELL ────────────────────────────────── */
+#phone{
+  width:390px;height:844px;
+  background:var(--bg);
+  border-radius:54px;
+  overflow:hidden;
+  position:relative;
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,0.12),
+    0 0 0 8px rgba(0,0,0,0.6),
+    0 40px 100px rgba(108,99,255,0.4),
+    0 0 60px rgba(168,85,247,0.2);
+}
+
+/* side buttons */
+#phone::before{
+  content:'';position:absolute;left:-4px;top:120px;
+  width:4px;height:36px;background:#1a1a2e;border-radius:4px 0 0 4px;
+  box-shadow:0 48px 0 #1a1a2e, 0 96px 0 #1a1a2e;
+}
+#phone::after{
+  content:'';position:absolute;right:-4px;top:160px;
+  width:4px;height:60px;background:#1a1a2e;border-radius:0 4px 4px 0;
+}
+
+/* ─── DYNAMIC ISLAND ─────────────────────────────── */
+#di{
+  position:absolute;top:14px;left:50%;transform:translateX(-50%);
+  width:var(--di-w);height:var(--di-h);
+  background:#000;border-radius:20px;
+  z-index:1000;
+  transition:all .45s cubic-bezier(.34,1.56,.64,1);
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+#di.expanded{
+  width:320px;height:80px;border-radius:28px;
+}
+#di-idle{
+  display:flex;align-items:center;gap:8px;
+  transition:opacity .2s;
+}
+#di-idle .cam{width:10px;height:10px;background:#1a1a1a;border-radius:50%;border:1.5px solid #333;}
+#di-idle .face-id{width:14px;height:14px;border:1.5px solid #333;border-radius:4px;}
+#di-expanded{
+  display:none;width:100%;padding:12px 16px;
+  align-items:center;gap:12px;
+}
+#di.expanded #di-idle{display:none;}
+#di.expanded #di-expanded{display:flex;}
+#di-exp-icon{
+  width:44px;height:44px;border-radius:14px;
+  background:var(--g1);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+}
+#di-exp-text{flex:1;}
+#di-exp-text .di-title{font-size:13px;font-weight:700;color:#fff;}
+#di-exp-text .di-sub{font-size:11px;color:rgba(255,255,255,0.6);margin-top:2px;}
+#di-exp-right{text-align:right;}
+#di-exp-right .di-val{font-size:16px;font-weight:800;color:#fff;}
+#di-exp-right .di-tag{font-size:10px;color:var(--green);font-weight:600;}
+
+/* ─── SCREENS ────────────────────────────────────── */
+.screen{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  opacity:0;pointer-events:none;
+  transition:opacity .35s ease,transform .35s ease;
+  transform:translateY(16px);
+}
+.screen.active{opacity:1;pointer-events:all;transform:translateY(0);}
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
+.scroll::-webkit-scrollbar{display:none;}
+
+/* ─── BOTTOM NAV ─────────────────────────────────── */
+.bnav{
+  position:absolute;bottom:0;left:0;right:0;height:var(--nav);
+  background:rgba(18,17,32,0.95);
+  backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-around;
+  padding:0 8px 10px;z-index:100;
+  border-radius:0 0 54px 54px;
+}
+.ni{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  cursor:pointer;padding:6px 12px;border-radius:14px;
+  border:none;background:transparent;color:var(--txt2);
+  font-size:10px;font-weight:600;transition:all .2s;
+}
+.ni.on{color:var(--p1);}
+.ni svg{width:21px;height:21px;transition:transform .2s;}
+.ni.on svg{transform:scale(1.15);}
+.ni-center{
+  width:52px;height:52px;border-radius:50%;
+  background:var(--g1);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  margin-top:-18px;
+  box-shadow:0 0 24px rgba(108,99,255,.6),0 4px 16px rgba(0,0,0,.4);
+  transition:transform .2s,box-shadow .2s;
+}
+.ni-center:hover{transform:scale(1.1);box-shadow:0 0 36px rgba(168,85,247,.8);}
+.ni-center svg{width:24px;height:24px;color:#fff;}
+
+/* ─── UTILS ──────────────────────────────────────── */
+.pill{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 12px;border-radius:100px;
+  font-size:11px;font-weight:700;
+}
+.pill.green{background:rgba(16,185,129,.15);color:var(--green);}
+.pill.red{background:rgba(244,63,94,.15);color:var(--red);}
+.pill.purple{background:rgba(108,99,255,.15);color:var(--p1);}
+
+.section-hd{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:14px;
+}
+.section-hd h3{font-size:16px;font-weight:700;color:var(--txt);}
+.see-all{font-size:12px;color:var(--p1);font-weight:600;cursor:pointer;}
+
+/* ─── BUTTONS ────────────────────────────────────── */
+.btn{
+  width:100%;padding:17px;border:none;border-radius:18px;
+  background:var(--g1);color:#fff;font-size:16px;font-weight:700;
+  cursor:pointer;transition:transform .15s,box-shadow .15s;
+  box-shadow:0 8px 24px rgba(108,99,255,.4);
+  letter-spacing:.3px;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(108,99,255,.55);}
+.btn:active{transform:translateY(0);}
+
+/* ─── INPUT ──────────────────────────────────────── */
+.inp-wrap{position:relative;margin-bottom:4px;}
+.inp-wrap input{
+  width:100%;padding:16px 16px 16px 50px;
+  background:var(--card2);border:1.5px solid var(--border);
+  border-radius:16px;color:var(--txt);font-size:15px;outline:none;
+  transition:border-color .2s,box-shadow .2s;
+}
+.inp-wrap input::placeholder{color:var(--txt2);}
+.inp-wrap input:focus{border-color:var(--p1);box-shadow:0 0 0 3px rgba(108,99,255,.15);}
+.inp-wrap .ico{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--txt2);}
+.inp-wrap .eye{position:absolute;right:16px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--txt2);background:none;border:none;}
+.err{color:var(--red);font-size:12px;margin-top:4px;display:none;}
+
+/* ─── TOAST ──────────────────────────────────────── */
+#toast{
+  position:absolute;bottom:86px;left:50%;
+  transform:translateX(-50%) translateY(12px);
+  background:rgba(255,255,255,0.12);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.15);
+  color:#fff;padding:11px 20px;border-radius:100px;
+  font-size:13px;font-weight:600;white-space:nowrap;
+  opacity:0;transition:all .3s;z-index:999;pointer-events:none;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ══════════════════════════════════════════════════
+   LOGIN
+══════════════════════════════════════════════════ */
+#s-login{background:var(--bg);}
+.login-bg{
+  height:300px;position:relative;overflow:hidden;
+  background:linear-gradient(160deg,#1a0a3d 0%,#0d1a3a 100%);
+  display:flex;align-items:center;justify-content:center;
+}
+/* Floating orbs */
+.orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.5;animation:float 6s ease-in-out infinite;}
+.orb1{width:200px;height:200px;background:#6c63ff;top:-60px;left:-60px;animation-delay:0s;}
+.orb2{width:180px;height:180px;background:#a855f7;top:40px;right:-50px;animation-delay:2s;}
+.orb3{width:120px;height:120px;background:#ec4899;bottom:-20px;left:30%;animation-delay:4s;}
+@keyframes float{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-18px) scale(1.05);}}
+
+.login-logo-wrap{
+  position:relative;z-index:1;text-align:center;
+}
+.login-robot{
+  width:90px;height:90px;border-radius:28px;
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(10px);
+  border:1.5px solid rgba(255,255,255,0.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:46px;margin:0 auto 14px;
+  box-shadow:0 8px 32px rgba(108,99,255,.4);
+  animation:pulse-glow 3s ease-in-out infinite;
+}
+@keyframes pulse-glow{
+  0%,100%{box-shadow:0 8px 32px rgba(108,99,255,.4);}
+  50%{box-shadow:0 8px 48px rgba(168,85,247,.7);}
+}
+.login-logo-wrap h1{font-size:32px;font-weight:900;color:#fff;letter-spacing:-1px;}
+.login-logo-wrap p{font-size:14px;color:rgba(255,255,255,.65);margin-top:4px;}
+.login-form{
+  flex:1;background:var(--bg);border-radius:32px 32px 0 0;
+  margin-top:-24px;padding:32px 24px;
+  display:flex;flex-direction:column;gap:14px;
+  position:relative;z-index:2;
+}
+.login-form h2{font-size:22px;font-weight:800;color:var(--txt);margin-bottom:4px;}
+.login-form .sub{font-size:14px;color:var(--txt2);margin-bottom:8px;}
+.forgot{text-align:right;font-size:13px;color:var(--p1);cursor:pointer;font-weight:600;}
+.divider{display:flex;align-items:center;gap:12px;color:var(--txt2);font-size:12px;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.social-row{display:flex;gap:10px;}
+.btn-soc{
+  flex:1;padding:13px;border:1.5px solid var(--border);border-radius:14px;
+  background:var(--card2);color:var(--txt);font-size:14px;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:background .15s;
+}
+.btn-soc:hover{background:#2a2944;}
+.reg-row{text-align:center;font-size:13px;color:var(--txt2);}
+.reg-row a{color:var(--p1);font-weight:600;cursor:pointer;}
+.trust{
+  background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);
+  border-radius:12px;padding:10px 14px;
+  display:flex;align-items:center;gap:10px;
+  font-size:12px;color:var(--green);
+}
+
+/* ══════════════════════════════════════════════════
+   DASHBOARD
+══════════════════════════════════════════════════ */
+#s-dash{background:var(--bg);}
+.dash-scroll{padding-bottom:var(--nav);}
+
+.dash-top{
+  padding:62px 20px 0;
+  background:linear-gradient(180deg,#1a0a3d 0%,var(--bg) 100%);
+}
+.dash-toprow{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
+.dash-greet{font-size:14px;color:var(--txt2);}
+.dash-name{font-size:24px;font-weight:900;color:var(--txt);letter-spacing:-.5px;}
+.notif-btn{
+  width:42px;height:42px;background:var(--card2);border-radius:14px;
+  border:1px solid var(--border);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;color:var(--txt);
+  position:relative;transition:background .15s;
+}
+.notif-btn:hover{background:#2a2944;}
+.ndot{width:8px;height:8px;background:#f59e0b;border-radius:50%;position:absolute;top:8px;right:8px;border:1.5px solid var(--bg);}
+
+/* Balance card glassmorphism */
+.balance-card{
+  margin:0 20px 20px;
+  background:linear-gradient(135deg,rgba(108,99,255,.25),rgba(168,85,247,.15));
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(108,99,255,.3);
+  border-radius:28px;padding:24px;
+  position:relative;overflow:hidden;
+}
+.balance-card::before{
+  content:'';position:absolute;
+  width:200px;height:200px;border-radius:50%;
+  background:rgba(108,99,255,.15);
+  top:-60px;right:-60px;
+}
+.balance-card::after{
+  content:'';position:absolute;
+  width:120px;height:120px;border-radius:50%;
+  background:rgba(236,72,153,.1);
+  bottom:-40px;left:20px;
+}
+.bal-label{font-size:13px;color:rgba(255,255,255,.65);margin-bottom:6px;position:relative;z-index:1;}
+.bal-amount{font-size:40px;font-weight:900;color:#fff;letter-spacing:-2px;position:relative;z-index:1;}
+.bal-row{display:flex;align-items:center;gap:10px;margin-top:12px;position:relative;z-index:1;}
+.bal-mini{flex:1;background:rgba(255,255,255,.08);border-radius:12px;padding:10px 12px;}
+.bal-mini .bml{font-size:11px;color:rgba(255,255,255,.5);margin-bottom:3px;}
+.bal-mini .bmv{font-size:14px;font-weight:700;color:#fff;}
+
+/* Quick actions */
+.qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 20px 20px;}
+.qa{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:18px;padding:14px 8px;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  cursor:pointer;transition:transform .2s,background .2s;
+}
+.qa:hover{transform:translateY(-3px);background:var(--card2);}
+.qa-ico{
+  width:42px;height:42px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+}
+.qa span{font-size:10px;font-weight:600;color:var(--txt2);text-align:center;line-height:1.3;}
+
+/* AI Alert */
+.ai-alert{
+  margin:0 20px 20px;
+  background:linear-gradient(135deg,rgba(168,85,247,.12),rgba(236,72,153,.08));
+  border:1px solid rgba(168,85,247,.25);
+  border-radius:20px;padding:16px;
+  display:flex;gap:12px;align-items:flex-start;
+}
+.ai-ico{
+  width:44px;height:44px;border-radius:16px;background:var(--g2);
+  display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;
+}
+.ai-title{font-size:13px;font-weight:700;color:var(--txt);margin-bottom:4px;}
+.ai-sub{font-size:12px;color:var(--txt2);line-height:1.5;}
+.ai-cta{font-size:12px;color:var(--p1);font-weight:700;cursor:pointer;margin-top:6px;display:inline-block;}
+
+/* Recent txs */
+.recent-card{margin:0 20px 20px;background:var(--card);border:1px solid var(--border);border-radius:22px;padding:18px;}
+.tx{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+.tx:last-child{border:none;}
+.tx-ico{width:44px;height:44px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.tx-info{flex:1;}
+.tx-name{font-size:14px;font-weight:600;color:var(--txt);}
+.tx-date{font-size:11px;color:var(--txt2);margin-top:2px;}
+.tx-amt{font-size:15px;font-weight:800;}
+.neg{color:var(--red);}
+.pos{color:var(--green);}
+
+/* ══════════════════════════════════════════════════
+   MOVIMIENTOS
+══════════════════════════════════════════════════ */
+#s-mov{background:var(--bg);}
+.mov-hd{
+  padding:62px 20px 14px;
+  background:linear-gradient(180deg,#1a0a3d 0%,var(--bg) 100%);
+}
+.mov-hd-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.mov-hd h2{font-size:24px;font-weight:900;color:var(--txt);}
+.srch-btn{
+  width:40px;height:40px;background:var(--card2);border-radius:12px;
+  border:1px solid var(--border);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;color:var(--txt2);
+}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;}
+.chips::-webkit-scrollbar{display:none;}
+.chip{
+  padding:8px 16px;border-radius:100px;
+  border:1.5px solid var(--border);background:var(--card2);
+  font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;
+  color:var(--txt2);transition:all .2s;
+}
+.chip.on{background:var(--p1);border-color:var(--p1);color:#fff;}
+.mov-body{padding:0 20px;overflow-y:auto;height:calc(100% - 148px);padding-bottom:20px;}
+.mov-body::-webkit-scrollbar{display:none;}
+.day-lbl{font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;padding:14px 0 8px;}
+.mov-group{background:var(--card);border:1px solid var(--border);border-radius:20px;margin-bottom:10px;overflow:hidden;}
+
+/* ══════════════════════════════════════════════════
+   REPORTES
+══════════════════════════════════════════════════ */
+#s-rep{background:var(--bg);}
+.rep-hd{
+  padding:62px 20px 14px;
+  background:linear-gradient(180deg,#1a0a3d 0%,var(--bg) 100%);
+}
+.rep-hd h2{font-size:24px;font-weight:900;color:var(--txt);margin-bottom:14px;}
+.period-tabs{display:flex;background:var(--card2);border-radius:14px;padding:4px;border:1px solid var(--border);}
+.ptab{
+  flex:1;padding:9px;text-align:center;border-radius:10px;
+  font-size:13px;font-weight:700;cursor:pointer;color:var(--txt2);
+  border:none;background:transparent;transition:all .2s;
+}
+.ptab.on{background:var(--g1);color:#fff;box-shadow:0 4px 12px rgba(108,99,255,.4);}
+.rep-body{padding:16px 20px;overflow-y:auto;height:calc(100% - 148px);display:flex;flex-direction:column;gap:14px;padding-bottom:20px;}
+.rep-body::-webkit-scrollbar{display:none;}
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:16px;}
+.stat .lbl{font-size:11px;color:var(--txt2);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.3px;}
+.stat .val{font-size:22px;font-weight:900;color:var(--txt);}
+.stat .chg{font-size:11px;margin-top:5px;font-weight:600;}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:18px;}
+.chart-card h3{font-size:15px;font-weight:700;color:var(--txt);margin-bottom:16px;}
+.donut-row{display:flex;align-items:center;gap:18px;}
+.legend{display:flex;flex-direction:column;gap:10px;flex:1;}
+.leg-item{display:flex;align-items:center;gap:8px;}
+.leg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.leg-lbl{font-size:12px;color:var(--txt2);flex:1;}
+.leg-val{font-size:12px;font-weight:700;color:var(--txt);}
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:110px;margin-top:4px;}
+.bar-col{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;}
+.bar{width:100%;border-radius:8px 8px 0 0;min-height:4px;transition:height .6s ease;}
+.bar.norm{background:linear-gradient(180deg,rgba(108,99,255,.6),rgba(108,99,255,.2));}
+.bar.curr{background:var(--g1);}
+.bar-lbl{font-size:10px;color:var(--txt2);font-weight:600;}
+.insight-card{
+  background:linear-gradient(135deg,rgba(168,85,247,.12),rgba(236,72,153,.08));
+  border:1px solid rgba(168,85,247,.25);border-radius:20px;padding:16px;
+}
+.ins-hd{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.ins-hd span{font-size:13px;font-weight:700;color:var(--p2);}
+.ins-body{font-size:13px;color:rgba(255,255,255,.75);line-height:1.6;}
+
+/* ══════════════════════════════════════════════════
+   PERFIL
+══════════════════════════════════════════════════ */
+#s-perf{background:var(--bg);}
+.perf-top{
+  padding:62px 20px 24px;
+  background:linear-gradient(180deg,#1a0a3d 0%,var(--bg) 100%);
+  text-align:center;
+}
+.avatar-ring{
+  width:88px;height:88px;border-radius:50%;
+  background:var(--g1);padding:3px;
+  display:inline-flex;margin-bottom:12px;
+  box-shadow:0 0 24px rgba(108,99,255,.5);
+}
+.avatar-inner{
+  flex:1;border-radius:50%;background:var(--card);
+  display:flex;align-items:center;justify-content:center;
+  font-size:30px;font-weight:900;color:var(--txt);
+  position:relative;overflow:hidden;
+}
+.perf-name{font-size:22px;font-weight:900;color:var(--txt);}
+.perf-email{font-size:13px;color:var(--txt2);margin-top:2px;}
+.perf-badges{display:flex;justify-content:center;gap:8px;margin-top:10px;}
+.perf-body{padding:0 20px;overflow-y:auto;height:calc(100% - 230px);padding-bottom:20px;display:flex;flex-direction:column;gap:12px;}
+.perf-body::-webkit-scrollbar{display:none;}
+.scard{background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:hidden;}
+.scard-lbl{padding:14px 16px 4px;font-size:10px;font-weight:800;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;}
+.sitem{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;
+  border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;
+}
+.sitem:last-child{border:none;}
+.sitem:hover{background:rgba(255,255,255,.03);}
+.sico{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.slbl{flex:1;}
+.slbl .sn{font-size:14px;font-weight:600;color:var(--txt);}
+.slbl .ss{font-size:11px;color:var(--txt2);}
+.chev{color:var(--txt2);}
+.tog{
+  width:46px;height:26px;border-radius:100px;border:none;cursor:pointer;
+  background:var(--p1);position:relative;transition:background .2s;flex-shrink:0;
+}
+.tog::after{
+  content:'';position:absolute;top:3px;left:23px;
+  width:20px;height:20px;border-radius:50%;background:#fff;
+  transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.3);
+}
+.tog.off{background:var(--border);}
+.tog.off::after{left:3px;}
+.logout-btn{
+  width:100%;padding:16px;border:1.5px solid rgba(244,63,94,.3);
+  border-radius:18px;background:rgba(244,63,94,.08);color:var(--red);
+  font-size:15px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:background .15s;
+}
+.logout-btn:hover{background:rgba(244,63,94,.15);}
+
+/* ══════════════════════════════════════════════════
+   CHAT
+══════════════════════════════════════════════════ */
+#s-chat{background:var(--bg);display:flex;flex-direction:column;}
+.chat-hd{
+  padding:62px 20px 14px;
+  background:linear-gradient(180deg,#1a0a3d 0%,var(--bg) 100%);
+  display:flex;align-items:center;gap:12px;
+}
+.agt-av{
+  width:46px;height:46px;border-radius:16px;background:var(--g1);
+  display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;
+  box-shadow:0 0 16px rgba(108,99,255,.4);
+}
+.agt-info .an{font-size:16px;font-weight:800;color:var(--txt);}
+.agt-info .as{font-size:12px;color:var(--green);display:flex;align-items:center;gap:4px;font-weight:600;}
+.odot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+.chat-msgs{
+  flex:1;overflow-y:auto;padding:14px 16px;
+  display:flex;flex-direction:column;gap:10px;
+  padding-bottom:140px;
+}
+.chat-msgs::-webkit-scrollbar{display:none;}
+.msg{display:flex;gap:8px;max-width:84%;}
+.msg.u{align-self:flex-end;flex-direction:row-reverse;}
+.mav{
+  width:32px;height:32px;border-radius:12px;flex-shrink:0;
+  background:var(--g1);display:flex;align-items:center;justify-content:center;font-size:15px;
+}
+.msg.u .mav{background:var(--g4);}
+.mbub{
+  background:var(--card2);border:1px solid var(--border);
+  border-radius:18px;padding:12px 14px;
+  font-size:14px;line-height:1.55;color:var(--txt);
+}
+.msg.u .mbub{background:var(--g1);border:none;}
+.mtime{font-size:10px;color:var(--txt2);margin-top:4px;}
+.msg.u .mtime{text-align:left;}
+.typing-bub{
+  display:flex;align-items:center;gap:5px;
+  background:var(--card2);border:1px solid var(--border);
+  border-radius:18px;padding:14px 16px;width:fit-content;
+}
+.typing-bub span{
+  width:7px;height:7px;background:var(--txt2);border-radius:50%;
+  animation:bounce 1.2s infinite;
+}
+.typing-bub span:nth-child(2){animation-delay:.2s;}
+.typing-bub span:nth-child(3){animation-delay:.4s;}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-6px);}}
+.qreplies{display:flex;flex-wrap:wrap;gap:7px;padding:0 16px 8px;}
+.qr{
+  padding:8px 14px;border-radius:100px;
+  border:1.5px solid rgba(108,99,255,.4);
+  color:var(--p1);background:rgba(108,99,255,.08);
+  font-size:12px;font-weight:600;cursor:pointer;
+  transition:all .2s;white-space:nowrap;
+}
+.qr:hover{background:var(--p1);color:#fff;border-color:var(--p1);}
+.chat-input-area{
+  position:absolute;bottom:var(--nav);left:0;right:0;
+  padding:10px 14px;
+  background:rgba(18,17,32,.95);
+  backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+}
+.cinput{
+  flex:1;padding:13px 16px;
+  background:var(--card2);border:1.5px solid var(--border);
+  border-radius:100px;color:var(--txt);font-size:14px;outline:none;
+  transition:border-color .2s;
+}
+.cinput::placeholder{color:var(--txt2);}
+.cinput:focus{border-color:var(--p1);}
+.csend{
+  width:44px;height:44px;border-radius:50%;background:var(--g1);
+  border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 14px rgba(108,99,255,.5);transition:transform .15s;flex-shrink:0;
+}
+.csend:hover{transform:scale(1.1);}
+
+/* ─── Mini chart in chat ─── */
+.chart-msg{
+  background:var(--card2);border:1px solid var(--border);
+  border-radius:18px;padding:14px;max-width:230px;
+}
+.chart-msg p{font-size:12px;color:var(--txt2);margin-bottom:10px;}
+.mini-bars{display:flex;align-items:flex-end;gap:6px;height:64px;}
+.mb{flex:1;border-radius:5px 5px 0 0;background:var(--g1);min-height:4px;}
+.mb-lbl{font-size:9px;color:var(--txt2);text-align:center;margin-top:4px;}
+
+/* ─── Responsive ─── */
+@media(max-width:420px){
+  #phone{width:100vw;height:100dvh;border-radius:0;}
+  body{background:#0f0e17;}
+}
+</style>
+</head>
+<body>
+
+<div id="phone">
+
+  <!-- ════════════ DYNAMIC ISLAND ════════════ -->
+  <div id="di" onclick="toggleDI()">
+    <div id="di-idle">
+      <div class="face-id"></div>
+      <div class="cam"></div>
+    </div>
+    <div id="di-expanded">
+      <div id="di-exp-icon">🤖</div>
+      <div id="di-exp-text">
+        <div class="di-title">PagoIA detectó algo</div>
+        <div class="di-sub">Gasto inusual en Suscripciones</div>
+      </div>
+      <div id="di-exp-right">
+        <div class="di-val">-$3.200</div>
+        <div class="di-tag">▲ 40%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ TOAST ════════════ -->
+  <div id="toast"></div>
+
+  <!-- ══════════════════════════════════════════
+       LOGIN
+  ══════════════════════════════════════════ -->
+  <div id="s-login" class="screen active">
+    <div class="login-bg">
+      <div class="orb orb1"></div>
+      <div class="orb orb2"></div>
+      <div class="orb orb3"></div>
+      <div class="login-logo-wrap">
+        <div class="login-robot">🤖</div>
+        <h1>PagoIA</h1>
+        <p>Tu asistente financiero inteligente</p>
+      </div>
+    </div>
+    <div class="login-form scroll">
+      <h2>¡Bienvenido! 👋</h2>
+      <p class="sub">Inicia sesión para continuar</p>
+      <div class="inp-wrap">
+        <span class="ico"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+        <input type="email" id="l-email" placeholder="Correo electrónico">
+        <div class="err" id="e-email">Ingresa un correo válido</div>
+      </div>
+      <div class="inp-wrap">
+        <span class="ico"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+        <input type="password" id="l-pass" placeholder="Contraseña">
+        <button class="eye" onclick="toggleEye()"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        <div class="err" id="e-pass">Contraseña incorrecta · usa: <strong>1234</strong></div>
+      </div>
+      <div class="forgot" onclick="toast('📧 Revisa tu correo para restablecer tu contraseña')">¿Olvidaste tu contraseña?</div>
+      <button class="btn" onclick="doLogin()">Iniciar sesión</button>
+      <div class="divider">o continúa con</div>
+      <div class="social-row">
+        <button class="btn-soc" onclick="socialLogin('Google')">
+          <svg width="17" height="17" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Google
+        </button>
+        <button class="btn-soc" onclick="socialLogin('Apple')">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          Apple
+        </button>
+      </div>
+      <div class="trust">
+        <span>🔒</span>
+        <span>Cifrado de 256 bits · Sin acceso a tu banco</span>
+      </div>
+      <div class="reg-row">¿No tienes cuenta? <a onclick="toast('📝 Registro próximamente')">Regístrate gratis</a></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       DASHBOARD
+  ══════════════════════════════════════════ -->
+  <div id="s-dash" class="screen">
+    <div class="dash-scroll scroll">
+      <div class="dash-top">
+        <div class="dash-toprow">
+          <div>
+            <div class="dash-greet">Buen día ☀️</div>
+            <div class="dash-name">Hola, Diego!</div>
+          </div>
+          <button class="notif-btn" onclick="toast('🔔 3 notificaciones nuevas')">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <div class="ndot"></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Balance card -->
+      <div class="balance-card">
+        <div class="bal-label">Saldo total disponible</div>
+        <div class="bal-amount">$45.230,00</div>
+        <div class="bal-row">
+          <div class="bal-mini">
+            <div class="bml">Ingresos</div>
+            <div class="bmv" style="color:var(--green)">+$58.000</div>
+          </div>
+          <div class="bal-mini">
+            <div class="bml">Gastos</div>
+            <div class="bmv" style="color:var(--red)">-$12.840</div>
+          </div>
+          <div class="bal-mini">
+            <div class="bml">Ahorro</div>
+            <div class="bmv" style="color:#a855f7">78%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="qa-grid">
+        <div class="qa" onclick="toast('💸 Módulo de transferencias próximamente')">
+          <div class="qa-ico" style="background:rgba(108,99,255,.15)">💸</div>
+          <span>Enviar</span>
+        </div>
+        <div class="qa" onclick="toast('📥 Recibir dinero próximamente')">
+          <div class="qa-ico" style="background:rgba(16,185,129,.15)">📥</div>
+          <span>Recibir</span>
+        </div>
+        <div class="qa" onclick="navigate('chat')">
+          <div class="qa-ico" style="background:rgba(236,72,153,.15)">🤖</div>
+          <span>IA Chat</span>
+        </div>
+        <div class="qa" onclick="navigate('reportes')">
+          <div class="qa-ico" style="background:rgba(245,158,11,.15)">📊</div>
+          <span>Reportes</span>
+        </div>
+      </div>
+
+      <!-- AI Alert -->
+      <div class="ai-alert">
+        <div class="ai-ico">🤖</div>
+        <div>
+          <div class="ai-title">Alerta del Agente IA</div>
+          <div class="ai-sub">He detectado un gasto inusual en "Suscripciones" hoy. Podría ahorrarte $1.200 este mes.</div>
+          <span class="ai-cta" onclick="navigate('chat')">Ver análisis completo →</span>
+        </div>
+      </div>
+
+      <!-- Recent -->
+      <div class="recent-card">
+        <div class="section-hd">
+          <h3>Actividad reciente</h3>
+          <span class="see-all" onclick="navigate('movimientos')">Ver todo</span>
+        </div>
+        <div class="tx" onclick="toast('🍽️ Restaurante Central · Hoy 14:30')">
+          <div class="tx-ico" style="background:rgba(244,63,94,.1)">🍽️</div>
+          <div class="tx-info"><div class="tx-name">Restaurante Central</div><div class="tx-date">Hoy · 14:30</div></div>
+          <div class="tx-amt neg">-$2.450</div>
+        </div>
+        <div class="tx" onclick="toast('🚌 Transporte Público · Hoy 08:15')">
+          <div class="tx-ico" style="background:rgba(16,185,129,.1)">🚌</div>
+          <div class="tx-info"><div class="tx-name">Transporte Público</div><div class="tx-date">Hoy · 08:15</div></div>
+          <div class="tx-amt neg">-$150</div>
+        </div>
+        <div class="tx" onclick="toast('📥 Transferencia recibida · Ayer 18:00')">
+          <div class="tx-ico" style="background:rgba(108,99,255,.12)">📥</div>
+          <div class="tx-info"><div class="tx-name">Transferencia Recibida</div><div class="tx-date">Ayer · 18:00</div></div>
+          <div class="tx-amt pos">+$15.000</div>
+        </div>
+      </div>
+    </div>
+    <nav class="bnav">
+      <button class="ni on" onclick="navigate('dashboard')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Inicio</button>
+      <button class="ni" onclick="navigate('movimientos')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Pagos</button>
+      <button class="ni-center" onclick="navigate('chat')"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
+      <button class="ni" onclick="navigate('reportes')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Reportes</button>
+      <button class="ni" onclick="navigate('perfil')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil</button>
+    </nav>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       MOVIMIENTOS
+  ══════════════════════════════════════════ -->
+  <div id="s-mov" class="screen">
+    <div class="mov-hd">
+      <div class="mov-hd-row">
+        <h2>Movimientos</h2>
+        <button class="srch-btn" onclick="toast('🔍 Búsqueda disponible próximamente')">
+          <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+      </div>
+      <div class="chips" id="chips">
+        <div class="chip on" onclick="filt('todos',this)">🌟 Todos</div>
+        <div class="chip" onclick="filt('comida',this)">🍽 Comida</div>
+        <div class="chip" onclick="filt('servicios',this)">⚡ Servicios</div>
+        <div class="chip" onclick="filt('ocio',this)">🎮 Ocio</div>
+        <div class="chip" onclick="filt('transporte',this)">🚌 Transporte</div>
+        <div class="chip" onclick="filt('supermercado',this)">🛒 Súper</div>
+        <div class="chip" onclick="filt('ingreso',this)">💰 Ingresos</div>
+      </div>
+    </div>
+    <div class="mov-body" id="mov-body"></div>
+    <nav class="bnav">
+      <button class="ni" onclick="navigate('dashboard')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Inicio</button>
+      <button class="ni on" onclick="navigate('movimientos')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Pagos</button>
+      <button class="ni-center" onclick="navigate('chat')"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
+      <button class="ni" onclick="navigate('reportes')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Reportes</button>
+      <button class="ni" onclick="navigate('perfil')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil</button>
+    </nav>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       REPORTES
+  ══════════════════════════════════════════ -->
+  <div id="s-rep" class="screen">
+    <div class="rep-hd">
+      <h2>Reportes</h2>
+      <div class="period-tabs">
+        <button class="ptab on" onclick="setPer('mes',this)">Mes</button>
+        <button class="ptab" onclick="setPer('trimestre',this)">Trimestre</button>
+        <button class="ptab" onclick="setPer('año',this)">Año</button>
+      </div>
+    </div>
+    <div class="rep-body">
+      <div class="stat-row">
+        <div class="stat">
+          <div class="lbl">Gastos</div>
+          <div class="val" id="rv-g">$12.840</div>
+          <div class="chg neg" id="rv-gc">▲ 8% vs ant.</div>
+        </div>
+        <div class="stat">
+          <div class="lbl">Ingresos</div>
+          <div class="val" id="rv-i">$58.070</div>
+          <div class="chg pos" id="rv-ic">▲ 5% vs ant.</div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Gastos por categoría</h3>
+        <div class="donut-row">
+          <canvas id="dChart" width="130" height="130" style="flex-shrink:0"></canvas>
+          <div class="legend" id="dLeg"></div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Tendencia mensual</h3>
+        <div class="bar-chart" id="bChart"></div>
+      </div>
+      <div class="insight-card">
+        <div class="ins-hd"><span>🤖</span><span>Insight de IA</span></div>
+        <div class="ins-body" id="ins-txt">Tus gastos en <strong>"Ocio"</strong> subieron un 20% este mes. El <strong>martes</strong> es tu día más caro. ¿Quieres un plan de ahorro personalizado?</div>
+      </div>
+    </div>
+    <nav class="bnav">
+      <button class="ni" onclick="navigate('dashboard')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Inicio</button>
+      <button class="ni" onclick="navigate('movimientos')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Pagos</button>
+      <button class="ni-center" onclick="navigate('chat')"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
+      <button class="ni on" onclick="navigate('reportes')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Reportes</button>
+      <button class="ni" onclick="navigate('perfil')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil</button>
+    </nav>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       PERFIL
+  ══════════════════════════════════════════ -->
+  <div id="s-perf" class="screen">
+    <div style="overflow-y:auto;height:100%;padding-bottom:var(--nav);">
+      <div class="perf-top">
+        <div class="avatar-ring">
+          <div class="avatar-inner">DF</div>
+        </div>
+        <div class="perf-name">Diego Fernández</div>
+        <div class="perf-email">diego.f@pagoia.com</div>
+        <div class="perf-badges">
+          <span class="pill purple">⭐ Premium IA</span>
+          <span class="pill green">✅ Verificado</span>
+        </div>
+      </div>
+      <div class="perf-body">
+        <div class="scard">
+          <div class="scard-lbl">Cuenta</div>
+          <div class="sitem" onclick="toast('👤 Editando datos personales...')">
+            <div class="sico" style="background:rgba(108,99,255,.12)">👤</div>
+            <div class="slbl"><div class="sn">Datos personales</div><div class="ss">Nombre, email, teléfono</div></div>
+            <svg class="chev" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="sitem" onclick="toast('💳 Administrando métodos de pago...')">
+            <div class="sico" style="background:rgba(16,185,129,.12)">💳</div>
+            <div class="slbl"><div class="sn">Métodos de pago</div><div class="ss">Tarjetas y cuentas</div></div>
+            <svg class="chev" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="sitem" onclick="toast('🔐 Abriendo configuración de seguridad...')">
+            <div class="sico" style="background:rgba(245,158,11,.12)">🔐</div>
+            <div class="slbl"><div class="sn">Seguridad</div><div class="ss">PIN, biométrico, 2FA</div></div>
+            <svg class="chev" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </div>
+        <div class="scard">
+          <div class="scard-lbl">Preferencias</div>
+          <div class="sitem">
+            <div class="sico" style="background:rgba(168,85,247,.12)">🤖</div>
+            <div class="slbl"><div class="sn">Notificaciones IA</div><div class="ss">Alertas inteligentes</div></div>
+            <button class="tog" id="tog1" onclick="togSwitch('tog1')"></button>
+          </div>
+          <div class="sitem">
+            <div class="sico" style="background:rgba(99,102,241,.12)">🌙</div>
+            <div class="slbl"><div class="sn">Modo oscuro</div><div class="ss">Activo</div></div>
+            <button class="tog" id="tog2" onclick="togSwitch('tog2')"></button>
+          </div>
+          <div class="sitem" onclick="toast('🌍 Idioma: Español (Latinoamérica)')">
+            <div class="sico" style="background:rgba(6,182,212,.12)">🌍</div>
+            <div class="slbl"><div class="sn">Idioma</div><div class="ss">Español</div></div>
+            <svg class="chev" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </div>
+        <button class="logout-btn" onclick="doLogout()">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Cerrar sesión
+        </button>
+      </div>
+    </div>
+    <nav class="bnav">
+      <button class="ni" onclick="navigate('dashboard')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Inicio</button>
+      <button class="ni" onclick="navigate('movimientos')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Pagos</button>
+      <button class="ni-center" onclick="navigate('chat')"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
+      <button class="ni" onclick="navigate('reportes')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Reportes</button>
+      <button class="ni on" onclick="navigate('perfil')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil</button>
+    </nav>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       CHAT IA
+  ══════════════════════════════════════════ -->
+  <div id="s-chat" class="screen">
+    <div class="chat-hd">
+      <div class="agt-av">🤖</div>
+      <div class="agt-info">
+        <div class="an">Agente PagoIA</div>
+        <div class="as"><div class="odot"></div>En línea · responde al instante</div>
+      </div>
+    </div>
+    <div class="chat-msgs" id="cmsgs"></div>
+    <div class="qreplies" id="qreplies">
+      <button class="qr" onclick="sendQ(this)">📊 ¿En qué gasté más?</button>
+      <button class="qr" onclick="sendQ(this)">💡 Consejos de ahorro</button>
+      <button class="qr" onclick="sendQ(this)">📅 Resumen del mes</button>
+    </div>
+    <div class="chat-input-area">
+      <input class="cinput" id="cinput" placeholder="Pregúntale algo a la IA…" onkeydown="if(event.key==='Enter')sendMsg()">
+      <button class="csend" onclick="sendMsg()">
+        <svg width="19" height="19" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+    <nav class="bnav">
+      <button class="ni" onclick="navigate('dashboard')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Inicio</button>
+      <button class="ni" onclick="navigate('movimientos')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Pagos</button>
+      <button class="ni-center" style="background:var(--g2);box-shadow:0 0 24px rgba(236,72,153,.6)" onclick="navigate('chat')"><svg fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
+      <button class="ni" onclick="navigate('reportes')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Reportes</button>
+      <button class="ni" onclick="navigate('perfil')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil</button>
+    </nav>
+  </div>
+
+</div><!-- #phone -->
+
+<script>
+/* ═══════════════ DATA ═══════════════ */
+const TXS = [
+  {id:1,name:'Restaurante Central',cat:'comida',ico:'🍽️',bg:'rgba(244,63,94,.1)',date:'Hoy',time:'14:30',amt:-2450},
+  {id:2,name:'Transporte Público',cat:'transporte',ico:'🚌',bg:'rgba(16,185,129,.1)',date:'Hoy',time:'08:15',amt:-150},
+  {id:3,name:'Transferencia Recibida',cat:'ingreso',ico:'💰',bg:'rgba(16,185,129,.12)',date:'Hoy',time:'06:00',amt:15000},
+  {id:4,name:'Netflix',cat:'ocio',ico:'🎬',bg:'rgba(244,63,94,.08)',date:'Ayer',time:'12:00',amt:-1290},
+  {id:5,name:'Transporte Público',cat:'transporte',ico:'🚌',bg:'rgba(16,185,129,.1)',date:'Ayer',time:'07:30',amt:-150},
+  {id:6,name:'Supermercado Día',cat:'supermercado',ico:'🛒',bg:'rgba(245,158,11,.1)',date:'Ayer',time:'19:00',amt:-5800},
+  {id:7,name:'Spotify',cat:'ocio',ico:'🎵',bg:'rgba(16,185,129,.12)',date:'Lun 16',time:'10:00',amt:-590},
+  {id:8,name:'Luz y Gas',cat:'servicios',ico:'⚡',bg:'rgba(245,158,11,.1)',date:'Lun 16',time:'09:00',amt:-3200},
+  {id:9,name:'Sushi Express',cat:'comida',ico:'🍱',bg:'rgba(244,63,94,.08)',date:'Dom 15',time:'20:30',amt:-1800},
+  {id:10,name:'Salario',cat:'ingreso',ico:'💰',bg:'rgba(16,185,129,.15)',date:'Dom 15',time:'08:00',amt:43000},
+  {id:11,name:'Café del Centro',cat:'comida',ico:'☕',bg:'rgba(245,158,11,.1)',date:'Sáb 14',time:'09:00',amt:-320},
+  {id:12,name:'Internet Hogar',cat:'servicios',ico:'📡',bg:'rgba(6,182,212,.1)',date:'Sáb 14',time:'11:00',amt:-1500},
+];
+
+const PERIODS = {
+  mes:{g:'$12.840',gc:'▲ 8%',i:'$58.070',ic:'▲ 5%',bars:[60,45,70,55,80,95,72],ins:'Tus gastos en <strong>"Ocio"</strong> subieron 20% este mes. El <strong>martes</strong> es tu día más caro.'},
+  trimestre:{g:'$38.420',gc:'▼ 3%',i:'$174.000',ic:'▲ 12%',bars:[70,60,85,90,75,80,95],ins:'En el trimestre ahorraste un <strong>78%</strong> de tus ingresos. ¡Excelente disciplina!'},
+  año:{g:'$145.800',gc:'▲ 2%',i:'$580.000',ic:'▲ 18%',bars:[50,55,65,75,85,90,95],ins:'Este año tus ingresos crecieron <strong>18%</strong>. Vas a superar tu meta anual de ahorro. 🎉'},
+};
+
+const AI_R = {
+  '📊 ¿En qué gasté más?':'Este mes tu mayor gasto fue en <strong>Comida ($4.570)</strong>, seguido de <strong>Supermercado ($5.800)</strong> y <strong>Servicios ($4.700)</strong>. 🍽️ La comida subió un 15% vs el mes anterior.',
+  '💡 Consejos de ahorro':'Mis <strong>3 consejos</strong> para ti:\n\n1️⃣ <strong>Cancela 1 suscripción</strong> — tienes 4 activas.\n2️⃣ <strong>Cocina en casa</strong> los martes — tu día más caro en restaurantes.\n3️⃣ <strong>Transporte mensual</strong> en vez de diario — ahorro del 23%.',
+  '📅 Resumen del mes':'📅 <strong>Septiembre 2026</strong>\n\n💸 Gastos: $12.840\n💰 Ingresos: $58.000\n✅ Ahorro: $45.160 (78%)\n📈 +5% ingresos vs agosto\n\nTu mejor semana fue la primera. ¡Así se hace! 🙌',
+  default:[
+    'Analizando tu historial... Tienes un gasto promedio de <strong>$4.280 diarios</strong> este mes. ¿Te gustaría optimizar alguna categoría?',
+    'Noté que los <strong>martes y jueves</strong> son tus días de mayor gasto. Puedo ayudarte a crear un presupuesto para esos días.',
+    'Basado en tus datos, podrías ahorrar un <strong>$3.200 adicional</strong> al mes ajustando tus suscripciones. ¿Quiero mostrarte cómo?',
+    'He detectado <strong>3 suscripciones duplicadas</strong>: Netflix, Prime y un servicio similar. ¿Las revisamos juntos?',
+  ]
+};
+
+/* ═══════════════ DYNAMIC ISLAND ═══════════════ */
+let diOpen = false;
+let diTimer;
+
+function toggleDI() {
+  diOpen = !diOpen;
+  document.getElementById('di').classList.toggle('expanded', diOpen);
+  clearTimeout(diTimer);
+  if (diOpen) {
+    diTimer = setTimeout(() => {
+      diOpen = false;
+      document.getElementById('di').classList.remove('expanded');
+    }, 4000);
+  }
+}
+
+function diNotify(icon, title, sub, val, tag) {
+  const di = document.getElementById('di');
+  document.getElementById('di-exp-icon').textContent = icon;
+  document.getElementById('di-exp-text').querySelector('.di-title').textContent = title;
+  document.getElementById('di-exp-text').querySelector('.di-sub').textContent = sub;
+  document.getElementById('di-exp-right').querySelector('.di-val').textContent = val;
+  document.getElementById('di-exp-right').querySelector('.di-tag').textContent = tag;
+  diOpen = true;
+  di.classList.add('expanded');
+  clearTimeout(diTimer);
+  diTimer = setTimeout(() => {
+    diOpen = false;
+    di.classList.remove('expanded');
+  }, 4500);
+}
+
+/* ═══════════════ NAVIGATE ═══════════════ */
+function navigate(scr) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('s-' + scr.replace('dashboard','dash').replace('movimientos','mov').replace('reportes','rep').replace('perfil','perf')).classList.add('active');
+  if (scr === 'movimientos') renderMov('todos');
+  if (scr === 'reportes') renderRep('mes');
+  if (scr === 'chat') initChat();
+}
+
+/* ═══════════════ LOGIN ═══════════════ */
+function doLogin() {
+  const email = document.getElementById('l-email').value.trim();
+  const pass  = document.getElementById('l-pass').value.trim();
+  document.getElementById('e-email').style.display = 'none';
+  document.getElementById('e-pass').style.display  = 'none';
+  let ok = true;
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    document.getElementById('e-email').style.display = 'block'; ok = false;
+  }
+  if (!pass || pass !== '1234') {
+    document.getElementById('e-pass').style.display = 'block'; ok = false;
+  }
+  if (!ok) return;
+  diNotify('✅','Inicio de sesión exitoso','Bienvenido, Diego Fernández','PagoIA','Seguro');
+  setTimeout(() => navigate('dashboard'), 900);
+}
+
+function toggleEye() {
+  const i = document.getElementById('l-pass');
+  i.type = i.type === 'password' ? 'text' : 'password';
+}
+
+function socialLogin(p) {
+  diNotify('🔗','Conectando...','Autenticación con ' + p,'OK','·');
+  setTimeout(() => navigate('dashboard'), 1100);
+}
+
+function doLogout() {
+  toast('👋 Sesión cerrada correctamente');
+  setTimeout(() => navigate('login'), 900);
+}
+
+/* ═══════════════ MOVIMIENTOS ═══════════════ */
+function renderMov(filter) {
+  const body = document.getElementById('mov-body');
+  const txs = filter === 'todos' ? TXS : TXS.filter(t => t.cat === filter);
+  const groups = {};
+  txs.forEach(t => { if (!groups[t.date]) groups[t.date] = []; groups[t.date].push(t); });
+  body.innerHTML = '';
+  if (!txs.length) {
+    body.innerHTML = '<div style="text-align:center;padding:40px;color:var(--txt2);font-size:14px;">Sin movimientos en esta categoría</div>';
+    return;
+  }
+  Object.keys(groups).forEach(day => {
+    const lbl = document.createElement('div'); lbl.className = 'day-lbl'; lbl.textContent = day;
+    body.appendChild(lbl);
+    const grp = document.createElement('div'); grp.className = 'mov-group';
+    groups[day].forEach(t => {
+      const sign = t.amt < 0 ? '-' : '+';
+      const abs = Math.abs(t.amt).toLocaleString('es-AR');
+      const cls = t.amt < 0 ? 'neg' : 'pos';
+      const el = document.createElement('div'); el.className = 'tx';
+      el.style.padding = '12px 16px';
+      el.innerHTML = `
+        <div class="tx-ico" style="background:${t.bg}">${t.ico}</div>
+        <div class="tx-info"><div class="tx-name">${t.name}</div><div class="tx-date">${t.time}</div></div>
+        <div class="tx-amt ${cls}">${sign}$${abs}</div>`;
+      el.onclick = () => { toast(`${t.ico} ${t.name}: ${sign}$${abs}`); diNotify(t.ico, t.name, t.date + ' · ' + t.time, sign+'$'+abs, t.cat); };
+      grp.appendChild(el);
+    });
+    body.appendChild(grp);
+  });
+}
+
+function filt(cat, el) {
+  document.querySelectorAll('#chips .chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  renderMov(cat);
+}
+
+/* ═══════════════ REPORTES ═══════════════ */
+let curPer = 'mes';
+function renderRep(per) {
+  curPer = per;
+  const d = PERIODS[per];
+  document.getElementById('rv-g').textContent = d.g;
+  document.getElementById('rv-i').textContent = d.i;
+  document.getElementById('rv-gc').textContent = d.gc + ' vs ant.';
+  document.getElementById('rv-ic').textContent = d.ic + ' vs ant.';
+  document.getElementById('ins-txt').innerHTML = d.ins;
+  drawDonut();
+  drawBars(d.bars);
+}
+
+function setPer(p, el) {
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  renderRep(p);
+}
+
+function drawDonut() {
+  const c = document.getElementById('dChart');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const data = [
+    {label:'Comida', pct:.36, color:'#6c63ff', val:'$4.623'},
+    {label:'Ocio',   pct:.23, color:'#ec4899', val:'$2.953'},
+    {label:'Servicios', pct:.28, color:'#10b981', val:'$3.595'},
+    {label:'Otros',  pct:.13, color:'#374151', val:'$1.669'},
+  ];
+  const cx=65,cy=65,R=52,ir=34;
+  ctx.clearRect(0,0,130,130);
+  let s=-Math.PI/2;
+  data.forEach(d=>{
+    const a=d.pct*Math.PI*2;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,R,s,s+a);ctx.closePath();
+    ctx.fillStyle=d.color;ctx.fill();
+    s+=a;
+  });
+  ctx.beginPath();ctx.arc(cx,cy,ir,0,Math.PI*2);
+  ctx.fillStyle='#1c1b2e';ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='bold 10px sans-serif';ctx.textAlign='center';
+  ctx.fillText('Gastos',cx,cy-4);
+  ctx.fillStyle='#fff';ctx.font='bold 12px sans-serif';
+  ctx.fillText(curPer==='mes'?'$12.8k':curPer==='trimestre'?'$38.4k':'$145k',cx,cy+11);
+  const leg=document.getElementById('dLeg');
+  leg.innerHTML=data.map(d=>`<div class="leg-item"><div class="leg-dot" style="background:${d.color}"></div><span class="leg-lbl">${d.label}</span><span class="leg-val">${d.val}</span></div>`).join('');
+}
+
+function drawBars(hs) {
+  const months=['Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const ch=document.getElementById('bChart');
+  ch.innerHTML=hs.map((h,i)=>`
+    <div class="bar-col">
+      <div class="bar ${i===3?'curr':'norm'}" style="height:${h}px"></div>
+      <span class="bar-lbl">${months[i]}</span>
+    </div>`).join('');
+}
+
+/* ═══════════════ TOGGLE ═══════════════ */
+function togSwitch(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('off');
+  const on = !el.classList.contains('off');
+  const name = el.closest('.sitem').querySelector('.sn').textContent;
+  toast(`${on?'✅':'⭕'} ${name}: ${on?'activado':'desactivado'}`);
+}
+
+/* ═══════════════ CHAT IA ═══════════════ */
+let chatReady = false;
+function initChat() {
+  if (chatReady) return;
+  chatReady = true;
+  const msgs = document.getElementById('cmsgs');
+  msgs.innerHTML = '';
+  addAI('¡Hola Diego! 👋 Soy tu agente financiero PagoIA.\n\nHe notado que tus gastos en <strong>"Ocio"</strong> subieron <strong>20%</strong> vs el mes pasado. El <strong>martes</strong> es tu día más caro.\n\n¿Quieres ver el detalle?', '9:41');
+  setTimeout(() => addChartMsg(), 700);
+}
+
+function addAI(txt, t) {
+  const msgs = document.getElementById('cmsgs');
+  const d = document.createElement('div'); d.className = 'msg';
+  d.innerHTML = `<div class="mav">🤖</div><div><div class="mbub">${txt.replace(/\n/g,'<br>')}</div><div class="mtime">${t||now()}</div></div>`;
+  msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addUser(txt) {
+  const msgs = document.getElementById('cmsgs');
+  const d = document.createElement('div'); d.className = 'msg u';
+  d.innerHTML = `<div class="mav">D</div><div><div class="mbub">${txt}</div><div class="mtime">${now()}</div></div>`;
+  msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addTyping() {
+  const msgs = document.getElementById('cmsgs');
+  const d = document.createElement('div'); d.className = 'msg'; d.id = 'typing';
+  d.innerHTML = `<div class="mav">🤖</div><div class="typing-bub"><span></span><span></span><span></span></div>`;
+  msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeTyping() { const t=document.getElementById('typing'); if(t)t.remove(); }
+
+function addChartMsg() {
+  const msgs = document.getElementById('cmsgs');
+  const bars = [
+    {h:55,l:'Ocio'},{h:70,l:'Comida'},{h:45,l:'Serv.'},{h:30,l:'Otros'}
+  ];
+  const d = document.createElement('div'); d.className = 'msg';
+  d.innerHTML = `
+    <div class="mav">🤖</div>
+    <div>
+      <div class="chart-msg">
+        <p>Top categorías de gasto este mes:</p>
+        <div class="mini-bars">${bars.map(b=>`<div style="display:flex;flex-direction:column;align-items:center;flex:1"><div class="mb" style="height:${b.h}px"></div><div class="mb-lbl">${b.l}</div></div>`).join('')}</div>
+      </div>
+      <div class="mtime">${now()}</div>
+    </div>`;
+  msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
+}
+
+function sendMsg() {
+  const inp = document.getElementById('cinput');
+  const txt = inp.value.trim(); if (!txt) return;
+  inp.value = '';
+  addUser(txt);
+  document.getElementById('qreplies').innerHTML = '';
+  addTyping();
+  diNotify('🤖', 'PagoIA está respondiendo...', txt.slice(0,30), '···', 'IA');
+  setTimeout(() => {
+    removeTyping();
+    const resp = AI_R[txt] || AI_R.default[Math.floor(Math.random()*AI_R.default.length)];
+    addAI(resp);
+  }, 1000 + Math.random()*700);
+}
+
+function sendQ(btn) {
+  document.getElementById('cinput').value = btn.textContent.trim();
+  sendMsg(); btn.remove();
+}
+
+/* ═══════════════ TOAST ═══════════════ */
+let _tt;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(_tt); _tt = setTimeout(()=>t.classList.remove('show'), 2600);
+}
+
+/* ═══════════════ CLOCK / UTILS ═══════════════ */
+function now() {
+  const n=new Date();
+  return n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');
+}
+
+/* ── Auto Dynamic Island on load ── */
+setTimeout(()=>diNotify('🤖','PagoIA listo','Tu asistente financiero está activo','OK','Activo'), 1500);
+</script>
+</body>
+</html>
