@@ -91,9 +91,23 @@ AI_ENABLED=false
 ### 4. Levantar el servidor
 
 ```bash
-set -a && source .env && set +a
+./mvnw spring-boot:run
+```
+
+El `.env` se lee solo: `application.yml` lo importa con
+`spring.config.import: optional:file:./.env[.properties]`, que es el mecanismo
+nativo de Spring Boot. **No hace falta `source .env`.**
+
+Si querés además los datos de prueba del prototipo:
+
+```bash
 SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run
 ```
+
+> Una variable de entorno real tiene prioridad sobre el `.env`. Eso es
+> deliberado: en producción no hay `.env` y la configuración llega del entorno
+> del servidor. También sirve para una prueba puntual:
+> `DB_URL=... ./mvnw spring-boot:run` sin tocar el archivo.
 
 El perfil `dev` agrega la semilla de prueba. Al arrancar, Flyway crea las tablas
 y carga los datos de ejemplo.
