@@ -1,0 +1,97 @@
+# =====================================================================
+# Configuracion base de Flux IA.
+#
+# Regla del proyecto: aqui no hay ni un secreto escrito. Todo valor
+# sensible se lee de una variable de entorno (sintaxis ${VAR}). Si la
+# variable falta, la aplicacion no arranca, que es lo que queremos:
+# es mejor fallar al inicio que correr con una clave por defecto.
+# Ver .env.example para la lista completa.
+# =====================================================================
+spring:
+  application:
+    name: flux-ia-backend
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+
+  jpa:
+    # El esquema lo manda Flyway. Hibernate solo verifica que las
+    # entidades coincidan con las tablas y aborta si no.
+    hibernate:
+      ddl-auto: validate
+    # Evita que las consultas perezosas se resuelvan dentro del
+    # controlador; obliga a cargar los datos en la capa de servicio.
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  jackson:
+    # Los nulos SI se serializan. En esta API un null es informacion:
+    # savingsRate null significa "no hubo ingresos, no se puede calcular",
+    # que no es lo mismo que 0 %. Omitir la clave obligaria al cliente a
+    # distinguir entre ausente y nulo, y haria el contrato ambiguo.
+    default-property-inclusion: always
+
+server:
+  port: ${PORT:8080}
+  error:
+    # Nunca devolver trazas internas al cliente.
+    include-message: never
+    include-stacktrace: never
+
+# --- Ajustes propios de la aplicacion -------------------------------
+flux:
+  # Zona con la que se delimitan los periodos de los reportes. Las
+  # fechas se guardan en UTC; esta zona define donde empieza un mes.
+  timezone: ${APP_TIMEZONE:America/Argentina/Buenos_Aires}
+
+  jwt:
+    secret: ${JWT_SECRET}
+    issuer: flux-ia
+    # Token de acceso corto: si se filtra, sirve poco tiempo.
+    access-token-ttl: PT15M
+    # Token de refresco largo, revocable desde la base de datos.
+    refresh-token-ttl: P30D
+
+  cors:
+    # Origenes del frontend. En produccion se pasa la URL real.
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+
+  ai:
+    enabled: ${AI_ENABLED:true}
+    # La clave de IA vive SOLO aqui, en el servidor. El frontend nunca
+    # la ve: le pega a POST /api/v1/ai/chat y el backend llama al modelo.
+    api-key: ${ANTHROPIC_API_KEY:}
+    model: claude-opus-5-5
+    # Tope de tokens de la respuesta. En Opus 5.5 el razonamiento del
+    # modelo tambien consume de este tope, asi que un valor muy bajo
+    # podria cortar la respuesta a medias.
+    max-tokens: 4096
+    # Nivel de esfuerzo: LOW alcanza para respuestas de chat y es el mas
+    # economico. En Opus 5.5 el valor por omision es MEDIUM, por eso se
+    # declara explicito.
+    effort: LOW
+    timeout: PT60S
+
+  password-reset:
+    token-ttl: PT30M
+
+springdoc:
+  swagger-ui:
+    path: /docs
+  api-docs:
+    path: /api-docs
+
+logging:
+  level:
+    com.fluxia.backend: INFO

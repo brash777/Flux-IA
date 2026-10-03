@@ -1,0 +1,26 @@
+# =====================================================================
+# Perfil de desarrollo. Se activa con:
+#   SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run
+#
+# Lo unico que cambia de fondo: Flyway suma classpath:db/dev, que es
+# donde vive la semilla con el usuario demo y los movimientos del
+# prototipo. En produccion esa carpeta no se carga nunca.
+# =====================================================================
+spring:
+  flyway:
+    locations: classpath:db/migration,classpath:db/dev
+    # Permite borrar y recrear la base con: ./mvnw flyway:clean
+    clean-disabled: false
+
+  jpa:
+    # Muestra el SQL que genera Hibernate, util para entender y
+    # defender las consultas de los reportes.
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+logging:
+  level:
+    com.fluxia.backend: DEBUG
+    org.springframework.security: DEBUG
