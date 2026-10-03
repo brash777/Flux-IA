@@ -52,6 +52,29 @@ public class JwtService {
             throw new IllegalStateException(
                     "Falta JWT_SECRET. Genera uno con: openssl rand -base64 48");
         }
+        /*
+         * Caso aparte, y el que mas confunde: si la variable no existe, el
+         * enlazado de @ConfigurationProperties NO falla. Deja el texto del
+         * marcador sin resolver, de modo que aqui llega la cadena literal
+         * "${JWT_SECRET}" (13 caracteres), y la comprobacion de longitud de
+         * mas abajo la denunciaria como una clave corta. Ese mensaje manda a
+         * regenerar la clave cuando el problema real es que no se cargo el
+         * archivo .env.
+         */
+        if (secret.startsWith("${") && secret.endsWith("}")) {
+            throw new IllegalStateException(
+                    "JWT_SECRET no se resolvio: llego el texto literal del marcador.\n\n"
+                            + "La variable no esta disponible al arrancar. Revisa:\n"
+                            + "  1. Que exista un archivo .env en la raiz del proyecto\n"
+                            + "     (se copia con: cp .env.example .env).\n"
+                            + "  2. Que tenga la linea JWT_SECRET= con un valor de al menos "
+                            + MIN_SECRET_BYTES + " bytes\n"
+                            + "     (se genera con: openssl rand -base64 48).\n"
+                            + "  3. Si exportaste la variable a mano en la terminal, que no haya\n"
+                            + "     quedado un valor viejo: editar el .env no actualiza una\n"
+                            + "     variable ya exportada en esa misma sesion.");
+        }
+
         byte[] bytes = secret.getBytes(StandardCharsets.UTF_8);
         if (bytes.length < MIN_SECRET_BYTES) {
             throw new IllegalStateException(

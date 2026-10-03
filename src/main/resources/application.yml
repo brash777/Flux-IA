@@ -8,6 +8,20 @@
 # Ver .env.example para la lista completa.
 # =====================================================================
 spring:
+  # Carga el .env del directorio del proyecto como si fuera un archivo de
+  # propiedades. Es el mecanismo nativo de Spring Boot (spring.config.import,
+  # desde la version 2.4): no hace falta ninguna dependencia extra ni ejecutar
+  # "source .env" antes de arrancar.
+  #
+  # "optional:" permite que el archivo no exista. En produccion no hay .env y
+  # las variables llegan del entorno del servidor; sin el prefijo, el arranque
+  # fallaria alli.
+  #
+  # Precedencia: una variable de entorno real gana sobre el .env. Asi el
+  # servidor de produccion no puede quedar configurado por un archivo olvidado.
+  config:
+    import: optional:file:./.env[.properties]
+
   application:
     name: flux-ia-backend
 
