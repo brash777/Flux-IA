@@ -16,6 +16,7 @@ docs/       arquitectura, auditoría del prototipo, prototipo y referencias/
 - El `.env` vive en `backend/.env`. `application.yml` lo carga con la ruta
   relativa `./.env`, así que el servidor tiene que arrancarse desde `backend/`;
   desde otra carpeta no lo encuentra y falla por falta de variables.
+- Las reglas de las secciones siguientes, hasta «Frontend», son del backend.
 
 ## Idioma
 
@@ -121,6 +122,92 @@ poder sustentarlo oralmente.
   null y no 0 %».
 - El SQL se valida levantando la aplicación contra PostgreSQL. `ddl-auto` en
   `validate` hace que el arranque falle si el esquema y las entidades difieren.
+
+## Frontend
+
+Vive en `frontend/`. Se abre con Live Server (puerto 5500) y se diseña para un
+celular de 390×844, *mobile-first*.
+
+### Sin frameworks ni paso de build
+
+HTML, CSS y JavaScript puros, con módulos ES nativos (`<script type="module">`).
+Lo que se edita es lo que corre: no hay `npm install` ni compilación que
+configurar para evaluar el proyecto. La única dependencia externa es GSAP con
+ScrollTrigger, cargado desde cdnjs.
+
+```
+frontend/
+├── index.html
+├── DESIGN.md         sistema de diseño: tokens, reglas y movimiento
+├── css/tokens.css    las variables de DESIGN.md, y nada más
+├── css/app.css       estilos de componentes y pantallas
+├── js/api.js         única capa que habla con el backend
+├── js/motion.js      toda la animación (GSAP)
+├── js/screens/       un archivo por pantalla
+└── assets/           imágenes e iconos propios o de uso libre
+```
+
+### Datos: el frontend muestra, no calcula
+
+- **Ninguna cifra escrita a mano.** Todo número que se ve sale de la API. El
+  frontend no suma, no resta ni calcula porcentajes: si una pantalla necesita un
+  total que la API no da, se agrega al backend. Es la regla de oro del proyecto
+  aplicada al cliente.
+- Las categorías traen `icon` y `color` del backend; se usan esos, no un mapa
+  propio en el frontend.
+- Los campos se leen de los `*Dtos.java` del backend, no se adivinan.
+- Los montos se formatean con `Intl.NumberFormat` en un único lugar. Formatear
+  es presentación; calcular no.
+
+### Una sola puerta al backend: `js/api.js`
+
+- Ninguna pantalla llama a `fetch` directamente.
+- `api.js` agrega el `Authorization: Bearer`, y ante un 401 llama **una vez** a
+  `/auth/refresh` y reintenta. Si el refresco falla, se borra la sesión y se
+  vuelve al login.
+- Los errores de la API ya vienen en español (`message`, y `fields` en las
+  validaciones): se muestran tal cual. Un error de red o inesperado muestra un
+  texto propio, nunca el detalle técnico.
+- El `accessToken` vive en memoria y el `refreshToken` en `localStorage`, para
+  que recargar la página no cierre la sesión.
+- La clave de la IA nunca está en el frontend: el chat llama a
+  `POST /api/v1/ai/chat`.
+
+### Pantallas
+
+- Un archivo por pantalla en `js/screens/`, que exporta cómo montarla y cómo
+  desmontarla. Al desmontar se liberan sus animaciones y escuchas.
+- Cada pantalla resuelve sus tres estados: **cargando, vacío y error** (con
+  opción de reintentar).
+- Áreas táctiles de **44×44 px como mínimo**. Contraste AA para texto.
+
+### Estilo
+
+- Todo color, tamaño, radio, sombra y duración sale de una variable de
+  `css/tokens.css`. Si falta un valor, se agrega a `DESIGN.md` y a los tokens;
+  no se escribe un valor suelto en `app.css`.
+- Se toma el estilo de `docs/referencias/`, nunca sus textos, logos, fotos ni
+  marca. La marca es **Flux IA**.
+
+### Movimiento
+
+- Toda animación vive en `js/motion.js`; las pantallas le piden efectos, no
+  llaman a GSAP.
+- Solo se animan `transform` y `opacity`, para que vaya fluido en un celular de
+  gama media.
+- El scroll ocurre dentro del contenedor de la pantalla, no en `window`: cada
+  ScrollTrigger recibe ese contenedor como `scroller`.
+- Al cambiar de pantalla se matan los ScrollTrigger de la anterior, y se llama a
+  `ScrollTrigger.refresh()` cuando llegan los datos.
+- Una cifra animada termina **exactamente** en el valor de la API.
+- Con `prefers-reduced-motion`: sin parallax ni conteos, solo fundidos.
+- El movimiento nunca retrasa leer un dato ni tocar un botón.
+
+### Código
+
+- Nombres en inglés; textos de la interfaz y comentarios en español.
+- `const` por omisión, funciones pequeñas, sin variables globales: cada archivo
+  es un módulo.
 
 ## Commits
 
