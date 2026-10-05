@@ -19,13 +19,21 @@ export function h(tag, attrs = {}, ...children) {
   for (const [name, value] of Object.entries(attrs ?? {})) {
     if (value === false || value === null || value === undefined) continue;
     if (name === 'class') node.className = value;
-    else if (name === 'style' && typeof value === 'object') Object.assign(node.style, value);
+    else if (name === 'style' && typeof value === 'object') setStyles(node, value);
     else if (name.startsWith('on') && typeof value === 'function') node.addEventListener(name.slice(2), value);
     else if (name === 'dataset') Object.assign(node.dataset, value);
     else node.setAttribute(name, value === true ? '' : value);
   }
   append(node, children);
   return node;
+}
+
+/* Las variables CSS (--algo) solo se pueden poner con setProperty. */
+function setStyles(node, styles) {
+  for (const [property, value] of Object.entries(styles)) {
+    if (property.startsWith('--')) node.style.setProperty(property, value);
+    else node.style[property] = value;
+  }
 }
 
 function append(node, children) {
