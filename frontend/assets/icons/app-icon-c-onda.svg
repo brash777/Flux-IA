@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!--
+    Ícono de Flux IA · Opción C «Onda».
+    Una lente de vidrio (la moneda) atravesada por una onda de flujo que
+    sale del círculo: el movimiento del dinero.
+    Lienzo completo de 512; el dibujo cabe en el círculo seguro
+    «maskable» (radio 205 desde el centro).
+  -->
+  <defs>
+    <radialGradient id="c-bg" cx="30%" cy="20%" r="95%">
+      <stop offset="0" stop-color="#A274FF"/>
+      <stop offset="0.45" stop-color="#6326D6"/>
+      <stop offset="1" stop-color="#1B0B45"/>
+    </radialGradient>
+    <radialGradient id="c-shine" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.2"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="c-lens" cx="32%" cy="26%" r="80%">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.42"/>
+      <stop offset="0.6" stop-color="#E6DAFF" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.06"/>
+    </radialGradient>
+    <linearGradient id="c-ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.95"/>
+      <stop offset="0.55" stop-color="#FFFFFF" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.55"/>
+    </linearGradient>
+    <linearGradient id="c-ink" gradientUnits="userSpaceOnUse" x1="112" y1="200" x2="400" y2="300">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#C9AEFF"/>
+    </linearGradient>
+    <filter id="c-soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="12"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" fill="url(#c-bg)"/>
+  <ellipse cx="170" cy="100" rx="240" ry="150" fill="url(#c-shine)"/>
+  <circle cx="256" cy="268" r="118" fill="#140833" fill-opacity="0.4" filter="url(#c-soft)"/>
+  <circle cx="256" cy="256" r="118" fill="url(#c-lens)" stroke="url(#c-ring)" stroke-width="6"/>
+  <path d="M116 292c50-70 96 46 140-20s92-70 140-30" fill="none" stroke="#140833" stroke-opacity="0.45"
+        stroke-width="30" stroke-linecap="round" filter="url(#c-soft)" transform="translate(0 12)"/>
+  <path d="M116 292c50-70 96 46 140-20s92-70 140-30" fill="none" stroke="url(#c-ink)"
+        stroke-width="30" stroke-linecap="round"/>
+</svg>
