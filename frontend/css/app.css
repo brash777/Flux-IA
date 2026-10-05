@@ -58,6 +58,12 @@ button {
   outline-offset: 3px;
 }
 
+/* Los títulos reciben el foco al cambiar de pantalla (para lectores de
+   pantalla), pero no son controles: no muestran el anillo. */
+[tabindex="-1"]:focus {
+  outline: none;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -243,7 +249,9 @@ button {
 /* Borde con brillo. Un borde normal no admite degradado con esquinas
    redondeadas; la máscara deja visible solo el anillo de 1 px. */
 .glass::before,
-.balance-card::before {
+.balance-card::before,
+.hero-card::before,
+.art-card::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -892,6 +900,580 @@ button {
 
 .skeleton--line + .skeleton--line {
   margin-top: var(--space-2);
+}
+
+/* --- Armazón de la app --------------------------------------------- */
+
+/* La página nunca se desplaza: cada pantalla tiene su propio scroll. */
+body.device-host {
+  overflow: hidden;
+}
+
+.outlet {
+  position: absolute;
+  inset: 0;
+}
+
+/* Cada pantalla vive en su propia vista, así dos pueden convivir durante
+   la transición. container-type permite medir en cqh el alto real de la
+   pantalla, que en el computador es el del marco y no el de la ventana. */
+.view {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  container-type: size;
+}
+
+.screen--bare {
+  padding: 0;
+}
+
+/* --- Apertura ------------------------------------------------------- */
+
+.launch {
+  position: absolute;
+  z-index: 50;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.launch__bg {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-outside);
+}
+
+.launch__tile {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  margin: calc(var(--icon-size) / -2) 0 0 calc(var(--icon-size) / -2);
+  border-radius: var(--icon-radius);
+  background: var(--icon-tile);
+  box-shadow: 0 20px 50px -10px rgb(130 70 245 / 0.6);
+  will-change: transform;
+}
+
+.launch__card {
+  position: absolute;
+  will-change: transform;
+}
+
+/* --- Tarjetas decorativas (ícono y bienvenida) ---------------------- */
+
+/* Esquinas en porcentaje: la misma proporción que en el ícono (32 de
+   radio sobre 244×156), así coinciden durante la apertura. */
+.hero-card {
+  --tilt: 0deg;
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  height: 100%;
+  border-radius: 13.1% / 20.5%;
+  transform: rotate(var(--tilt));
+  box-shadow: var(--shadow-card);
+}
+
+.hero-card--back {
+  --tilt: -12deg;
+  background: var(--card-glass-back);
+}
+
+.hero-card--front {
+  --tilt: -5deg;
+  background: var(--card-glass-front);
+}
+
+.hero-card__art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: var(--card-ink);
+  stroke-linecap: round;
+}
+
+/* La marca es un logotipo: no tiene exigencia de contraste, pero la
+   sombra la separa del fondo cuando pasa una esfera por detrás. */
+.hero-card__mark {
+  position: absolute;
+  top: 13%;
+  right: 9%;
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  color: var(--card-ink);
+  text-shadow: 0 1px 10px rgb(30 10 80 / 0.5);
+}
+
+/* --- Bienvenida ----------------------------------------------------- */
+
+.welcome-section {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100cqh;
+  padding:
+    var(--space-14)
+    calc(var(--safe-right) + var(--gutter))
+    var(--space-14)
+    calc(var(--safe-left) + var(--gutter));
+}
+
+.welcome-hero {
+  justify-content: flex-start;
+  padding-top: calc(var(--safe-top) + var(--space-6));
+  padding-bottom: calc(var(--safe-bottom) + 112px);
+}
+
+.welcome-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-bold);
+  color: var(--text-strong);
+}
+
+.welcome-brand img {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--icon-radius);
+}
+
+.welcome-title {
+  margin-top: var(--space-8);
+}
+
+.welcome-lead,
+.welcome-copy {
+  max-width: 34ch;
+  margin: var(--space-4) 0 0;
+  color: var(--text-muted);
+}
+
+/* Titular por líneas: el contenedor recorta y la línea sube desde abajo.
+   El margen negativo compensa el relleno que evita cortar los rasgos
+   descendentes (la «p», la «g»). */
+.line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}
+
+.line > span {
+  display: inline-block;
+}
+
+/* Las tarjetas ocupan el espacio que queda bajo el texto. */
+.welcome-cards {
+  position: relative;
+  flex: 1;
+  min-height: 250px;
+  margin-top: var(--space-6);
+}
+
+.hero-card-wrap {
+  position: absolute;
+  width: min(290px, 74cqw);
+  aspect-ratio: 244 / 156;
+}
+
+.hero-card-wrap--back {
+  top: 0;
+  right: 0;
+}
+
+.hero-card-wrap--front {
+  top: 88px;
+  left: 0;
+}
+
+/* Las esferas quedan detrás de las tarjetas y lejos del texto: sobre una
+   esfera desnuda, el texto secundario no llega a 4,5:1. */
+.welcome-orb-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.welcome-feature {
+  gap: var(--space-8);
+}
+
+.welcome-feature .eyebrow {
+  margin-bottom: var(--space-3);
+  color: var(--flux-300);
+}
+
+.welcome-art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 250px;
+}
+
+/* Ilustración: vidrio sin desenfoque, porque crece y se mueve con el
+   scroll. No lleva cifras ni datos: solo formas. */
+.art-card {
+  position: relative;
+  isolation: isolate;
+  z-index: 1;
+  width: 100%;
+  max-width: 320px;
+  padding: var(--space-4);
+  border-radius: var(--r-lg);
+  background: var(--glass-sheen), var(--glass-solid);
+  box-shadow: var(--shadow-glass);
+}
+
+.art-row {
+  display: grid;
+  grid-template-columns: 40px 1fr 56px;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+}
+
+.art-row + .art-row {
+  border-top: 1px solid var(--line);
+}
+
+.art-chip {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  color: var(--flux-900);
+}
+
+.art-chip--income {
+  background: var(--income);
+}
+
+.art-chip--expense {
+  background: var(--expense);
+}
+
+.art-chip--brand {
+  background: var(--flux-300);
+}
+
+.art-line {
+  display: block;
+  height: 10px;
+  border-radius: 5px;
+  background: rgb(255 255 255 / 0.24);
+}
+
+.art-line--short {
+  width: 55%;
+  margin-top: 6px;
+  background: rgb(255 255 255 / 0.12);
+}
+
+.art-line--income {
+  background: var(--income);
+}
+
+.art-fab {
+  position: absolute;
+  right: -8px;
+  bottom: -20px;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--r-full);
+  background: radial-gradient(circle at 34% 28%, var(--flux-50), var(--flux-200) 62%);
+  color: var(--text-on-accent);
+  box-shadow: var(--shadow-button);
+}
+
+.art-report {
+  display: grid;
+  grid-template-columns: 112px 1fr;
+  align-items: end;
+  gap: var(--space-5);
+}
+
+.art-donut {
+  width: 112px;
+  height: 112px;
+  fill: none;
+  stroke-width: 16;
+}
+
+.art-donut .seg-1 { stroke: var(--flux-300); }
+.art-donut .seg-2 { stroke: var(--chart-income); }
+.art-donut .seg-3 { stroke: var(--chart-expense); }
+.art-donut .seg-4 { stroke: var(--flux-500); }
+
+.art-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  height: 112px;
+}
+
+.art-bar {
+  flex: 1;
+  border-radius: 4px 4px 0 0;
+  background: var(--flux-400);
+  transform-origin: bottom;
+}
+
+.art-bar--current {
+  background: var(--flux-200);
+}
+
+.art-chat {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 320px;
+}
+
+.art-bubble {
+  max-width: 85%;
+  padding: var(--space-3) var(--space-4);
+  border-radius: 20px;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+}
+
+.art-bubble--user {
+  justify-self: end;
+  border-bottom-right-radius: 6px;
+  background: linear-gradient(180deg, var(--flux-100), var(--flux-200));
+  color: var(--text-on-accent);
+}
+
+.art-bubble--ai {
+  justify-self: start;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  border-bottom-left-radius: 6px;
+  background: var(--glass-sheen), var(--glass-solid);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
+}
+
+.art-bubble--ai img {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: var(--icon-radius);
+}
+
+.art-answer {
+  display: grid;
+  gap: 6px;
+  width: 150px;
+}
+
+.typing {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 20px;
+}
+
+.typing > span {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--r-full);
+  background: var(--text-muted);
+}
+
+/* Cierre: una tarjeta violeta que crece hasta llenar la pantalla. La
+   etapa queda fija con position: sticky mientras dura la sección. */
+.welcome-final {
+  position: relative;
+  height: 220cqh;
+}
+
+.welcome-final__stage {
+  position: sticky;
+  top: 0;
+  display: grid;
+  place-items: center;
+  height: 100cqh;
+  overflow: hidden;
+}
+
+/* Sin backdrop-filter: es la que más crece, y es opaca. */
+.welcome-final__card {
+  position: relative;
+  width: min(290px, 74cqw);
+  aspect-ratio: 244 / 156;
+  overflow: hidden;
+  border-radius: 13.1% / 20.5%;
+  background:
+    radial-gradient(circle at 112% -18%,
+      transparent 44%, rgb(255 255 255 / 0.12) 44.6%, transparent 46%),
+    var(--hero-sheen),
+    var(--hero-solid);
+  box-shadow: var(--shadow-hero);
+  will-change: transform;
+}
+
+/* El texto no va dentro de la tarjeta que crece: se agrandaría con ella. */
+.welcome-final__content {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: var(--space-4);
+  padding:
+    0 calc(var(--safe-right) + var(--gutter))
+    calc(var(--safe-bottom) + 112px)
+    calc(var(--safe-left) + var(--gutter));
+  text-align: center;
+}
+
+.welcome-final__content p {
+  max-width: 28ch;
+  margin: 0;
+  color: var(--text-on-hero);
+}
+
+/* Barra fija: progreso y «Empezar», siempre a mano. */
+.welcome-bar {
+  position: absolute;
+  z-index: 5;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding:
+    var(--space-10)
+    calc(var(--safe-right) + var(--gutter))
+    calc(var(--safe-bottom) + var(--space-5))
+    calc(var(--safe-left) + var(--gutter));
+  background: var(--scrim-bottom);
+  pointer-events: none;
+}
+
+.welcome-bar > * {
+  pointer-events: auto;
+}
+
+.welcome-dots {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.welcome-dots > span {
+  display: block;
+  width: 22px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--text-strong);
+  opacity: 0.4;
+  transform: scaleX(0.4);
+  transform-origin: left center;
+}
+
+.welcome-dots > span:first-child {
+  opacity: 1;
+  transform: none;
+}
+
+.welcome-start {
+  min-width: 152px;
+}
+
+/* Versión estática (movimiento reducido): todo en una pantalla. */
+.welcome-static {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding:
+    calc(var(--safe-top) + var(--space-6))
+    calc(var(--safe-right) + var(--gutter))
+    calc(var(--safe-bottom) + 112px)
+    calc(var(--safe-left) + var(--gutter));
+}
+
+.welcome-static .welcome-title {
+  margin-top: var(--space-2);
+}
+
+/* Alto justo para las dos tarjetas: 56 px de desfase más el alto de una
+   tarjeta de 190 de ancho (190 × 156 / 244 ≈ 122). */
+.welcome-static .welcome-cards {
+  flex: none;
+  height: 180px;
+  min-height: 0;
+  margin-top: 0;
+}
+
+.welcome-static .hero-card-wrap {
+  width: 190px;
+}
+
+.welcome-static .hero-card-wrap--front {
+  top: 56px;
+}
+
+/* En pantallas bajas las tarjetas, que son solo adorno, ceden su lugar
+   para que todo siga entrando en una pantalla sin desplazar. */
+@container (max-height: 800px) {
+  .welcome-static .welcome-cards {
+    display: none;
+  }
+}
+
+.feature-list {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.feature-list li {
+  display: grid;
+  grid-template-columns: var(--touch) 1fr;
+  align-items: start;
+  gap: var(--space-3);
+}
+
+.feature-list__icon {
+  display: grid;
+  place-items: center;
+  width: var(--touch);
+  height: var(--touch);
+  border-radius: 14px;
+  background: rgb(214 197 255 / 0.14);
+  box-shadow: inset 0 0 0 1px rgb(214 197 255 / 0.28);
+  color: var(--flux-200);
+}
+
+.feature-list strong {
+  display: block;
+  color: var(--text-strong);
+}
+
+.feature-list span {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
 }
 
 /* --- Movimiento reducido ------------------------------------------- */
