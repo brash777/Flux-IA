@@ -7,7 +7,7 @@
 import * as api from '../api.js';
 import { DEFAULT_CURRENCY } from '../config.js';
 import { h, icon, render } from '../dom.js';
-import { changePercent, currentMonthName, lengthClass, money, percent } from '../format.js';
+import { changePercent, currentMonthName, lengthClass, money, netMoney, percent } from '../format.js';
 import * as motion from '../motion.js';
 import { errorCard, skeletonBlock, skeletonList, stateCard, transactionRow } from '../ui.js';
 import { openMovementForm } from './movement-form.js';
@@ -78,9 +78,7 @@ export function mount(view, { navigate }) {
       rate ? null : h('p', { class: 'flow__label', style: { margin: 'var(--space-2) 0 0' } }, 'Sin ingresos este mes, no se puede calcular.'));
 
     const change = changePercent(summary.comparison?.expenseChangePercent);
-    // El neto puede ser negativo: el signo sale del valor de la API.
-    const net = h('span', { class: 'stat__value money' },
-      `${Number(summary.net) < 0 ? '−' : '+'}${fmt(summary.net)}`);
+    const net = h('span', { class: 'stat__value money' }, netMoney(summary.net, currency));
     const stats = h('div', { class: 'stat-grid' },
       h('div', { class: 'glass glass--strong card stat' },
         h('span', { class: 'stat__label' }, 'Neto del mes'), net,
