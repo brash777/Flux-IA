@@ -136,6 +136,16 @@
   --scrim-bottom: linear-gradient(to top,
       rgb(10 6 20 / 0.94) 45%, rgb(10 6 20 / 0) 100%);
 
+  /* Fondo detrás de una hoja inferior: oscurece sin desenfocar (no hace
+     falta otra capa de blur para separar). */
+  --sheet-backdrop: rgb(5 3 11 / 0.62);
+
+  /* Orden de capas: barra < hojas < avisos < apertura. */
+  --z-nav: 10;
+  --z-floating: 6;
+  --z-sheet: 30;
+  --z-toast: 45;
+
   /* --- Líneas ------------------------------------------------------ */
   --line: rgb(255 255 255 / 0.10);
   --field-border: #8F7CC8;          /* 3,2:1 peor caso (mínimo 3:1, no es texto) */

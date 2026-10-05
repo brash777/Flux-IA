@@ -390,3 +390,171 @@ function dotsScene(sections, dots, scroller) {
     });
   });
 }
+
+/* --- Piezas de las pantallas de la app ----------------------------- */
+
+/**
+ * Ámbito de animación de una pantalla: lo que se crea con él se deshace
+ * junto al salir (animaciones y disparadores de scroll). Sin GSAP, cada
+ * efecto deja el contenido en su estado final.
+ */
+export function scope(root) {
+  const ctx = ready ? gsap.context(() => {}, root) : null;
+  const run = (fn) => (ctx ? ctx.add(fn) : undefined);
+  return {
+    /** Elementos que entran escalonados (tarjetas, filas nuevas). */
+    stagger(elements) {
+      const list = [...elements];
+      if (!list.length || !ready) return;
+      run(() => {
+        if (!animates()) {
+          gsap.fromTo(list, { opacity: 0 }, { opacity: 1, duration: DUR.fast, ease: 'none', clearProps: 'opacity' });
+          return;
+        }
+        // El escalonado total no pasa del tope, por larga que sea la lista.
+        const each = Math.min(0.05, 0.4 / list.length);
+        gsap.fromTo(list, { opacity: 0, y: RISE }, {
+          opacity: 1, y: 0, duration: DUR.base, ease: EASE.out, stagger: each, clearProps: 'transform,opacity',
+        });
+      });
+    },
+
+    /**
+     * Cuenta de 0 al valor de la API. El texto final es exactamente el que
+     * da `format(value)`: el conteo es solo visual y al terminar se
+     * reemplaza por la cadena exacta.
+     */
+    countUp(element, value, format) {
+      const finalText = format(value);
+      if (!animates()) {
+        element.textContent = finalText;
+        return;
+      }
+      run(() => {
+        const state = { n: 0 };
+        const target = Number(value);
+        element.textContent = format(0);
+        gsap.to(state, {
+          n: target,
+          duration: token('--dur-count', 900) / 1000,
+          ease: 'power2.out',
+          onUpdate: () => { element.textContent = format(state.n); },
+          onComplete: () => { element.textContent = finalText; },
+        });
+      });
+    },
+
+    /**
+     * Tarjeta compacta fija: aparece cuando la grande sale por arriba.
+     * Tiene desenfoque, así que solo se anima su opacidad (DESIGN.md).
+     */
+    sticky(scroller, big, compact) {
+      if (!ready) return () => {};
+      let trigger;
+      run(() => {
+        gsap.set(compact, { autoAlpha: 0 });
+        trigger = ScrollTrigger.create({
+          trigger: big,
+          scroller,
+          start: 'center top+=60',
+          onEnter: () => gsap.to(compact, { autoAlpha: 1, duration: DUR.fast, ease: 'none', overwrite: true }),
+          onLeaveBack: () => gsap.to(compact, { autoAlpha: 0, duration: DUR.fast, ease: 'none', overwrite: true }),
+        });
+      });
+      // Al recargar los datos la tarjeta grande se reemplaza: quien llama
+      // apaga este disparador antes de crear el nuevo.
+      return () => trigger?.kill();
+    },
+
+    /**
+     * Gráficos al entrar en pantalla: la dona se traza con
+     * stroke-dashoffset y las barras crecen desde la base (excepción de
+     * los gráficos, DESIGN.md sección 12).
+     */
+    charts(scroller, trigger, { segments = [], bars = [] }) {
+      if (!animates()) return;
+      run(() => {
+        segments.forEach((segment) => gsap.set(segment, { strokeDashoffset: segment.dataset.length }));
+        if (bars.length) gsap.set(bars, { scaleY: 0, transformOrigin: '50% 100%' });
+        const play = () => {
+          if (segments.length) gsap.to(segments, { strokeDashoffset: 0, duration: DUR.slow, ease: EASE.out, stagger: 0.1 });
+          if (bars.length) gsap.to(bars, { scaleY: 1, duration: DUR.slow, ease: EASE.out, stagger: 0.03 });
+        };
+        ScrollTrigger.create({ trigger, scroller, start: 'top 90%', once: true, onEnter: play });
+      });
+    },
+
+    /** Burbuja de chat: entra con un rebote corto. */
+    bubble(element) {
+      if (!ready) return;
+      run(() => {
+        if (!animates()) {
+          gsap.fromTo(element, { opacity: 0 }, { opacity: 1, duration: DUR.fast, ease: 'none' });
+          return;
+        }
+        gsap.fromTo(element, { opacity: 0, y: 8, scale: 0.92 }, {
+          opacity: 1, y: 0, scale: 1, duration: DUR.slow, ease: EASE.back, transformOrigin: element.dataset.origin ?? '50% 100%',
+        });
+      });
+    },
+
+    /** «Escribiendo…»: tres puntos que suben y bajan. Devuelve cómo pararlo. */
+    typing(dots) {
+      if (!animates()) return () => {};
+      let tween;
+      run(() => {
+        tween = gsap.to(dots, { y: -4, duration: 0.3, ease: 'sine.inOut', yoyo: true, repeat: -1, stagger: 0.12 });
+      });
+      return () => tween?.kill();
+    },
+
+    revert() {
+      ctx?.revert();
+    },
+  };
+}
+
+/* --- Piezas globales: hoja inferior y avisos ----------------------- */
+
+export function openSheet(backdrop, sheet) {
+  if (!ready) return Promise.resolve();
+  if (!animates()) {
+    return gsap.fromTo([backdrop, sheet], { opacity: 0 }, { opacity: 1, duration: DUR.fast, ease: 'none' }).then();
+  }
+  gsap.fromTo(backdrop, { opacity: 0 }, { opacity: 1, duration: DUR.base, ease: 'none' });
+  return gsap.fromTo(sheet, { yPercent: 100 }, { yPercent: 0, duration: DUR.base + 0.06, ease: EASE.out }).then();
+}
+
+export function closeSheet(backdrop, sheet) {
+  if (!ready) return Promise.resolve();
+  if (!animates()) {
+    return gsap.to([backdrop, sheet], { opacity: 0, duration: DUR.fast, ease: 'none' }).then();
+  }
+  gsap.to(backdrop, { opacity: 0, duration: DUR.fast, ease: 'none' });
+  return gsap.to(sheet, { yPercent: 100, duration: DUR.fast + 0.04, ease: 'power2.in' }).then();
+}
+
+export function toast(element, visibleFor = 2600) {
+  if (!ready) {
+    setTimeout(() => element.remove(), visibleFor);
+    return;
+  }
+  const reduced = !animates();
+  gsap.timeline({ onComplete: () => element.remove() })
+    .fromTo(element, { opacity: 0, y: reduced ? 0 : 12 }, { opacity: 1, y: 0, duration: DUR.base, ease: EASE.out })
+    .to(element, { opacity: 0, y: reduced ? 0 : 8, duration: DUR.fast, ease: 'power1.in' }, `+=${visibleFor / 1000}`);
+}
+
+export function showNav(nav, visible) {
+  if (!ready) {
+    nav.hidden = !visible;
+    return;
+  }
+  if (visible !== nav.hidden) return; // ya está como se pide
+  if (visible) {
+    nav.hidden = false;
+    gsap.fromTo(nav, { opacity: 0, y: animates() ? 16 : 0 }, { opacity: 1, y: 0, duration: DUR.base, ease: EASE.out, clearProps: 'transform' });
+  } else {
+    gsap.to(nav, { opacity: 0, duration: DUR.fast, ease: 'none', onComplete: () => { nav.hidden = true; } });
+  }
+}

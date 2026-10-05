@@ -40,6 +40,15 @@
 <body class="device-host">
   <div class="device" id="device">
     <div class="outlet" id="outlet"></div>
+    <!-- Barra inferior: una sola para toda la app, así no se mueve al
+         cambiar de pestaña. La muestra main.js en las pantallas con sesión. -->
+    <nav class="nav-bar glass glass--strong" id="nav" aria-label="Secciones" hidden>
+      <a class="nav-bar__item" href="#/inicio" data-tab="inicio"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-home"/></svg>Inicio</a>
+      <a class="nav-bar__item" href="#/movimientos" data-tab="movimientos"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-swap"/></svg>Movimientos</a>
+      <a class="nav-bar__item" href="#/reportes" data-tab="reportes"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-chart"/></svg>Reportes</a>
+      <a class="nav-bar__item" href="#/chat" data-tab="chat"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-chat"/></svg>Chat</a>
+      <a class="nav-bar__item" href="#/perfil" data-tab="perfil"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-user"/></svg>Perfil</a>
+    </nav>
   </div>
   <noscript>
     <p style="padding: 24px; color: #EDE7FB">Flux IA necesita JavaScript para funcionar.</p>
