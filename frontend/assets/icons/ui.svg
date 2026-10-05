@@ -3,8 +3,13 @@
     Íconos de interfaz de Flux IA, dibujados para el proyecto.
     Grilla de 24, trazo 1,75, puntas redondeadas. El color y el grosor
     los pone la clase .icon (hereda currentColor), así que aquí no hay
-    ningún color fijo.
-    Uso: <svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-home"/></svg>
+    ningún color fijo. Se usan con un use que apunta a ui.svg#i-nombre
+    (ejemplo en DESIGN.md, sección 11).
+
+    Ojo: en este archivo no se escribe la etiqueta de cierre del SVG en
+    ningún comentario. Live Server inyecta su script antes de la primera
+    que encuentra; si está dentro de un comentario, el XML queda roto y
+    desaparecen todos los íconos.
   -->
   <symbol id="i-home" viewBox="0 0 24 24">
     <path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/>
