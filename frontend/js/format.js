@@ -27,9 +27,16 @@ export function money(amount, currency = DEFAULT_CURRENCY) {
   return moneyFormat(currency).format(Math.abs(Number(amount)));
 }
 
-/** «+$ 43.000,00» o «−$ 5.800,00», según el tipo del movimiento. */
+/** «+$ 43.000,00» o «−$ 5.800,00», según el tipo del movimiento. Cero no
+    lleva signo. */
 export function signedMoney(amount, type, currency = DEFAULT_CURRENCY) {
+  if (Number(amount) === 0) return money(0, currency);
   return `${type === 'INCOME' ? '+' : MINUS}${money(amount, currency)}`;
+}
+
+/** Un neto de la API: el signo sale de su propio valor. */
+export function netMoney(value, currency = DEFAULT_CURRENCY) {
+  return signedMoney(value, Number(value) < 0 ? 'EXPENSE' : 'INCOME', currency);
 }
 
 const percentFormat = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
