@@ -1,24 +1,14 @@
-# Flux IA
+# Flux IA — Backend
 
-Aplicación de finanzas personales con asistente de IA. Este repositorio reúne
-las dos partes del proyecto:
+API REST de Flux IA: autenticación, movimientos, reportes calculados y chat
+con IA. Es independiente de cualquier cliente: la consume la app móvil de
+[`../frontend/`](../frontend/) y podría consumirla igual una app de
+escritorio.
 
-| Carpeta | Qué contiene |
-|---|---|
-| [`backend/`](backend/) | API REST en Spring Boot. Toda cifra se calcula acá. |
-| [`frontend/`](frontend/) | App móvil en HTML, CSS y JavaScript puros, sin paso de build. |
-| [`docs/`](docs/) | Arquitectura, auditoría del prototipo y referencias de diseño. |
+Volver al [README del proyecto](../README.md).
 
-El backend es independiente de cualquier cliente: lo consumen por igual la app
-móvil, la de escritorio y la del smartwatch. No contiene nada específico de
-ninguna de ellas.
-
-**Estado:** backend funcional y verificado contra PostgreSQL (autenticación
-real, transacciones, reportes calculados y chat con IA). Frontend en
-construcción.
-
-> Todos los comandos de Maven de este documento se ejecutan **desde
-> `backend/`**. Ahí vive el `pom.xml` y ahí busca el servidor su `.env`.
+> Todos los comandos de este documento se ejecutan **desde `backend/`**. Ahí
+> vive el `pom.xml` y ahí busca el servidor su `.env`.
 
 ---
 
@@ -39,7 +29,7 @@ procesamiento de anotaciones que configurar en el IDE.
 
 ---
 
-## Puesta en marcha del backend
+## Puesta en marcha
 
 ### 1. Instalar un JDK 21
 
@@ -75,14 +65,20 @@ docker run -d --name fluxia-db -p 5432:5432 \
 #    Project Settings → Database → Connection string → JDBC
 ```
 
+> **Supabase y redes sin IPv6.** La conexión directa de Supabase
+> (`db.<ref>.supabase.co`) solo tiene dirección IPv6. En una red sin IPv6
+> (muchas universidades y oficinas) el servidor no arranca y el log dice
+> `No route to host`. En ese caso hay que usar el *pooler* de Supabase, que
+> sí tiene IPv4: el host exacto está en Project Settings → Database →
+> Connection pooling → Session mode. Detalle en `.env.example`.
+
 ### 3. Configurar las variables de entorno
 
 ```bash
-cd backend
 cp .env.example .env
 ```
 
-Después editá `backend/.env`:
+Después editá `.env`:
 
 ```bash
 DB_URL=jdbc:postgresql://localhost:5432/fluxia
@@ -96,7 +92,13 @@ JWT_SECRET=<pegá acá el resultado>
 # Opcional: sin clave de IA, poné AI_ENABLED=false y todo lo demás funciona.
 ANTHROPIC_API_KEY=
 AI_ENABLED=false
+
+# Orígenes del frontend. Live Server usa el 5500.
+CORS_ALLOWED_ORIGINS=http://localhost:5500,http://127.0.0.1:5500
 ```
+
+Con `AI_ENABLED=true` y sin `ANTHROPIC_API_KEY`, el servidor **no arranca** a
+propósito: es mejor fallar al inicio que tener un chat roto.
 
 `.env` está en `.gitignore` y nunca se sube al repositorio.
 
@@ -152,17 +154,6 @@ TOKEN=<accessToken>
 curl -s -H "Authorization: Bearer $TOKEN" \
   'http://localhost:8080/api/v1/reports/summary?period=MONTH'
 ```
-
----
-
-## Puesta en marcha del frontend
-
-No hay nada que instalar ni compilar. Con el backend corriendo, abrir
-`frontend/index.html` con la extensión Live Server de VS Code, que lo sirve en
-`http://localhost:5500` o `http://127.0.0.1:5500`.
-
-Esos dos orígenes tienen que estar en `CORS_ALLOWED_ORIGINS` del
-`backend/.env`; si no, el navegador bloquea las llamadas a la API.
 
 ---
 
@@ -229,7 +220,7 @@ Las cinco que conviene poder sustentar:
 IA— sale de un `SUM()` sobre la tabla `transactions`. No hay totales guardados
 aparte, así que dos pantallas no pueden discrepar. El prototipo mostraba cuatro
 cifras distintas para lo mismo; está documentado en
-[docs/auditoria-prototipo.md](docs/auditoria-prototipo.md).
+[docs/auditoria-prototipo.md](../docs/auditoria-prototipo.md).
 
 **2. Montos siempre positivos, sentido en `type`.** En lugar de guardar `-2450`,
 se guarda `2450` con `type = EXPENSE`. El saldo es
@@ -249,28 +240,11 @@ token, nunca de un parámetro. Buscar un recurso ajeno devuelve 404 y no 403: un
 el que arma el contexto a partir de los datos del usuario. Si la clave estuviera
 en el frontend, cualquiera podría extraerla del código descargado.
 
-Más detalle en [docs/arquitectura.md](docs/arquitectura.md).
+Más detalle en [docs/arquitectura.md](../docs/arquitectura.md).
 
 ---
 
 ## Estructura
-
-```
-backend/
-├── pom.xml, mvnw, mvnw.cmd, .mvn/
-├── .env.example   plantilla de variables (el .env real va acá, sin subir)
-└── src/
-
-frontend/          app móvil (HTML, CSS y JS puros)
-
-docs/
-├── arquitectura.md
-├── auditoria-prototipo.md
-├── prototipo-movil.html   prototipo original, referencia de flujo
-└── referencias/           imágenes de referencia de diseño
-```
-
-Dentro del backend:
 
 ```
 backend/src/main/java/com/fluxia/backend/
@@ -299,7 +273,6 @@ cuatro carpetas distintas.
 ## Pruebas
 
 ```bash
-cd backend
 ./mvnw test
 ```
 
@@ -315,4 +288,4 @@ entidades y las tablas no coinciden.
 
 ## Convenciones
 
-Están en [CLAUDE.md](CLAUDE.md).
+Están en [CLAUDE.md](../CLAUDE.md).
