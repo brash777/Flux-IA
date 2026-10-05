@@ -282,6 +282,15 @@ Receta de `.glass`:
   `--hero-solid`. La clase `.glass--solid` fuerza lo mismo si un dispositivo
   no da abasto.
 
+### Tarjetas decorativas
+
+Las dos tarjetas del ícono B, que en la apertura crecen y quedan en la
+bienvenida. Como se mueven con el scroll, **no llevan `backdrop-filter`**: su
+relleno (`--card-glass-back`, `--card-glass-front`) es lo bastante denso para
+parecer vidrio sin desenfoque. Mismo borde con brillo y sombra
+`--shadow-card`. Solo llevan dibujo (una barra y una onda en `--card-ink`) y la
+marca, que como logotipo no tiene exigencia de contraste. Nunca llevan cifras.
+
 ---
 
 ## 8. Tarjeta de saldo
@@ -366,6 +375,9 @@ texto.
 
 ### Dona: gasto por categoría
 
+Al entrar en pantalla, cada porción se traza con `stroke-dashoffset`, una tras
+otra (excepción de los gráficos, sección 12).
+
 - Datos de `/reports/by-category`: cada porción trae `name`, `icon`, `color`,
   `amount` y `percent`. **Los porcentajes vienen de la API**; el frontend no
   los calcula.
@@ -380,6 +392,9 @@ texto.
 - Tocar una porción resalta su fila en la lista, y al revés.
 
 ### Barras: tendencia mensual
+
+Al entrar en pantalla, las barras crecen desde la base, escalonadas
+(excepción de los gráficos, sección 12).
 
 - Datos de `/reports/monthly-trend`: ingresos y gastos por mes.
 - Colores `--chart-income` `#25AD7C` y `--chart-expense` `#BF4D8C`. **No** son
@@ -428,8 +443,17 @@ del ícono de la referencia y un dibujo propio:
 | Opción | Dibujo | Lectura |
 |---|---|---|
 | A · Flujo | Una F hecha de dos cintas onduladas | El dinero que fluye; la más tipográfica. |
-| **B · Tarjetas de vidrio** (recomendada) | Dos tarjetas de vidrio inclinadas con una onda | Repite las tarjetas de la bienvenida: en la apertura, el ícono se convierte en la pantalla. |
+| **B · Tarjetas de vidrio** (elegida) | Dos tarjetas de vidrio inclinadas con una onda | Repite las tarjetas de la bienvenida: en la apertura, el ícono se convierte en la pantalla. |
 | C · Onda | Una lente de vidrio atravesada por una onda | La más abstracta. |
+
+**Elegida: B.** Archivos generados a partir de `app-icon-b-tarjetas.svg`:
+
+| Archivo | Tamaño | Uso |
+|---|---|---|
+| `icon-192.png`, `icon-512.png` | 192, 512 | `purpose: any`, con esquinas redondeadas y fondo transparente. |
+| `icon-maskable-192.png`, `icon-maskable-512.png` | 192, 512 | `purpose: maskable`, a sangre: el sistema recorta la forma. |
+| `apple-touch-icon.png` | 180 | iPhone, a sangre: iOS redondea solo. |
+| `favicon-32.png` y el SVG | 32 | Pestaña del navegador. |
 
 Todas están dibujadas a sangre en 512×512, sin esquinas: las pone el sistema.
 El dibujo cabe en el círculo seguro de los íconos *maskable* (radio de 205
@@ -480,11 +504,11 @@ sola fuente.
 
 | Pantalla | Efecto |
 |---|---|
-| **Apertura** | Fondo negro → el ícono aparece al centro (escala 0,6 → 1) → se funde en un círculo violeta del mismo tamaño → el círculo crece (`scale`) hasta cubrir la pantalla → entra la bienvenida. Con el ícono B, las tarjetas del ícono crecen y se ubican donde están las de la bienvenida. Un toque la salta. Solo en el primer arranque de la sesión. |
-| **Bienvenida** | El efecto principal. Fondo y esferas con *parallax* (se mueven a 0,4–0,6 de la velocidad del contenido). Imágenes que empiezan en escala ~0,55 y crecen hasta ocupar la pantalla con `scrub`. Titulares que entran por líneas (cada línea sube 16 px y aparece). Indicador de página: el trazo activo se alarga con `scaleX`. |
+| **Apertura** | Fondo oscuro → el ícono B aparece al centro (escala 0,6 → 1) → su fondo violeta crece (`scale`) hasta cubrir la pantalla mientras **las dos tarjetas del ícono vuelan, crecen y giran hasta quedar exactamente donde están las de la bienvenida** → el violeta se funde y la bienvenida queda debajo. Las tarjetas que vuelan son copias; al terminar se retiran y quedan las reales, en el mismo píxel. Un toque la salta. Solo en el primer arranque de la sesión. Si la app abre en otra pantalla, solo crece el violeta. |
+| **Bienvenida** | El efecto principal, sin fotos: lo que se mueve son las esferas y las tarjetas de vidrio. *Parallax* en capas: las esferas, al fondo, van más lentas que el contenido; las tarjetas, más rápidas. En cada sección, la ilustración empieza en escala 0,55 y crece con `scrub`. Titulares que entran por líneas. Al final, una tarjeta violeta crece hasta llenar la pantalla y da paso al login. El indicador de sección alarga el trazo activo con `scaleX`. |
 | **Inicio** | La tarjeta de saldo se va con el scroll y, al salir, aparece fija arriba la variante compacta (solo `opacity` y `translateY`). Las cifras cuentan de 0 a su valor. Las tarjetas entran escalonadas. |
 | **Movimientos** | Las filas entran escalonadas al cargar y al paginar: solo las nuevas. |
-| **Reportes** | Al entrar en pantalla: las barras crecen desde la base (`scaleY`, origen abajo) y la dona gira de −90° a 0 mientras sus porciones aparecen una tras otra (`rotate` + `opacity`). |
+| **Reportes** | Al entrar en pantalla: la dona se traza con `stroke-dashoffset`, porción tras porción, y las barras crecen desde la base. Es la excepción de los gráficos (ver abajo). |
 | **Chat** | Cada burbuja entra con un rebote corto (escala 0,92 → 1 y sube 8 px). Indicador de «escribiendo»: tres puntos que suben y bajan en secuencia. |
 | **Cambio de pantalla** | La saliente se funde y baja 8 px; la entrante sube 16 px y aparece. 280 ms en total. |
 | **Botones** | Escala 97 % al tocar (CSS). |
@@ -492,9 +516,14 @@ sola fuente.
 ### Qué no se anima
 
 - Nada que no sea `transform` u `opacity`: ni tamaños, ni márgenes, ni
-  colores, ni `backdrop-filter`, ni `clip-path`, ni `stroke-dashoffset`. Por eso
-  la dona «se dibuja» girando y no trazando, y las imágenes crecen con `scale`
-  y no con `width`.
+  colores, ni `backdrop-filter`, ni `clip-path`. Por eso las ilustraciones de
+  la bienvenida crecen con `scale` y no con `width`.
+- **Excepción: los gráficos SVG.** La dona y las barras son SVG pequeños, de
+  unos pocos cientos de píxeles, que se dibujan una vez al entrar en pantalla.
+  La dona se traza con `stroke-dashoffset` y las barras crecen desde la base
+  (`scaleY` con `transform-box: fill-box`, o su alto si hiciera falta).
+  Repintar un SVG así una vez cuesta poco; la regla general protege lo que se
+  anima con el scroll o en pantallas grandes.
 - Un elemento con `backdrop-filter`, salvo con `opacity`. Por eso la tarjeta
   compacta de Inicio es un elemento aparte que aparece, y no la grande
   encogiéndose.
