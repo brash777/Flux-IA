@@ -1,7 +1,21 @@
-# Convenciones del proyecto Flux IA (backend)
+# Convenciones del proyecto Flux IA
 
 Este archivo recoge las reglas del proyecto. Si una decisión contradice algo de
 acá, hay que justificarla en el mensaje del commit.
+
+## Estructura del repositorio
+
+```
+backend/    Spring Boot: pom.xml, mvnw, .mvn/, src/, .env.example
+frontend/   app móvil en HTML, CSS y JavaScript puros
+docs/       arquitectura, auditoría del prototipo, prototipo y referencias/
+```
+
+- Los comandos de Maven se ejecutan **desde `backend/`**
+  (`cd backend && ./mvnw test`).
+- El `.env` vive en `backend/.env`. `application.yml` lo carga con la ruta
+  relativa `./.env`, así que el servidor tiene que arrancarse desde `backend/`;
+  desde otra carpeta no lo encuentra y falla por falta de variables.
 
 ## Idioma
 
@@ -69,7 +83,7 @@ que lo evita.
 - **Las migraciones aplicadas no se editan.** Se agrega una `V{n+1}` nueva.
   Editar una ya aplicada rompe la suma de control de Flyway en cualquier entorno
   que la haya corrido.
-- La semilla de prueba vive en `db/dev/` y se carga solo con el perfil `dev`.
+- La semilla de prueba vive en `backend/src/main/resources/db/dev/` y se carga solo con el perfil `dev`.
   En producción esa carpeta no se incluye.
 - Toda columna que se filtre o se ordene necesita índice. Los que ya existen
   están justificados con un comentario en la migración.

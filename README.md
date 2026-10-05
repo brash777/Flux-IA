@@ -1,13 +1,24 @@
-# Flux IA — Backend
+# Flux IA
 
-API REST de una aplicación de finanzas personales con asistente de IA.
+Aplicación de finanzas personales con asistente de IA. Este repositorio reúne
+las dos partes del proyecto:
 
-Este backend es independiente de cualquier cliente: lo consumen por igual la app
+| Carpeta | Qué contiene |
+|---|---|
+| [`backend/`](backend/) | API REST en Spring Boot. Toda cifra se calcula acá. |
+| [`frontend/`](frontend/) | App móvil en HTML, CSS y JavaScript puros, sin paso de build. |
+| [`docs/`](docs/) | Arquitectura, auditoría del prototipo y referencias de diseño. |
+
+El backend es independiente de cualquier cliente: lo consumen por igual la app
 móvil, la de escritorio y la del smartwatch. No contiene nada específico de
 ninguna de ellas.
 
-**Estado:** funcional y verificado contra PostgreSQL. Autenticación real,
-transacciones, reportes calculados y chat con IA.
+**Estado:** backend funcional y verificado contra PostgreSQL (autenticación
+real, transacciones, reportes calculados y chat con IA). Frontend en
+construcción.
+
+> Todos los comandos de Maven de este documento se ejecutan **desde
+> `backend/`**. Ahí vive el `pom.xml` y ahí busca el servidor su `.env`.
 
 ---
 
@@ -28,7 +39,7 @@ procesamiento de anotaciones que configurar en el IDE.
 
 ---
 
-## Puesta en marcha
+## Puesta en marcha del backend
 
 ### 1. Instalar un JDK 21
 
@@ -67,10 +78,11 @@ docker run -d --name fluxia-db -p 5432:5432 \
 ### 3. Configurar las variables de entorno
 
 ```bash
+cd backend
 cp .env.example .env
 ```
 
-Después editá `.env`:
+Después editá `backend/.env`:
 
 ```bash
 DB_URL=jdbc:postgresql://localhost:5432/fluxia
@@ -88,7 +100,13 @@ AI_ENABLED=false
 
 `.env` está en `.gitignore` y nunca se sube al repositorio.
 
+> El `.env` va en `backend/`, no en la raíz. `application.yml` lo busca con una
+> ruta relativa (`./.env`), es decir, en la carpeta desde la que se arranca el
+> servidor.
+
 ### 4. Levantar el servidor
+
+Desde `backend/`:
 
 ```bash
 ./mvnw spring-boot:run
@@ -134,6 +152,17 @@ TOKEN=<accessToken>
 curl -s -H "Authorization: Bearer $TOKEN" \
   'http://localhost:8080/api/v1/reports/summary?period=MONTH'
 ```
+
+---
+
+## Puesta en marcha del frontend
+
+No hay nada que instalar ni compilar. Con el backend corriendo, abrir
+`frontend/index.html` con la extensión Live Server de VS Code, que lo sirve en
+`http://localhost:5500` o `http://127.0.0.1:5500`.
+
+Esos dos orígenes tienen que estar en `CORS_ALLOWED_ORIGINS` del
+`backend/.env`; si no, el navegador bloquea las llamadas a la API.
 
 ---
 
@@ -227,7 +256,24 @@ Más detalle en [docs/arquitectura.md](docs/arquitectura.md).
 ## Estructura
 
 ```
-src/main/java/com/fluxia/backend/
+backend/
+├── pom.xml, mvnw, mvnw.cmd, .mvn/
+├── .env.example   plantilla de variables (el .env real va acá, sin subir)
+└── src/
+
+frontend/          app móvil (HTML, CSS y JS puros)
+
+docs/
+├── arquitectura.md
+├── auditoria-prototipo.md
+├── prototipo-movil.html   prototipo original, referencia de flujo
+└── referencias/           imágenes de referencia de diseño
+```
+
+Dentro del backend:
+
+```
+backend/src/main/java/com/fluxia/backend/
 ├── FluxIaApplication.java
 ├── config/        FluxProperties, SecurityConfig, OpenApiConfig
 ├── shared/        Excepciones y manejo uniforme de errores
@@ -239,7 +285,7 @@ src/main/java/com/fluxia/backend/
 ├── report/        Cálculo de saldo, categorías y tendencia
 └── ai/            Contexto financiero y chat con el modelo
 
-src/main/resources/db/
+backend/src/main/resources/db/
 ├── migration/     V1 esquema · V2 categorías del sistema
 └── dev/           V900 semilla de prueba (solo perfil dev)
 ```
@@ -253,6 +299,7 @@ cuatro carpetas distintas.
 ## Pruebas
 
 ```bash
+cd backend
 ./mvnw test
 ```
 
