@@ -243,3 +243,9 @@ frontend/
    vencidos (el método del repositorio ya existe, falta la tarea programada).
 5. **Evaluar los `fallbacks` del modelo de IA** para que una negativa del modelo
    no deje al chat sin respuesta.
+6. **Service worker** del frontend: solo archivos de la app en caché, nunca
+   respuestas de la API, y sin registrarlo con Live Server.
+7. **Tildes en los mensajes del backend** («contrasena», «valido»): el
+   frontend los muestra tal cual.
+8. **Colores de categoría para fondo oscuro**, con una migración nueva. Hoy el
+   frontend los compensa (DESIGN.md, sección 3).
