@@ -138,13 +138,17 @@ ScrollTrigger, cargado desde cdnjs.
 ```
 frontend/
 ├── index.html
+├── manifest.webmanifest   app instalable (PWA)
+├── styleguide.html   el sistema de diseño en vivo
 ├── DESIGN.md         sistema de diseño: tokens, reglas y movimiento
 ├── css/tokens.css    las variables de DESIGN.md, y nada más
 ├── css/app.css       estilos de componentes y pantallas
+├── js/main.js        arranque
+├── js/router.js      rutas por hash (#/bienvenida, #/ingresar…)
 ├── js/api.js         única capa que habla con el backend
 ├── js/motion.js      toda la animación (GSAP)
-├── js/screens/       un archivo por pantalla
-└── assets/           imágenes e iconos propios o de uso libre
+├── js/screens/       un archivo por pantalla: mount(view, ctx) → { unmount }
+└── assets/           fuentes, íconos e imágenes propios o de uso libre
 ```
 
 ### Datos: el frontend muestra, no calcula
@@ -203,7 +207,9 @@ frontend/
   JavaScript no haya cargado.
 - Las reglas completas de diseño y movimiento están en `frontend/DESIGN.md`.
 - Solo se animan `transform` y `opacity`, para que vaya fluido en un celular de
-  gama media.
+  gama media. Excepción: los gráficos SVG de Reportes (la dona se traza con
+  `stroke-dashoffset` y las barras crecen desde la base), porque son pequeños
+  y se dibujan una sola vez.
 - El scroll ocurre dentro del contenedor de la pantalla, no en `window`: cada
   ScrollTrigger recibe ese contenedor como `scroller`.
 - Al cambiar de pantalla se matan los ScrollTrigger de la anterior, y se llama a
