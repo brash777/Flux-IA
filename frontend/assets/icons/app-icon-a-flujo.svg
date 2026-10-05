@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!--
+    Ícono de Flux IA · Opción A «Flujo».
+    Una F hecha de dos cintas onduladas: el dinero como algo que fluye.
+    Lienzo completo de 512 sin esquinas redondeadas: el sistema las
+    recorta. Todo el dibujo cabe en el círculo seguro de los íconos
+    «maskable» (radio 205 desde el centro).
+  -->
+  <defs>
+    <radialGradient id="a-bg" cx="30%" cy="20%" r="95%">
+      <stop offset="0" stop-color="#A274FF"/>
+      <stop offset="0.45" stop-color="#6326D6"/>
+      <stop offset="1" stop-color="#1B0B45"/>
+    </radialGradient>
+    <radialGradient id="a-shine" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="a-ink" gradientUnits="userSpaceOnUse" x1="160" y1="140" x2="360" y2="380">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#C9AEFF"/>
+    </linearGradient>
+    <filter id="a-soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="12"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" fill="url(#a-bg)"/>
+  <ellipse cx="170" cy="100" rx="240" ry="150" fill="url(#a-shine)"/>
+  <g fill="none" stroke-linecap="round" stroke-width="44">
+    <g stroke="#140833" stroke-opacity="0.5" filter="url(#a-soft)" transform="translate(0 14)">
+      <path d="M196 350V178"/>
+      <path d="M196 178c50-32 94 30 148-4"/>
+      <path d="M196 266c36-22 66 22 106-4"/>
+    </g>
+    <g stroke="url(#a-ink)">
+      <path d="M196 350V178"/>
+      <path d="M196 178c50-32 94 30 148-4"/>
+      <path d="M196 266c36-22 66 22 106-4"/>
+    </g>
+  </g>
+</svg>

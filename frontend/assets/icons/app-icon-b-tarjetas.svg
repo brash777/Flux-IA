@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!--
+    Ícono de Flux IA · Opción B «Tarjetas de vidrio».
+    Dos tarjetas de vidrio inclinadas, como las de la bienvenida, con una
+    onda de flujo. La animación de apertura puede convertir estas mismas
+    tarjetas en las de la pantalla de bienvenida.
+    Lienzo completo de 512; el dibujo cabe en el círculo seguro
+    «maskable» (radio 205 desde el centro).
+  -->
+  <defs>
+    <radialGradient id="b-bg" cx="30%" cy="20%" r="95%">
+      <stop offset="0" stop-color="#A274FF"/>
+      <stop offset="0.45" stop-color="#6326D6"/>
+      <stop offset="1" stop-color="#1B0B45"/>
+    </radialGradient>
+    <radialGradient id="b-shine" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.2"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="b-back" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#D6C5FF" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#8243F5" stop-opacity="0.3"/>
+    </linearGradient>
+    <linearGradient id="b-front" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.58"/>
+      <stop offset="0.55" stop-color="#E6DAFF" stop-opacity="0.26"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.14"/>
+    </linearGradient>
+    <linearGradient id="b-edge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.95"/>
+      <stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0.2"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.5"/>
+    </linearGradient>
+    <filter id="b-soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" fill="url(#b-bg)"/>
+  <ellipse cx="170" cy="100" rx="240" ry="150" fill="url(#b-shine)"/>
+  <g transform="translate(256 256) scale(1.1) translate(-256 -256)">
+  <!-- Tarjeta de atrás -->
+  <rect x="148" y="150" width="236" height="152" rx="32" transform="rotate(-16 266 226)"
+        fill="url(#b-back)" stroke="#FFFFFF" stroke-opacity="0.45" stroke-width="3"/>
+  <!-- Sombra y tarjeta de adelante -->
+  <rect x="128" y="226" width="244" height="156" rx="32" transform="rotate(-6 250 290)"
+        fill="#140833" fill-opacity="0.45" filter="url(#b-soft)"/>
+  <g transform="rotate(-6 250 290)">
+    <rect x="128" y="212" width="244" height="156" rx="32"
+          fill="url(#b-front)" stroke="url(#b-edge)" stroke-width="3"/>
+    <path d="M162 252h54" fill="none" stroke="#FFFFFF" stroke-opacity="0.85" stroke-width="12" stroke-linecap="round"/>
+    <path d="M162 322c34-26 64 22 100-4s58-22 80-10" fill="none" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round"/>
+  </g>
+  </g>
+</svg>
