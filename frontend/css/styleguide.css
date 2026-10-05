@@ -1,0 +1,515 @@
+/* =====================================================================
+   Maqueta de styleguide.html, la página que documenta el sistema.
+
+   Solo ordena la página de documentación. Los componentes que muestra
+   salen de app.css, sin copias: lo que se aprueba aquí es exactamente
+   lo que usan las pantallas.
+   ===================================================================== */
+
+.sg {
+  min-height: 100dvh;
+  background:
+    radial-gradient(60% 30% at 80% 0%, rgb(109 43 239 / 0.22), transparent 70%),
+    var(--bg-outside);
+}
+
+.sg-wrap {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: var(--space-10) var(--space-5) var(--space-14);
+}
+
+.sg-header {
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-10);
+}
+
+.sg-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.sg-brand img {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+}
+
+.sg-lead {
+  max-width: 62ch;
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.sg-toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sg-toc a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch);
+  padding: 0 var(--space-4);
+  border-radius: var(--r-full);
+  background: rgb(255 255 255 / 0.06);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  text-decoration: none;
+}
+
+.sg-section {
+  padding: var(--space-10) 0;
+  border-top: 1px solid var(--line);
+  scroll-margin-top: var(--space-4);
+}
+
+.sg-section__head {
+  display: grid;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+}
+
+.sg-section__head p {
+  max-width: 68ch;
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.sg-num {
+  color: var(--flux-300);
+}
+
+.sg-row {
+  display: grid;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+/* Sin esto, un hijo de la grilla no se encoge por debajo de su contenido
+   y la página se desborda a lo ancho en el celular. */
+.sg-row > *,
+.sg-device-row > * {
+  min-width: 0;
+}
+
+@media (min-width: 900px) {
+  .sg-row {
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  }
+}
+
+.sg-caption {
+  margin: var(--space-3) 0 0;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.sg-caption strong {
+  color: var(--text);
+}
+
+/* Escenario: un trozo de pantalla del ancho real del teléfono, con el
+   fondo de la app detrás. El vidrio solo se puede juzgar con algo detrás. */
+.sg-stage {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: 100%;
+  max-width: var(--device-w);
+  padding: var(--space-6) var(--gutter);
+  border-radius: var(--r-xl);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+}
+
+.sg-stage > .orb {
+  z-index: -1;
+}
+
+.sg-stage--stack {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.sg-stage--nav {
+  min-height: 150px;
+}
+
+/* Marca de «dato de ejemplo»: todo bloque con cifras o nombres la lleva. */
+.sg-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  padding: 2px var(--space-2);
+  border-radius: var(--r-full);
+  box-shadow: inset 0 0 0 1px rgb(255 203 107 / 0.55);
+  background: rgb(255 203 107 / 0.1);
+  color: var(--warning);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
+
+.sg-stage > .sg-tag {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  z-index: 2;
+}
+
+/* --- Composición ---------------------------------------------------- */
+
+.sg-device-row {
+  display: grid;
+  gap: var(--space-8);
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .sg-device-row {
+    grid-template-columns: var(--device-w) 1fr;
+  }
+}
+
+/* En esta página el marco se ve siempre, y siempre a tamaño real. */
+.sg .device {
+  width: var(--device-w);
+  max-width: 100%;
+  height: var(--device-h);
+  border-radius: var(--r-device);
+  box-shadow:
+    0 0 0 10px #120E1C,
+    0 0 0 11px rgb(255 255 255 / 0.12),
+    0 40px 90px -24px rgb(90 40 210 / 0.45);
+}
+
+.sg-home-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-5);
+}
+
+.sg-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: var(--space-8) 0 var(--space-3);
+}
+
+.sg-notes {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sg-notes li {
+  padding: var(--space-4);
+  border-radius: var(--r-md);
+  background: rgb(255 255 255 / 0.04);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+.sg-notes strong {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--text-strong);
+  font-size: var(--fs-body);
+}
+
+/* --- Color ---------------------------------------------------------- */
+
+.sg-swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-3);
+}
+
+.sg-swatch {
+  overflow: hidden;
+  border-radius: var(--r-md);
+  background: rgb(255 255 255 / 0.04);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+}
+
+.sg-swatch__chip {
+  height: 64px;
+  box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.08);
+}
+
+.sg-swatch__body {
+  display: grid;
+  padding: var(--space-3);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.sg-swatch__body code {
+  color: var(--text-strong);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+}
+
+.sg-group-title {
+  margin: var(--space-6) 0 var(--space-3);
+  color: var(--text-muted);
+}
+
+.sg-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.sg-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--r-md);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+}
+
+.sg-table th,
+.sg-table td {
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.sg-table th {
+  color: var(--text-muted);
+  font-weight: var(--fw-semibold);
+}
+
+.sg-table td.num {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.sg-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* --- Tipografía ----------------------------------------------------- */
+
+.sg-type {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-5) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+@media (min-width: 900px) {
+  .sg-type {
+    grid-template-columns: 220px 1fr;
+    align-items: baseline;
+  }
+}
+
+.sg-type__spec {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.sg-type__spec strong {
+  display: block;
+  color: var(--text-strong);
+}
+
+/* --- Espaciado y radios -------------------------------------------- */
+
+.sg-space {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.sg-space__item {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.sg-space__bar {
+  height: 12px;
+  border-radius: 4px;
+  background: var(--flux-400);
+}
+
+.sg-radii {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.sg-radius {
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  background: rgb(214 197 255 / 0.12);
+  box-shadow: inset 0 0 0 1.5px var(--flux-300);
+  font-size: var(--fs-xs);
+  color: var(--text);
+  text-align: center;
+}
+
+/* --- Botones -------------------------------------------------------- */
+
+.sg-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* --- Íconos de app -------------------------------------------------- */
+
+.sg-icons {
+  display: grid;
+  gap: var(--space-5);
+}
+
+@media (min-width: 900px) {
+  .sg-icons {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.sg-icon-card {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border-radius: var(--r-lg);
+  background: rgb(255 255 255 / 0.04);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+}
+
+.sg-icon-card.is-recommended {
+  box-shadow: inset 0 0 0 1.5px var(--flux-300);
+}
+
+.sg-icon-card__title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.sg-icon-card p {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.sg-icon-previews {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-4);
+}
+
+.sg-icon-previews figure {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+/* Las esquinas las pone el sistema operativo; aquí se simulan. */
+.sg-app-icon {
+  width: 120px;
+  height: 120px;
+  border-radius: 27px;
+  box-shadow: 0 14px 30px -12px rgb(90 40 210 / 0.7);
+}
+
+.sg-app-icon--circle {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+}
+
+/* Pantalla de inicio simulada: los demás íconos son bloques genéricos,
+   sin ninguna marca. */
+.sg-homescreen {
+  display: grid;
+  grid-template-columns: repeat(4, 60px);
+  justify-content: space-between;
+  gap: var(--space-4) var(--space-2);
+  padding: var(--space-5) var(--space-4);
+  border-radius: var(--r-lg);
+}
+
+.sg-homescreen figure {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--text-strong);
+}
+
+.sg-homescreen img,
+.sg-homescreen .sg-ghost-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 14px;
+}
+
+.sg-ghost-icon {
+  background: rgb(255 255 255 / 0.12);
+}
+
+.sg-ghost-label {
+  width: 40px;
+  height: 8px;
+  margin-top: 4px;
+  border-radius: 4px;
+  background: rgb(255 255 255 / 0.12);
+}
+
+/* --- Íconos de interfaz -------------------------------------------- */
+
+.sg-ui-icons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: var(--space-3);
+}
+
+.sg-ui-icon {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-2);
+  border-radius: var(--r-md);
+  background: rgb(255 255 255 / 0.04);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.sg-ui-icon .icon {
+  color: var(--text-strong);
+}
+
+.sg-footer {
+  margin-top: var(--space-10);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
