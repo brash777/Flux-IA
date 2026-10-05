@@ -169,7 +169,13 @@ frontend/
   validaciones): se muestran tal cual. Un error de red o inesperado muestra un
   texto propio, nunca el detalle técnico.
 - El `accessToken` vive en memoria y el `refreshToken` en `localStorage`, para
-  que recargar la página no cierre la sesión.
+  que recargar la página no cierre la sesión. El riesgo: un script inyectado
+  podría leer `localStorage` y robar la sesión. La alternativa sería una cookie
+  `httpOnly`, que exigiría cambiar el backend; por eso la defensa está en no
+  permitir que se inyecte nada (regla siguiente).
+- **Nunca `innerHTML` con texto que venga de la API o del usuario**, sobre todo
+  las respuestas del chat de IA: se usa `textContent` o se construyen nodos con
+  `createElement`. `innerHTML` solo para plantillas fijas escritas en el código.
 - La clave de la IA nunca está en el frontend: el chat llama a
   `POST /api/v1/ai/chat`.
 
