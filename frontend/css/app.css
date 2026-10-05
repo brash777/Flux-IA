@@ -1893,13 +1893,26 @@ body.device-host {
   border-radius: 3px;
 }
 
-/* Barras: siete meses de 44 px como mínimo (área táctil). */
+/* Barras: siete meses de 44 px como mínimo (área táctil). Si la
+   pantalla es muy angosta no se achican: el gráfico se desplaza de lado
+   dentro de la tarjeta. */
+.bars-scroll {
+  margin: 0 calc(-1 * var(--space-5));
+  padding: 0 var(--space-2);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.bars-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 .bars {
   display: grid;
   grid-template-columns: repeat(var(--months, 7), minmax(var(--touch), 1fr));
   gap: 3px;
   height: 180px;
-  margin: 0 calc(-1 * var(--space-2));
   background: repeating-linear-gradient(to top,
       var(--chart-grid) 0 1px, transparent 1px 25%) bottom / 100% calc(100% - 28px) no-repeat;
 }

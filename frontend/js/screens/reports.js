@@ -203,8 +203,12 @@ export function mount(view) {
       h('ul', { class: 'chart-legend' },
         h('li', {}, h('span', { class: 'swatch', style: { background: 'var(--chart-income)' } }), 'Ingresos'),
         h('li', {}, h('span', { class: 'swatch', style: { background: 'var(--chart-expense)' } }), 'Gastos')),
-      chart, detail);
+      h('div', { class: 'bars-scroll' }, chart), detail);
     render(trendArea, card);
+    // En pantallas angostas el gráfico se desplaza: empieza mostrando el
+    // final, donde está el mes en curso.
+    const scrollArea = chart.parentElement;
+    scrollArea.scrollLeft = scrollArea.scrollWidth;
 
     const current = months.findIndex((m) => m.current);
     const index = current >= 0 ? current : months.length - 1;
