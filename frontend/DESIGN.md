@@ -268,6 +268,8 @@ Receta de `.glass`:
 
 - **Normal o fuerte.** Normal solo con texto principal; fuerte con texto
   secundario, listas, formularios y barra inferior (sección 4).
+- **Capas** (tokens `--z-*`): barra inferior < elementos flotantes de la
+  pantalla < hojas inferiores < avisos breves < apertura.
 - **Pocas capas a la vez:** como máximo **tres** superficies con desenfoque
   visibles en una pantalla (por ejemplo: tarjeta de saldo, lista y barra).
   Para un celular de gama media, cada capa es un recálculo del fondo en cada
@@ -351,8 +353,44 @@ pantalla.
 - Barra de vidrio fuerte **flotante**, separada 8 px de los bordes y por encima
   de la zona segura inferior.
 - Cinco destinos, **siempre con texto**: Inicio, Movimientos, Reportes,
-  Asistente y Perfil.
+  Chat y Perfil.
+- Es **una sola barra** para toda la app (vive en `index.html`, fuera de
+  las pantallas): no se mueve al cambiar de pestaña. Se oculta en la
+  bienvenida y en el ingreso.
 - Activa: fondo lila al 16 %, ícono `--flux-200` y texto blanco.
+
+### Acción principal en el encabezado, no flotante
+
+«Nuevo movimiento» es un botón redondo lila en el encabezado de Inicio y
+Movimientos. Un botón flotante abajo a la derecha tapaba la columna de
+montos de la última fila visible, y la cifra manda.
+
+### Hoja inferior
+
+Crear o editar un movimiento y confirmar un borrado suben desde abajo
+(`.sheet`). Sin desenfoque: se mueve, y el fondo se oscurece con
+`--sheet-backdrop`. Escape y tocar el fondo la cierran; el foco vuelve a
+donde estaba. Borrar siempre pide confirmación.
+
+### Chips
+
+Filtros de período y categoría (`.chip`): 44 px de alto, en una fila que se
+desplaza de lado. El marcado usa `aria-pressed`. Los de categoría llevan el
+emoji de la API.
+
+### Avisos breves
+
+Tras guardar o borrar, un aviso abajo (`.toast`, `role="status"`) durante
+unos 2,6 s: «Movimiento guardado». Los errores no usan avisos breves: van
+en el formulario, donde se pueden leer con calma.
+
+### Chat
+
+Burbujas del usuario en lila con texto oscuro; las del asistente, en vidrio
+sin desenfoque con el ícono de la app al lado. Las respuestas entran como
+texto (`white-space: pre-wrap`); solo se reconoce la negrita, construyendo
+nodos. Si la IA está apagada o sin clave, el aviso va en la conversación,
+con palabras propias, no el error del servidor.
 
 ### Estados
 
@@ -506,7 +544,7 @@ sola fuente.
 |---|---|
 | **Apertura** | Fondo oscuro → el ícono B aparece al centro (escala 0,6 → 1) → su fondo violeta crece (`scale`) hasta cubrir la pantalla mientras **las dos tarjetas del ícono vuelan, crecen y giran hasta quedar exactamente donde están las de la bienvenida** → el violeta se funde y la bienvenida queda debajo. Las tarjetas que vuelan son copias; al terminar se retiran y quedan las reales, en el mismo píxel. Un toque la salta. Solo en el primer arranque de la sesión. Si la app abre en otra pantalla, solo crece el violeta. |
 | **Bienvenida** | El efecto principal, sin fotos: lo que se mueve son las esferas y las tarjetas de vidrio. *Parallax* en capas: las esferas, al fondo, van más lentas que el contenido; las tarjetas, más rápidas. En cada sección, la ilustración empieza en escala 0,55 y crece con `scrub`. Titulares que entran por líneas. Al final, una tarjeta violeta crece hasta llenar la pantalla y da paso al login. El indicador de sección alarga el trazo activo con `scaleX`. |
-| **Inicio** | La tarjeta de saldo se va con el scroll y, al salir, aparece fija arriba la variante compacta (solo `opacity` y `translateY`). Las cifras cuentan de 0 a su valor. Las tarjetas entran escalonadas. |
+| **Inicio** | La tarjeta de saldo se va con el scroll y, cuando sale la mitad, aparece fija arriba la variante compacta (solo `opacity`: tiene desenfoque). Las cifras cuentan de 0 a su valor. Las tarjetas entran escalonadas. |
 | **Movimientos** | Las filas entran escalonadas al cargar y al paginar: solo las nuevas. |
 | **Reportes** | Al entrar en pantalla: la dona se traza con `stroke-dashoffset`, porción tras porción, y las barras crecen desde la base. Es la excepción de los gráficos (ver abajo). |
 | **Chat** | Cada burbuja entra con un rebote corto (escala 0,92 → 1 y sube 8 px). Indicador de «escribiendo»: tres puntos que suben y bajan en secuencia. |
