@@ -604,6 +604,15 @@ button {
   box-shadow: var(--glow-focus);
 }
 
+/* Solo lectura (el correo en el perfil): se distingue de un campo que
+   se puede editar. */
+.input:disabled {
+  border-color: var(--line);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
 .input[aria-invalid="true"] {
   border-color: var(--danger);
 }
