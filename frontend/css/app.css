@@ -1,0 +1,918 @@
+/* =====================================================================
+   Componentes de Flux IA.
+
+   Todo valor sale de tokens.css. Si hace falta uno nuevo, se agrega
+   primero a DESIGN.md y a los tokens; aquí no se escriben colores,
+   tamaños ni duraciones sueltos.
+
+   Lo que se anima aquí son solo respuestas instantáneas de estado
+   (presionar un botón, el giro de un indicador de carga). Todo lo
+   coreografiado vive en js/motion.js. Ver «Movimiento» en DESIGN.md.
+   ===================================================================== */
+
+/* --- Base ----------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-outside);
+  color: var(--text);
+  font-family: var(--font-text);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Íconos de interfaz: trazo de 1,75 px en una grilla de 24. Heredan el
+   color del texto, así nunca quedan con un color propio sin contraste. */
+.icon {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.icon--sm {
+  width: 18px;
+  height: 18px;
+}
+
+/* --- Cifras --------------------------------------------------------- */
+
+/* Cifras tabulares: todos los dígitos miden lo mismo, así un monto que
+   cuenta de 0 a su valor no «baila» y las columnas quedan alineadas. */
+.money {
+  font-family: var(--font-text);
+  font-variant-numeric: tabular-nums lining-nums;
+  font-weight: var(--fw-heavy);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-strong);
+  white-space: nowrap;
+}
+
+/* --- Marco del dispositivo ----------------------------------------- */
+
+/* En el celular la app ocupa toda la pantalla. En el computador se ve
+   dentro de un marco de 390×844, para la sustentación. */
+.device {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--bg-base);
+}
+
+@media (min-width: 600px) {
+  .device-host {
+    display: grid;
+    place-items: center;
+    min-height: 100dvh;
+    padding: var(--space-6);
+  }
+
+  .device {
+    width: var(--device-w);
+    /* Si la ventana es más baja que 844, el marco se acorta en lugar de
+       obligar a desplazar la página entera. */
+    height: min(var(--device-h), calc(100dvh - 2 * var(--space-6)));
+    border-radius: var(--r-device);
+    box-shadow:
+      0 0 0 10px #120E1C,
+      0 0 0 11px rgb(255 255 255 / 0.12),
+      0 40px 90px -24px rgb(90 40 210 / 0.45);
+  }
+}
+
+/* --- Fondo de la app ----------------------------------------------- */
+
+/* Gradientes radiales en lugar de elementos con filter: blur(). Ya son
+   suaves, se pintan una vez y no cuestan nada al desplazar. */
+.app-bg {
+  background:
+    radial-gradient(55% 38% at 88% 6%, var(--aurora-magenta), transparent 70%),
+    radial-gradient(70% 45% at 6% 28%, var(--aurora-violet), transparent 72%),
+    radial-gradient(90% 55% at 50% 108%, var(--aurora-indigo), transparent 70%),
+    var(--bg-base);
+}
+
+/* Esfera decorativa: el volumen de la referencia. Tiene borde definido a
+   propósito; un fondo totalmente difuso no deja ver el efecto de vidrio.
+   Su punto más claro es --flux-orb: más claro, el texto pierde contraste. */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle at 32% 28%,
+      var(--flux-orb) 0%,
+      var(--flux-500) 30%,
+      var(--flux-700) 62%,
+      var(--flux-900) 100%);
+  box-shadow: 0 0 80px rgb(130 70 245 / 0.35);
+}
+
+/* --- Pantalla ------------------------------------------------------- */
+
+/* El scroll ocurre aquí y no en window: este es el «scroller» que recibe
+   cada ScrollTrigger. */
+.screen {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding:
+    calc(var(--safe-top) + var(--space-6))
+    calc(var(--safe-right) + var(--gutter))
+    calc(var(--safe-bottom) + var(--nav-h) + var(--space-10))
+    calc(var(--safe-left) + var(--gutter));
+}
+
+.display {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-display);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-strong);
+}
+
+.h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-bold);
+  line-height: 1.2;
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-strong);
+}
+
+.h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+  color: var(--text-strong);
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+/* --- Vidrio --------------------------------------------------------- */
+
+/* Normal: solo para texto principal (blanco o --text). Fuerte: cuando
+   lleva texto secundario o cifras de color. La diferencia está medida
+   en DESIGN.md: con una esfera detrás, el normal no da 4,5:1 al texto
+   secundario. */
+.glass {
+  position: relative;
+  isolation: isolate;
+  border-radius: var(--r-lg);
+  background: var(--glass-sheen), var(--glass-fill);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--shadow-glass);
+}
+
+.glass--strong {
+  background: var(--glass-sheen), var(--glass-fill-strong);
+}
+
+/* Borde con brillo. Un borde normal no admite degradado con esquinas
+   redondeadas; la máscara deja visible solo el anillo de 1 px. */
+.glass::before,
+.balance-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  padding: 1px;
+  border-radius: inherit;
+  background: var(--glass-edge);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Alternativa sólida: navegadores sin backdrop-filter, y también se puede
+   forzar con la clase para celulares que no den abasto. */
+.glass--solid {
+  background: var(--glass-sheen), var(--glass-solid);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.glass--solid.glass--strong {
+  background: var(--glass-sheen), var(--glass-solid-strong);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass {
+    background: var(--glass-sheen), var(--glass-solid);
+  }
+
+  .glass--strong {
+    background: var(--glass-sheen), var(--glass-solid-strong);
+  }
+
+  .balance-card {
+    background: var(--hero-sheen), var(--hero-solid);
+  }
+}
+
+.card {
+  padding: var(--space-5);
+}
+
+/* Dato suelto: una etiqueta y una cifra. */
+.stat {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.stat__label {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text-muted);
+}
+
+.stat__value {
+  font-size: var(--fs-money-lg);
+  line-height: var(--lh-tight);
+}
+
+.stat__note {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+/* --- Tarjeta de saldo ---------------------------------------------- */
+
+.balance-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  padding: var(--space-6) var(--space-5) var(--space-5);
+  color: var(--text-strong);
+  background:
+    /* Arco fino arriba a la derecha: el reflejo curvo de la referencia. */
+    radial-gradient(circle at 112% -18%,
+      transparent 44%, rgb(255 255 255 / 0.12) 44.6%, transparent 46%),
+    var(--hero-sheen),
+    var(--hero-fill);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--shadow-hero);
+}
+
+.balance-card__label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text-on-hero);
+}
+
+.balance-card__amount {
+  display: block;
+  margin-top: var(--space-2);
+  font-size: var(--fs-money-xl);
+  line-height: var(--lh-tight);
+}
+
+/* Una cifra nunca se corta ni lleva «…»: baja de tamaño por escalones.
+   La pantalla elige el escalón según el largo del texto formateado. */
+.balance-card__amount.is-long {
+  font-size: 2rem;
+}
+
+.balance-card__amount.is-very-long {
+  font-size: 1.625rem;
+}
+
+.balance-card__rows {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+.flow {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  align-items: center;
+  column-gap: var(--space-2);
+}
+
+/* El color va en el ícono (no es texto: basta 3:1), nunca en la cifra:
+   verde o rosa sobre la tarjeta violeta no llegan a 4,5:1. */
+.flow__icon {
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-full);
+  color: var(--flux-900);
+}
+
+.flow--income .flow__icon {
+  background: var(--income);
+}
+
+.flow--expense .flow__icon {
+  background: var(--expense);
+}
+
+.flow__label {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--text-on-hero);
+}
+
+.flow__value {
+  font-size: var(--fs-money-md);
+  line-height: 1.2;
+}
+
+.balance-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid rgb(255 255 255 / 0.16);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text-on-hero);
+}
+
+.balance-card__footer .money {
+  font-size: var(--fs-body);
+}
+
+/* Variante compacta: la que queda fija arriba al bajar en Inicio. */
+.balance-card--compact {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--r-md);
+}
+
+.balance-card--compact .balance-card__amount {
+  margin: 0;
+  font-size: var(--fs-money-lg);
+}
+
+/* --- Botones -------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-width: var(--touch);
+  min-height: var(--touch);
+  padding: 0 var(--space-5);
+  border: 0;
+  border-radius: var(--r-md);
+  background: none;
+  font-family: var(--font-text);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-bold);
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  /* Respuesta al toque en CSS, no en GSAP: tiene que ser inmediata y
+     funcionar aunque el JavaScript todavía no haya cargado. */
+  transition: transform var(--dur-press) var(--ease-out);
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn--primary {
+  min-height: 52px;
+  background: linear-gradient(180deg, var(--flux-100), var(--flux-200));
+  color: var(--text-on-accent);
+  box-shadow: var(--shadow-button), inset 0 1px 0 rgb(255 255 255 / 0.7);
+}
+
+.btn--glass {
+  background: rgb(255 255 255 / 0.08);
+  color: var(--text-strong);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.18);
+}
+
+.btn--ghost {
+  padding-inline: var(--space-3);
+  color: var(--flux-300);
+}
+
+.btn--danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+  box-shadow: inset 0 0 0 1px rgb(255 128 148 / 0.4);
+}
+
+.btn--block {
+  width: 100%;
+}
+
+.btn--icon {
+  width: var(--touch);
+  padding: 0;
+  border-radius: var(--r-full);
+  background: rgb(255 255 255 / 0.08);
+  color: var(--text-strong);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.16);
+}
+
+/* Botón flotante redondo de la referencia (la flecha de la bienvenida). */
+.btn--fab {
+  width: 60px;
+  height: 60px;
+  padding: 0;
+  border-radius: var(--r-full);
+  background: radial-gradient(circle at 34% 28%, var(--flux-50), var(--flux-200) 62%);
+  color: var(--text-on-accent);
+  box-shadow: var(--shadow-button), 0 0 0 6px rgb(214 197 255 / 0.14);
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Mientras espera a la API: no se puede enviar dos veces, pero no debe
+   parecer deshabilitado; el texto dice qué está pasando. */
+.btn[aria-busy="true"],
+.btn[aria-busy="true"]:disabled {
+  opacity: 0.85;
+  cursor: progress;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  border-radius: var(--r-full);
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+/* --- Formularios ---------------------------------------------------- */
+
+.form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+/* La etiqueta va siempre visible arriba: un placeholder desaparece al
+   escribir y el usuario olvida qué campo era. */
+.field__label {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text);
+}
+
+.field__control {
+  position: relative;
+}
+
+/* 16 px de letra: con menos, Safari en iPhone hace zoom al enfocar. */
+.input {
+  width: 100%;
+  height: var(--field-h);
+  padding: 0 var(--space-4);
+  border: 1.5px solid var(--field-border);
+  border-radius: var(--r-sm);
+  background: rgb(10 6 20 / 0.35);
+  color: var(--text-strong);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
+}
+
+.input::placeholder {
+  color: var(--text-subtle);
+  font-weight: var(--fw-medium);
+}
+
+/* El foco cambia al instante, sin transición de color. */
+.input:focus {
+  outline: none;
+  border-color: var(--focus);
+  box-shadow: var(--glow-focus);
+}
+
+.input[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
+.input--with-action {
+  padding-right: calc(var(--touch) + var(--space-2));
+}
+
+.field__action {
+  position: absolute;
+  top: 50%;
+  right: var(--space-1);
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: var(--touch);
+  height: var(--touch);
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--text-muted);
+}
+
+.field__hint {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.field__error {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--danger);
+}
+
+/* Error general del formulario: el mensaje de la API, tal cual llega. */
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--r-sm);
+  background: var(--danger-soft);
+  box-shadow: inset 0 0 0 1px rgb(255 128 148 / 0.35);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+}
+
+.alert .icon {
+  color: var(--danger);
+}
+
+/* Selector de dos opciones (Ingresar / Crear cuenta). */
+.segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border-radius: var(--r-md);
+  background: rgb(255 255 255 / 0.06);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12);
+}
+
+.segmented__option {
+  min-height: var(--touch);
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--text-muted);
+  font-weight: var(--fw-bold);
+}
+
+.segmented__option[aria-selected="true"] {
+  background: linear-gradient(180deg, var(--flux-100), var(--flux-200));
+  color: var(--text-on-accent);
+  box-shadow: var(--shadow-button);
+}
+
+/* --- Movimientos ---------------------------------------------------- */
+
+/* Toda la lista va dentro de UN contenedor de vidrio: una sola capa de
+   desenfoque, no una por fila. */
+.tx-list {
+  margin: 0;
+  padding: var(--space-2) 0;
+  list-style: none;
+}
+
+.tx-row {
+  display: grid;
+  grid-template-columns: var(--touch) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 64px;
+  padding: var(--space-2) var(--space-4);
+  border: 0;
+  background: none;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tx-list > li + li > .tx-row {
+  background: linear-gradient(var(--line), var(--line)) no-repeat
+    calc(var(--space-4) + var(--touch) + var(--space-3)) 0 / 100% 1px;
+}
+
+.tx-row:active {
+  background-color: rgb(255 255 255 / 0.04);
+}
+
+/* Ícono y color de la categoría vienen de la API. Algunos colores son
+   muy oscuros para este fondo (Otros es #374151): por eso el chip tiene
+   una base clara propia y un anillo, y el emoji carga la identidad. */
+.cat-chip {
+  --cat: var(--flux-500);
+  display: grid;
+  place-items: center;
+  width: var(--touch);
+  height: var(--touch);
+  border-radius: 14px;
+  font-size: 1.25rem;
+  line-height: 1;
+  background: rgb(255 255 255 / 0.08);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.18);
+}
+
+@supports (background: color-mix(in srgb, red 50%, blue)) {
+  .cat-chip {
+    background: color-mix(in srgb, var(--cat) 28%, rgb(255 255 255 / 0.06));
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--cat) 60%, rgb(255 255 255 / 0.22));
+  }
+}
+
+.tx-row__main {
+  display: grid;
+  min-width: 0;
+}
+
+/* El texto sí se puede cortar con «…» (hasta dos líneas); la cifra, nunca. */
+.tx-row__title {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-snug);
+  color: var(--text-strong);
+}
+
+.tx-row__meta {
+  overflow: hidden;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tx-row__amount {
+  font-size: var(--fs-money-md);
+}
+
+/* El sentido lo dicen el signo y el color juntos, nunca el color solo. */
+.tx-row__amount.is-income {
+  color: var(--income);
+}
+
+/* --- Navegación inferior ------------------------------------------- */
+
+.nav-bar {
+  position: absolute;
+  z-index: 10;
+  left: calc(var(--safe-left) + var(--space-2));
+  right: calc(var(--safe-right) + var(--space-2));
+  bottom: calc(var(--safe-bottom) + var(--space-2));
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  height: var(--nav-h);
+  padding: var(--space-1);
+  border-radius: var(--r-lg);
+}
+
+.nav-bar__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: var(--touch);
+  min-height: var(--touch);
+  border-radius: 18px;
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nav-bar__item[aria-current="page"] {
+  background: rgb(214 197 255 / 0.16);
+  box-shadow: inset 0 0 0 1px rgb(214 197 255 / 0.28);
+  color: var(--text-strong);
+}
+
+.nav-bar__item[aria-current="page"] .icon {
+  color: var(--flux-200);
+}
+
+/* --- Estados -------------------------------------------------------- */
+
+.state {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  padding: var(--space-8) var(--space-5);
+  text-align: center;
+}
+
+.state__icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  background: rgb(255 255 255 / 0.06);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
+  color: var(--flux-300);
+}
+
+.state--error .state__icon {
+  background: var(--danger-soft);
+  box-shadow: inset 0 0 0 1px rgb(255 128 148 / 0.35);
+  color: var(--danger);
+}
+
+.state__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-semibold);
+  color: var(--text-strong);
+}
+
+.state__text {
+  max-width: 30ch;
+  margin: 0;
+  color: var(--text-muted);
+}
+
+/* Esqueleto de carga: tiene la forma del contenido que viene, así la
+   pantalla no salta cuando llegan los datos. */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  background: rgb(255 255 255 / 0.08);
+}
+
+/* El brillo se mueve con transform, no con background-position. */
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg,
+      transparent, rgb(255 255 255 / 0.09), transparent);
+  animation: shimmer 1.4s var(--ease-in-out) infinite;
+}
+
+@keyframes shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton-row {
+  display: grid;
+  grid-template-columns: var(--touch) 1fr 72px;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 64px;
+  padding: var(--space-2) var(--space-4);
+}
+
+.skeleton--chip {
+  height: var(--touch);
+  border-radius: 14px;
+}
+
+.skeleton--line {
+  height: 12px;
+}
+
+.skeleton--line + .skeleton--line {
+  margin-top: var(--space-2);
+}
+
+/* --- Movimiento reducido ------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: opacity var(--dur-press) linear;
+  }
+
+  .btn:active {
+    transform: none;
+    opacity: 0.8;
+  }
+
+  .skeleton::after {
+    display: none;
+  }
+
+  /* El indicador de carga es información, no adorno: se mantiene, pero
+     más lento. */
+  .spinner {
+    animation-duration: 1.6s;
+  }
+}
