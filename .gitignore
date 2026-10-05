@@ -5,6 +5,11 @@
 .env.*
 !.env.example
 
+# --- Referencias de diseno -------------------------------------------
+# Capturas de apps de terceros: se usan para sacar el estilo, pero el repo es
+# publico y no son nuestras. Lo que se versiona es frontend/DESIGN.md.
+docs/referencias/
+
 # --- Compilacion -----------------------------------------------------
 target/
 !backend/.mvn/wrapper/maven-wrapper.properties
