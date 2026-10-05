@@ -198,7 +198,10 @@ frontend/
 ### Movimiento
 
 - Toda animación vive en `js/motion.js`; las pantallas le piden efectos, no
-  llaman a GSAP.
+  llaman a GSAP. Excepción: la respuesta al tocar un botón y los indicadores
+  de carga van en CSS, porque tienen que ser inmediatos y funcionar aunque el
+  JavaScript no haya cargado.
+- Las reglas completas de diseño y movimiento están en `frontend/DESIGN.md`.
 - Solo se animan `transform` y `opacity`, para que vaya fluido en un celular de
   gama media.
 - El scroll ocurre dentro del contenedor de la pantalla, no en `window`: cada
