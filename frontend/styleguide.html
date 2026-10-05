@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0A0614">
+  <title>Flux IA · Sistema de diseño</title>
+  <link rel="icon" href="assets/icons/app-icon-b-tarjetas.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/manrope-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/sora-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/styleguide.css">
+</head>
+<body class="sg">
+<!--
+  Sistema de diseño de Flux IA, en vivo. Usa los mismos tokens.css y
+  app.css que la app. Todos los datos son de ejemplo y están marcados.
+  Se abre con Live Server: los íconos se cargan con <use href> desde un
+  archivo aparte y eso no funciona abriendo el HTML con file://.
+-->
+<div class="sg-wrap">
+
+  <header class="sg-header">
+    <div class="sg-brand">
+      <img src="assets/icons/app-icon-b-tarjetas.svg" alt="">
+      <p class="eyebrow">Flux IA · Sistema de diseño</p>
+    </div>
+    <h1 class="display">Vidrio, violeta<br>y cifras que se leen primero.</h1>
+    <p class="sg-lead">
+      Todo lo que aparece aquí usa los mismos <code>tokens.css</code> y <code>app.css</code> que
+      tendrá la app. Las cifras y nombres son de ejemplo y llevan la marca
+      <span class="sg-tag">Ejemplo</span>; en la app, todo número saldrá de la API.
+      Reglas completas en <code>frontend/DESIGN.md</code>.
+    </p>
+    <ul class="sg-toc">
+      <li><a href="#composicion">Composición</a></li>
+      <li><a href="#color">Color</a></li>
+      <li><a href="#tipografia">Tipografía</a></li>
+      <li><a href="#espacio">Espacio y radios</a></li>
+      <li><a href="#vidrio">Vidrio</a></li>
+      <li><a href="#saldo">Tarjeta de saldo</a></li>
+      <li><a href="#botones">Botones</a></li>
+      <li><a href="#campos">Campos</a></li>
+      <li><a href="#movimientos">Movimientos</a></li>
+      <li><a href="#navegacion">Navegación</a></li>
+      <li><a href="#estados">Estados</a></li>
+      <li><a href="#icono">Ícono de la app</a></li>
+      <li><a href="#iconos">Íconos</a></li>
+    </ul>
+  </header>
+
+  <!-- ============================================================ -->
+  <section class="sg-section" id="composicion">
+    <div class="sg-section__head">
+      <h2 class="h1"><span class="sg-num">00</span> Composición</h2>
+      <p>Las piezas juntas, en el marco de 390×844 con el que se verá la app en el computador.
+        No es la pantalla de Inicio final: es para juzgar el conjunto antes de construirla.</p>
+    </div>
+
+    <div class="sg-device-row">
+      <div class="device-host" style="padding:0; min-height:0; display:block">
+        <div class="device">
+          <div class="app-bg" style="position:absolute; inset:0" aria-hidden="true"></div>
+          <div class="orb" style="width:220px; height:220px; top:70px; right:-70px" aria-hidden="true"></div>
+          <div class="orb" style="width:120px; height:120px; top:420px; left:-50px; opacity:.8" aria-hidden="true"></div>
+
+          <main class="screen">
+            <div class="sg-home-head">
+              <div>
+                <p class="eyebrow">Octubre</p>
+                <p class="h2">Hola, Ana</p>
+              </div>
+              <button class="btn btn--icon" type="button" aria-label="Buscar movimientos">
+                <svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-search"/></svg>
+              </button>
+            </div>
+
+            <article class="balance-card" aria-label="Resumen del mes">
+              <p class="balance-card__label">
+                <svg class="icon icon--sm" aria-hidden="true"><use href="assets/icons/ui.svg#i-wallet"/></svg>
+                Saldo total
+              </p>
+              <span class="balance-card__amount money">$&nbsp;56.410,00</span>
+              <div class="balance-card__rows">
+                <div class="flow flow--income">
+                  <span class="flow__icon"><svg class="icon icon--sm" aria-hidden="true"><use href="assets/icons/ui.svg#i-arrow-up"/></svg></span>
+                  <span class="flow__label">Ingresos del mes</span>
+                  <span class="flow__value money">$&nbsp;58.000,00</span>
+                </div>
+                <div class="flow flow--expense">
+                  <span class="flow__icon"><svg class="icon icon--sm" aria-hidden="true"><use href="assets/icons/ui.svg#i-arrow-down"/></svg></span>
+                  <span class="flow__label">Gastos del mes</span>
+                  <span class="flow__value money">$&nbsp;17.250,00</span>
+                </div>
+              </div>
+              <div class="balance-card__footer">
+                <span>Tasa de ahorro del mes</span>
+                <span class="money">70,26&nbsp;%</span>
+              </div>
+            </article>
+
+            <div class="sg-section-title">
+              <h3 class="h2">Recientes</h3>
+              <a class="btn btn--ghost" href="#movimientos">Ver todos</a>
+            </div>
+
+            <div class="glass glass--strong">
+              <ul class="tx-list">
+                <li><button class="tx-row" type="button">
+                  <span class="cat-chip" style="--cat:#06b6d4" aria-hidden="true">🛒</span>
+                  <span class="tx-row__main"><span class="tx-row__title">Compra semanal</span><span class="tx-row__meta">Supermercado · Hoy</span></span>
+                  <span class="tx-row__amount money">−$&nbsp;5.800,00</span>
+                </button></li>
+                <li><button class="tx-row" type="button">
+                  <span class="cat-chip" style="--cat:#10b981" aria-hidden="true">💰</span>
+                  <span class="tx-row__main"><span class="tx-row__title">Sueldo</span><span class="tx-row__meta">Ingresos · Ayer</span></span>
+                  <span class="tx-row__amount money is-income">+$&nbsp;43.000,00</span>
+                </button></li>
+                <li><button class="tx-row" type="button">
+                  <span class="cat-chip" style="--cat:#f59e0b" aria-hidden="true">⚡</span>
+                  <span class="tx-row__main"><span class="tx-row__title">Luz</span><span class="tx-row__meta">Servicios · 3 oct</span></span>
+                  <span class="tx-row__amount money">−$&nbsp;2.450,00</span>
+                </button></li>
+              </ul>
+            </div>
+          </main>
+
+          <nav class="nav-bar glass glass--strong" aria-label="Secciones">
+            <a class="nav-bar__item" href="#composicion" aria-current="page"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-home"/></svg>Inicio</a>
+            <a class="nav-bar__item" href="#composicion"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-swap"/></svg>Movimientos</a>
+            <a class="nav-bar__item" href="#composicion"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-chart"/></svg>Reportes</a>
+            <a class="nav-bar__item" href="#composicion"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-chat"/></svg>Asistente</a>
+            <a class="nav-bar__item" href="#composicion"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-user"/></svg>Perfil</a>
+          </nav>
+        </div>
+      </div>
+
+      <div>
+        <span class="sg-tag">Ejemplo</span>
+        <ul class="sg-notes" style="margin-top: var(--space-4)">
+          <li><strong>Una sola capa de vidrio por bloque</strong>La lista entera es un único vidrio, no uno por fila. En esta pantalla hay tres capas con desenfoque: tarjeta, lista y barra.</li>
+          <li><strong>La cifra manda</strong>El saldo es lo más grande y lo más blanco de la pantalla. El color de ingresos y gastos va en los íconos, no en los números: sobre el violeta, verde y rosa no llegan a 4,5:1.</li>
+          <li><strong>Cada cifra dice su período</strong>«Ingresos del mes», no «Ingresos». El saldo es total; los demás, del período elegido.</li>
+          <li><strong>El signo y el color, juntos</strong>Un ingreso lleva «+» y va en verde; un gasto lleva «−» y va en blanco. Nunca solo el color.</li>
+          <li><strong>Barra flotante</strong>Separada de los bordes y sobre la zona segura inferior, como las barras de vidrio de la referencia.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="sg-section" id="color">
+    <div class="sg-section__head">
+      <h2 class="h1"><span class="sg-num">01</span> Color</h2>
+      <p>Casi negro con un tinte violeta de fondo, un violeta de marca y un lila claro para las acciones.
+        Los contrastes están medidos en el peor caso: vidrio encima del punto más brillante del fondo.</p>
+    </div>
+
+    <h3 class="eyebrow sg-group-title">Fondo y marca</h3>
+    <div class="sg-swatches">
+      <div class="sg-swatch"><div class="sg-swatch__chip" style="background:var(--bg-base)"></div><div class="sg-swatch__body"><code>--bg-base</code>#0A0614 · fondo de la app</div></div>
+      <div class="sg-swatch"><div class="sg-swatch__chip" style="background:var(--flux-orb)"></div><div class="sg-swatch__body"><code>--flux-orb</code>#A274FF · tope de las esferas</div></div>
+      <div class="sg-swatch"><div class="sg-swatch__chip" style="background:var(--flux-900)"></div><div class="sg-swatch__body"><code>--flux-900</code>#1B0B45</div></div>
+      <div class="sg-swatch"><div class="sg-swatch__chip" style="background:var(--flux-700)"></div><div class="sg-swatch__body"><code>--flux-700</code>#4E1CB6</div></div>
+      <div class="sg-swatch"><div class="sg-swatch__chip" style="background:var(--flux-600)"></div><div class="sg-swatch__body"><code>--flux-600</code>#6326D6 · tarjeta de saldo</div></div>
+      <div class="sg-swatch"><div class="sg-swatch__chip" style="background:var(--flux-500)"></div><div class="sg-swatch__body"><code>--flux-500</code>#8243F5 · marca</div></div>
+      <div class="sg-swatch"><div class="sg-swatch__chip" style="background:var(--flux-300)"></div><div class="sg-swatch__body"><code>--flux-300</code>#B795FF · enlaces, activo</div></div>
+      <div class="sg-swatch"><div class="sg-swatch__chip" style="background:var(--flux-200)"></div><div class="sg-swatch__body"><code>--flux-200</code>#D6C5FF · botón principal</div></div>
+      <div class="sg-swatch"><div class="sg-swatch__chip" style="background:var(--flux-50)"></div><div class="sg-swatch__body"><code>--flux-50</code>#F4EEFF</div></div>
+    </div>
+
+    <h3 class="eyebrow sg-group-title">Texto y significado</h3>
+    <div class="sg-swatches">
+      <div class="sg-swatch"><div class="sg-swatch__chip" style="background:var(--text-strong)"></div><div class="sg-swatch__body"><code>--text-strong</code>#FFFFFF · cifras, títulos</div></div>
+      <div class="sg-swatch"><div class="sg-swatch__chip" style="background:var(--text)"></div><div class="sg-swatch__body"><code>--text</code>#EDE7FB · cuerpo</div></div>
+      <div class="sg-swatch"><div class="sg-swatch__chip" style="background:var(--text-muted)"></div><div class="sg-swatch__body"><code>--text-muted</code>#C4B9E2 · secundario</div></div>
+      <div class="sg-swatch"><div class="sg-swatch__chip" style="background:var(--text-subtle)"></div><div class="sg-swatch__body"><code>--text-subtle</code>#A99CD0 · placeholder</div></div>
+      <div class="sg-swatch"><div class="sg-swatch__chip" style="background:var(--income)"></div><div class="sg-swatch__body"><code>--income</code>#4BE3A4 · ingreso</div></div>
+      <div class="sg-swatch"><div class="sg-swatch__chip" style="background:var(--expense)"></div><div class="sg-swatch__body"><code>--expense</code>#FF93A6 · gasto (ícono)</div></div>
+      <div class="sg-swatch"><div class="sg-swatch__chip" style="background:var(--danger)"></div><div class="sg-swatch__body"><code>--danger</code>#FF8094 · error</div></div>
+      <div class="sg-swatch"><div class="sg-swatch__chip" style="background:var(--warning)"></div><div class="sg-swatch__body"><code>--warning</code>#FFCB6B · aviso</div></div>
+    </div>
+
+    <h3 class="eyebrow sg-group-title">Contraste medido (mínimo 4,5:1)</h3>
+    <div class="sg-table-wrap">
+      <table class="sg-table">
+        <thead>
+          <tr><th>Texto</th><th>Vidrio fuerte, peor caso</th><th>Vidrio sobre fondo</th><th>Sin desenfoque</th><th>Tarjeta de saldo, zona más clara</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>--text-strong</code></td><td class="num">11,41</td><td class="num">18,78</td><td class="num">17,68</td><td class="num">6,53</td></tr>
+          <tr><td><code>--text</code></td><td class="num">9,46</td><td class="num">15,59</td><td class="num">14,67</td><td class="num">no se usa</td></tr>
+          <tr><td><code>--text-on-hero</code></td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">5,58</td></tr>
+          <tr><td><code>--text-muted</code></td><td class="num">6,18</td><td class="num">10,18</td><td class="num">9,59</td><td class="num">no se usa</td></tr>
+          <tr><td><code>--text-subtle</code></td><td class="num">4,54</td><td class="num">7,47</td><td class="num">7,03</td><td class="num">no se usa</td></tr>
+          <tr><td><code>--income</code></td><td class="num">6,97</td><td class="num">11,47</td><td class="num">10,80</td><td class="num">no se usa</td></tr>
+          <tr><td><code>--expense</code></td><td class="num">5,42</td><td class="num">8,92</td><td class="num">8,40</td><td class="num">no se usa</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="sg-caption"><strong>Peor caso:</strong> vidrio fuerte (72 %) encima del centro de una esfera (#A274FF). El vidrio normal (55 %) en ese mismo punto deja a <code>--text-subtle</code> (3,32) y a <code>--expense</code> (3,96) por debajo del mínimo, y a <code>--text-muted</code> justo en el límite (4,52); por eso solo lleva texto principal.</p>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="sg-section" id="tipografia">
+    <div class="sg-section__head">
+      <h2 class="h1"><span class="sg-num">02</span> Tipografía</h2>
+      <p>Sora para títulos: geométrica y algo ancha, con carácter. Manrope para texto y cifras: muy legible
+        en tamaño chico y con números tabulares. Las dos van en el proyecto, sin depender de Google Fonts.</p>
+    </div>
+
+    <div class="sg-type">
+      <div class="sg-type__spec"><strong>Display</strong>Sora 700 · 38/42 · −2 %</div>
+      <p class="display">Tu dinero, en claro.</p>
+    </div>
+    <div class="sg-type">
+      <div class="sg-type__spec"><strong>Título 1</strong>Sora 700 · 28/34</div>
+      <p class="h1">Movimientos</p>
+    </div>
+    <div class="sg-type">
+      <div class="sg-type__spec"><strong>Título 2</strong>Sora 600 · 20/26</div>
+      <p class="h2">Gasto por categoría</p>
+    </div>
+    <div class="sg-type">
+      <div class="sg-type__spec"><strong>Cuerpo</strong>Manrope 500 · 16/24</div>
+      <p style="margin:0">El asistente responde con tus datos reales, calculados en el servidor.</p>
+    </div>
+    <div class="sg-type">
+      <div class="sg-type__spec"><strong>Pequeño</strong>Manrope 500 · 14/20</div>
+      <p style="margin:0; font-size:var(--fs-sm)" class="text-muted">Supermercado · Hoy, 09:14</p>
+    </div>
+    <div class="sg-type">
+      <div class="sg-type__spec"><strong>Rótulo</strong>Manrope 700 · 12/16 · mayúsculas +8 %</div>
+      <p class="eyebrow">Resumen de octubre</p>
+    </div>
+    <div class="sg-type">
+      <div class="sg-type__spec"><strong>Cifra XL</strong>Manrope 800 · 40/44 · tabular <span class="sg-tag">Ejemplo</span></div>
+      <p class="money" style="margin:0; font-size:var(--fs-money-xl)">$&nbsp;56.410,00</p>
+    </div>
+    <div class="sg-type">
+      <div class="sg-type__spec"><strong>Cifra L / M</strong>Manrope 800 · 24 y 17 · tabular <span class="sg-tag">Ejemplo</span></div>
+      <p style="margin:0; display:flex; gap:var(--space-6); align-items:baseline">
+        <span class="money" style="font-size:var(--fs-money-lg)">$&nbsp;17.250,00</span>
+        <span class="money" style="font-size:var(--fs-money-md)">−$&nbsp;2.450,00</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="sg-section" id="espacio">
+    <div class="sg-section__head">
+      <h2 class="h1"><span class="sg-num">03</span> Espacio y radios</h2>
+      <p>Base de 4 px. Margen lateral de pantalla: 20 px. Toda área táctil mide al menos 44×44.</p>
+    </div>
+    <div class="sg-row">
+      <div class="sg-space">
+        <div class="sg-space__item"><code>--space-1</code><span class="sg-space__bar" style="width:4px"></span></div>
+        <div class="sg-space__item"><code>--space-2</code><span class="sg-space__bar" style="width:8px"></span></div>
+        <div class="sg-space__item"><code>--space-3</code><span class="sg-space__bar" style="width:12px"></span></div>
+        <div class="sg-space__item"><code>--space-4</code><span class="sg-space__bar" style="width:16px"></span></div>
+        <div class="sg-space__item"><code>--space-5</code><span class="sg-space__bar" style="width:20px"></span></div>
+        <div class="sg-space__item"><code>--space-6</code><span class="sg-space__bar" style="width:24px"></span></div>
+        <div class="sg-space__item"><code>--space-8</code><span class="sg-space__bar" style="width:32px"></span></div>
+        <div class="sg-space__item"><code>--space-10</code><span class="sg-space__bar" style="width:40px"></span></div>
+        <div class="sg-space__item"><code>--space-14</code><span class="sg-space__bar" style="width:56px"></span></div>
+      </div>
+      <div class="sg-radii">
+        <div class="sg-radius" style="border-radius:var(--r-sm)">12<br>campos</div>
+        <div class="sg-radius" style="border-radius:var(--r-md)">16<br>botones</div>
+        <div class="sg-radius" style="border-radius:var(--r-lg)">24<br>tarjetas</div>
+        <div class="sg-radius" style="border-radius:var(--r-xl)">32<br>hojas</div>
+        <div class="sg-radius" style="border-radius:var(--r-full)">total<br>FAB</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="sg-section" id="vidrio">
+    <div class="sg-section__head">
+      <h2 class="h1"><span class="sg-num">04</span> Vidrio</h2>
+      <p>Desenfoque de 22 px con saturación, base oscura translúcida, un brillo diagonal y un borde de 1 px
+        que se ilumina arriba a la izquierda. Sin <code>backdrop-filter</code>, el mismo vidrio pasa a un relleno sólido.</p>
+    </div>
+    <div class="sg-row">
+      <div>
+        <div class="sg-stage sg-stage--stack app-bg">
+          <div class="orb" style="width:180px; height:180px; top:-30px; right:-40px" aria-hidden="true"></div>
+          <div class="orb" style="width:110px; height:110px; bottom:40px; left:-30px" aria-hidden="true"></div>
+          <div class="glass card">
+            <p class="h2">Vidrio normal</p>
+            <p style="margin:var(--space-2) 0 0; color:var(--text)">Solo texto principal. Deja ver el fondo con más claridad.</p>
+          </div>
+          <div class="glass glass--strong card">
+            <p class="h2">Vidrio fuerte</p>
+            <p style="margin:var(--space-2) 0 0" class="text-muted">Para texto secundario, listas y formularios.</p>
+          </div>
+          <div class="glass glass--strong glass--solid card">
+            <p class="h2">Sin desenfoque</p>
+            <p style="margin:var(--space-2) 0 0" class="text-muted">La alternativa sólida, para navegadores sin <code>backdrop-filter</code>.</p>
+          </div>
+        </div>
+        <p class="sg-caption"><strong>Normal, fuerte y sólido</strong>, sobre las mismas esferas.</p>
+      </div>
+      <div>
+        <div class="sg-stage sg-stage--stack app-bg">
+          <span class="sg-tag">Ejemplo</span>
+          <div class="orb" style="width:160px; height:160px; top:30px; left:150px" aria-hidden="true"></div>
+          <div class="glass glass--strong card stat" style="margin-top:var(--space-8)">
+            <span class="stat__label">Gastos del mes</span>
+            <span class="stat__value money">$&nbsp;17.250,00</span>
+            <span class="stat__note">57,29&nbsp;% menos que septiembre</span>
+          </div>
+          <div class="glass glass--strong card stat">
+            <span class="stat__label">Tasa de ahorro del mes</span>
+            <span class="stat__value money">—</span>
+            <span class="stat__note">Sin ingresos en el período, no se puede calcular.</span>
+          </div>
+        </div>
+        <p class="sg-caption"><strong>Dato suelto.</strong> Si la API manda <code>null</code> se muestra «—» con la explicación, nunca «0 %».</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="sg-section" id="saldo">
+    <div class="sg-section__head">
+      <h2 class="h1"><span class="sg-num">05</span> Tarjeta de saldo</h2>
+      <p>Vidrio violeta, casi opaco: el blanco mantiene 6,5:1 hasta en su zona más clara. Hay una sola por pantalla.
+        El saldo es total: la API no da saldo por cuenta, así que no se inventa uno.</p>
+    </div>
+    <div class="sg-row">
+      <div>
+        <div class="sg-stage app-bg">
+          <span class="sg-tag">Ejemplo</span>
+          <div class="orb" style="width:200px; height:200px; top:-40px; right:-60px" aria-hidden="true"></div>
+          <article class="balance-card" style="margin-top:var(--space-6)">
+            <p class="balance-card__label"><svg class="icon icon--sm" aria-hidden="true"><use href="assets/icons/ui.svg#i-wallet"/></svg>Saldo total</p>
+            <span class="balance-card__amount money is-long">$&nbsp;12.345.678,90</span>
+            <div class="balance-card__rows">
+              <div class="flow flow--income">
+                <span class="flow__icon"><svg class="icon icon--sm" aria-hidden="true"><use href="assets/icons/ui.svg#i-arrow-up"/></svg></span>
+                <span class="flow__label">Ingresos del mes</span>
+                <span class="flow__value money">$&nbsp;1.258.000,00</span>
+              </div>
+              <div class="flow flow--expense">
+                <span class="flow__icon"><svg class="icon icon--sm" aria-hidden="true"><use href="assets/icons/ui.svg#i-arrow-down"/></svg></span>
+                <span class="flow__label">Gastos del mes</span>
+                <span class="flow__value money">$&nbsp;917.250,00</span>
+              </div>
+            </div>
+            <div class="balance-card__footer"><span>Tasa de ahorro del mes</span><span class="money">27,09&nbsp;%</span></div>
+          </article>
+        </div>
+        <p class="sg-caption"><strong>Cifra larga:</strong> no se corta ni se cambia por «…»; baja un escalón de tamaño (40 → 32 → 26).</p>
+      </div>
+      <div>
+        <div class="sg-stage sg-stage--stack app-bg">
+          <span class="sg-tag">Ejemplo</span>
+          <div class="balance-card balance-card--compact" style="margin-top:var(--space-8)">
+            <span class="balance-card__label">Saldo total</span>
+            <span class="balance-card__amount money">$&nbsp;56.410,00</span>
+          </div>
+          <p class="sg-caption" style="margin:0"><strong>Compacta:</strong> la que queda fija arriba al bajar en Inicio.</p>
+          <div class="glass glass--strong card">
+            <p class="eyebrow">Cuentas</p>
+            <ul class="tx-list" style="padding-bottom:0">
+              <li><div class="tx-row" style="padding-inline:0">
+                <span class="cat-chip" aria-hidden="true"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-wallet"/></svg></span>
+                <span class="tx-row__main"><span class="tx-row__title">Cuenta sueldo</span><span class="tx-row__meta">Banco · ARS</span></span>
+              </div></li>
+              <li><div class="tx-row" style="padding-inline:0">
+                <span class="cat-chip" aria-hidden="true"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-wallet"/></svg></span>
+                <span class="tx-row__main"><span class="tx-row__title">Efectivo</span><span class="tx-row__meta">Efectivo · ARS</span></span>
+              </div></li>
+            </ul>
+          </div>
+          <p class="sg-caption" style="margin:0"><strong>Cuentas:</strong> nombre, tipo y moneda. Sin cifras, porque la API no las tiene por cuenta.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="sg-section" id="botones">
+    <div class="sg-section__head">
+      <h2 class="h1"><span class="sg-num">06</span> Botones</h2>
+      <p>Lila claro con texto oscuro para la acción principal (11,3:1), como en la referencia. Al tocar,
+        se encogen a 97 % en 100 ms. Pruébalos: la respuesta es CSS, inmediata.</p>
+    </div>
+    <div class="sg-row">
+      <div class="sg-stage sg-stage--stack app-bg">
+        <button class="btn btn--primary btn--block" type="button">Ingresar</button>
+        <button class="btn btn--primary btn--block" type="button" aria-busy="true" disabled>
+          <span class="spinner" aria-hidden="true"></span>Ingresando…
+        </button>
+        <button class="btn btn--glass btn--block" type="button">Crear cuenta</button>
+        <div class="sg-buttons" style="justify-content:space-between">
+          <button class="btn btn--ghost" type="button">¿Olvidaste tu contraseña?</button>
+          <button class="btn btn--fab" type="button" aria-label="Continuar">
+            <svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-arrow-right"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="sg-stage sg-stage--stack app-bg">
+        <button class="btn btn--danger btn--block" type="button">
+          <svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-trash"/></svg>Eliminar movimiento
+        </button>
+        <button class="btn btn--primary btn--block" type="button" disabled>Guardar (deshabilitado)</button>
+        <div class="sg-buttons">
+          <button class="btn btn--icon" type="button" aria-label="Buscar"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-search"/></svg></button>
+          <button class="btn btn--icon" type="button" aria-label="Filtrar"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-filter"/></svg></button>
+          <button class="btn btn--icon" type="button" aria-label="Nuevo movimiento"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-plus"/></svg></button>
+          <button class="btn btn--icon" type="button" aria-label="Volver"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-arrow-left"/></svg></button>
+        </div>
+        <p class="sg-caption" style="margin:0">Los botones de ícono miden 44×44 y siempre llevan <code>aria-label</code>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="sg-section" id="campos">
+    <div class="sg-section__head">
+      <h2 class="h1"><span class="sg-num">07</span> Campos</h2>
+      <p>Contorno lila de 1,5 px como en la referencia. La etiqueta siempre visible, letra de 16 px
+        (con menos, el iPhone hace zoom al enfocar) y el error escrito debajo, no solo en rojo.</p>
+    </div>
+    <div class="sg-row">
+      <div class="sg-stage app-bg">
+        <div class="orb" style="width:200px; height:200px; top:-60px; right:-70px" aria-hidden="true"></div>
+        <form class="glass glass--strong card form" onsubmit="return false">
+          <div class="segmented" role="tablist" aria-label="Acceso">
+            <button class="segmented__option" type="button" role="tab" aria-selected="true">Ingresar</button>
+            <button class="segmented__option" type="button" role="tab" aria-selected="false">Crear cuenta</button>
+          </div>
+          <div class="field">
+            <label class="field__label" for="sg-email">Correo</label>
+            <input class="input" id="sg-email" type="email" placeholder="nombre@correo.com" autocomplete="email">
+          </div>
+          <div class="field">
+            <label class="field__label" for="sg-pass">Contraseña</label>
+            <div class="field__control">
+              <input class="input input--with-action" id="sg-pass" type="password" value="secreto123" autocomplete="current-password">
+              <button class="field__action" type="button" aria-label="Mostrar contraseña"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-eye"/></svg></button>
+            </div>
+          </div>
+          <button class="btn btn--primary btn--block" type="submit">Ingresar</button>
+        </form>
+      </div>
+      <div class="sg-stage app-bg">
+        <span class="sg-tag">Ejemplo</span>
+        <div class="glass glass--strong card form" style="margin-top:var(--space-6)">
+          <div class="alert" role="alert">
+            <svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-alert"/></svg>
+            <span>El correo o la contraseña no son correctos.</span>
+          </div>
+          <div class="field">
+            <label class="field__label" for="sg-amount">Monto</label>
+            <input class="input" id="sg-amount" inputmode="decimal" value="0" aria-invalid="true" aria-describedby="sg-amount-error">
+            <span class="field__error" id="sg-amount-error">
+              <svg class="icon icon--sm" aria-hidden="true"><use href="assets/icons/ui.svg#i-alert"/></svg>
+              El monto debe ser mayor que cero.
+            </span>
+          </div>
+          <div class="field">
+            <label class="field__label" for="sg-desc">Descripción</label>
+            <input class="input" id="sg-desc" placeholder="Ej.: compra semanal">
+            <span class="field__hint">Opcional. Hasta 140 caracteres.</span>
+          </div>
+        </div>
+        <p class="sg-caption"><strong>Errores:</strong> arriba el mensaje general de la API, tal cual llega; debajo de cada campo, el de <code>fields</code>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="sg-section" id="movimientos">
+    <div class="sg-section__head">
+      <h2 class="h1"><span class="sg-num">08</span> Fila de movimiento</h2>
+      <p>El emoji y el color de la categoría vienen de la API. Como algunos son muy oscuros para este fondo
+        («Otros» es #374151), el chip tiene base y anillo propios, y el emoji carga la identidad.</p>
+    </div>
+    <div class="sg-row">
+      <div class="sg-stage app-bg">
+        <span class="sg-tag">Ejemplo</span>
+        <div class="orb" style="width:160px; height:160px; top:120px; right:-50px" aria-hidden="true"></div>
+        <div class="glass glass--strong" style="margin-top:var(--space-6)">
+          <ul class="tx-list">
+            <li><button class="tx-row" type="button">
+              <span class="cat-chip" style="--cat:#06b6d4" aria-hidden="true">🛒</span>
+              <span class="tx-row__main"><span class="tx-row__title">Compra semanal</span><span class="tx-row__meta">Supermercado · Hoy, 09:14</span></span>
+              <span class="tx-row__amount money">−$&nbsp;5.800,00</span>
+            </button></li>
+            <li><button class="tx-row" type="button">
+              <span class="cat-chip" style="--cat:#10b981" aria-hidden="true">💰</span>
+              <span class="tx-row__main"><span class="tx-row__title">Sueldo</span><span class="tx-row__meta">Ingresos · Ayer</span></span>
+              <span class="tx-row__amount money is-income">+$&nbsp;43.000,00</span>
+            </button></li>
+            <li><button class="tx-row" type="button">
+              <span class="cat-chip" style="--cat:#6c63ff" aria-hidden="true">🍽️</span>
+              <span class="tx-row__main"><span class="tx-row__title">Cena con amigos</span><span class="tx-row__meta">Comida · 3 oct</span></span>
+              <span class="tx-row__amount money">−$&nbsp;2.120,00</span>
+            </button></li>
+            <li><button class="tx-row" type="button">
+              <span class="cat-chip" style="--cat:#ec4899" aria-hidden="true">🎮</span>
+              <span class="tx-row__main"><span class="tx-row__title">Suscripción de juegos</span><span class="tx-row__meta">Ocio · 2 oct</span></span>
+              <span class="tx-row__amount money">−$&nbsp;1.880,00</span>
+            </button></li>
+            <li><button class="tx-row" type="button">
+              <span class="cat-chip" style="--cat:#374151" aria-hidden="true">📦</span>
+              <span class="tx-row__main"><span class="tx-row__title">Regalo de cumpleaños para la familia de Martín</span><span class="tx-row__meta">Otros · 1 oct</span></span>
+              <span class="tx-row__amount money">−$&nbsp;1.250,00</span>
+            </button></li>
+          </ul>
+        </div>
+      </div>
+      <ul class="sg-notes">
+        <li><strong>La descripción se corta, la cifra no</strong>La última fila muestra el «…» de una descripción larga; el monto queda entero.</li>
+        <li><strong>Toda la fila se toca</strong>Mide al menos 64 px de alto y abre el detalle para editar o borrar.</li>
+        <li><strong>Una sola capa de vidrio</strong>Las filas no llevan desenfoque propio: el vidrio es el contenedor.</li>
+        <li><strong>Fecha relativa solo cerca</strong>«Hoy» y «Ayer»; después, fecha corta. La fecha viene de <code>occurredAt</code> y se muestra en la zona del usuario.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="sg-section" id="navegacion">
+    <div class="sg-section__head">
+      <h2 class="h1"><span class="sg-num">09</span> Navegación inferior</h2>
+      <p>Barra de vidrio flotante con cinco destinos. La activa lleva fondo lila, ícono lila claro y texto blanco;
+        las demás, texto secundario. Respeta la zona segura inferior del teléfono.</p>
+    </div>
+    <div class="sg-row">
+      <div class="sg-stage sg-stage--nav app-bg">
+        <div class="orb" style="width:140px; height:140px; bottom:-40px; left:120px" aria-hidden="true"></div>
+        <nav class="nav-bar glass glass--strong" aria-label="Ejemplo de navegación con Movimientos activo">
+          <a class="nav-bar__item" href="#navegacion"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-home"/></svg>Inicio</a>
+          <a class="nav-bar__item" href="#navegacion" aria-current="page"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-swap"/></svg>Movimientos</a>
+          <a class="nav-bar__item" href="#navegacion"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-chart"/></svg>Reportes</a>
+          <a class="nav-bar__item" href="#navegacion"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-chat"/></svg>Asistente</a>
+          <a class="nav-bar__item" href="#navegacion"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-user"/></svg>Perfil</a>
+        </nav>
+      </div>
+      <ul class="sg-notes">
+        <li><strong>Cinco destinos, siempre con texto</strong>Un ícono solo no alcanza para saber dónde lleva. Cada destino ocupa unos 73 px de ancho.</li>
+        <li><strong>La pantalla deja espacio</strong>El contenido termina por encima de la barra: <code>.screen</code> suma la altura de la barra y la zona segura a su margen inferior.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="sg-section" id="estados">
+    <div class="sg-section__head">
+      <h2 class="h1"><span class="sg-num">10</span> Estados</h2>
+      <p>Toda pantalla resuelve tres: cargando, vacío y error. El esqueleto tiene la forma de lo que viene,
+        así nada salta cuando llegan los datos.</p>
+    </div>
+    <div class="sg-row">
+      <div>
+        <div class="sg-stage sg-stage--stack app-bg" aria-busy="true">
+          <span class="sr-only">Cargando movimientos…</span>
+          <div class="skeleton" style="height:178px; border-radius:var(--r-lg)" aria-hidden="true"></div>
+          <div class="glass glass--strong" aria-hidden="true">
+            <div class="skeleton-row"><span class="skeleton skeleton--chip"></span><span><span class="skeleton skeleton--line" style="display:block; width:70%"></span><span class="skeleton skeleton--line" style="display:block; width:45%"></span></span><span class="skeleton skeleton--line"></span></div>
+            <div class="skeleton-row"><span class="skeleton skeleton--chip"></span><span><span class="skeleton skeleton--line" style="display:block; width:55%"></span><span class="skeleton skeleton--line" style="display:block; width:35%"></span></span><span class="skeleton skeleton--line"></span></div>
+            <div class="skeleton-row"><span class="skeleton skeleton--chip"></span><span><span class="skeleton skeleton--line" style="display:block; width:62%"></span><span class="skeleton skeleton--line" style="display:block; width:40%"></span></span><span class="skeleton skeleton--line"></span></div>
+          </div>
+        </div>
+        <p class="sg-caption"><strong>Cargando.</strong> El brillo se desplaza con <code>transform</code>; con movimiento reducido queda quieto.</p>
+      </div>
+      <div>
+        <div class="sg-stage app-bg">
+          <div class="glass glass--strong state">
+            <span class="state__icon"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-inbox"/></svg></span>
+            <p class="state__title">Todavía no hay movimientos</p>
+            <p class="state__text">Registra tu primer ingreso o gasto y aquí verás cómo se mueve tu dinero.</p>
+            <button class="btn btn--primary" type="button"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-plus"/></svg>Nuevo movimiento</button>
+          </div>
+        </div>
+        <p class="sg-caption"><strong>Vacío.</strong> Dice qué falta y ofrece la acción que lo resuelve.</p>
+      </div>
+      <div>
+        <div class="sg-stage app-bg">
+          <div class="glass glass--strong state state--error" role="alert">
+            <span class="state__icon"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-cloud-off"/></svg></span>
+            <p class="state__title">No pudimos cargar tus datos</p>
+            <p class="state__text">Revisa tu conexión e inténtalo de nuevo.</p>
+            <button class="btn btn--glass" type="button"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-refresh"/></svg>Reintentar</button>
+          </div>
+        </div>
+        <p class="sg-caption"><strong>Error.</strong> Si la API manda un mensaje, se muestra ese; si es un fallo de red, este texto propio. Nunca el detalle técnico.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="sg-section" id="icono">
+    <div class="sg-section__head">
+      <h2 class="h1"><span class="sg-num">11</span> Ícono de la app: tres opciones</h2>
+      <p>Las tres usan el mismo fondo violeta del ícono de la referencia, sin copiar su dibujo. El dibujo
+        cabe en el círculo seguro de los íconos <em>maskable</em>, así que sobrevive al recorte circular de Android.
+        Elige una; con esa genero los PNG de 192 y 512, el maskable y el apple-touch-icon.</p>
+    </div>
+    <div class="sg-icons">
+      <article class="sg-icon-card">
+        <div class="sg-icon-card__title"><h3 class="h2">A · Flujo</h3></div>
+        <div class="sg-icon-previews">
+          <figure><img class="sg-app-icon" src="assets/icons/app-icon-a-flujo.svg" alt="Opción A: una F hecha de dos cintas onduladas"><figcaption>iOS</figcaption></figure>
+          <figure><img class="sg-app-icon sg-app-icon--circle" src="assets/icons/app-icon-a-flujo.svg" alt=""><figcaption>Android</figcaption></figure>
+        </div>
+        <p>Una F hecha de dos cintas onduladas: el dinero que fluye. Es la más tipográfica y la que mejor se lee a 29 px.</p>
+      </article>
+      <article class="sg-icon-card is-recommended">
+        <div class="sg-icon-card__title"><h3 class="h2">B · Tarjetas de vidrio</h3><span class="sg-tag" style="color:var(--flux-200); box-shadow:inset 0 0 0 1px var(--flux-300); background:rgb(214 197 255 / .1)">Recomendada</span></div>
+        <div class="sg-icon-previews">
+          <figure><img class="sg-app-icon" src="assets/icons/app-icon-b-tarjetas.svg" alt="Opción B: dos tarjetas de vidrio inclinadas con una onda"><figcaption>iOS</figcaption></figure>
+          <figure><img class="sg-app-icon sg-app-icon--circle" src="assets/icons/app-icon-b-tarjetas.svg" alt=""><figcaption>Android</figcaption></figure>
+        </div>
+        <p>Dos tarjetas de vidrio inclinadas, como las de la bienvenida. En la apertura, estas mismas tarjetas pueden crecer y convertirse en las de la pantalla: el ícono y la app cuentan lo mismo.</p>
+      </article>
+      <article class="sg-icon-card">
+        <div class="sg-icon-card__title"><h3 class="h2">C · Onda</h3></div>
+        <div class="sg-icon-previews">
+          <figure><img class="sg-app-icon" src="assets/icons/app-icon-c-onda.svg" alt="Opción C: una lente de vidrio atravesada por una onda"><figcaption>iOS</figcaption></figure>
+          <figure><img class="sg-app-icon sg-app-icon--circle" src="assets/icons/app-icon-c-onda.svg" alt=""><figcaption>Android</figcaption></figure>
+        </div>
+        <p>Una lente de vidrio, la moneda, atravesada por una onda que sale del círculo. La más abstracta y la más simple.</p>
+      </article>
+    </div>
+
+    <h3 class="eyebrow sg-group-title">En la pantalla de inicio del teléfono</h3>
+    <div class="sg-row">
+      <div class="sg-stage app-bg" style="padding:0">
+        <div class="sg-homescreen">
+          <figure><span class="sg-ghost-icon"></span><span class="sg-ghost-label"></span></figure>
+          <figure><img src="assets/icons/app-icon-a-flujo.svg" alt=""><figcaption>Flux IA</figcaption></figure>
+          <figure><span class="sg-ghost-icon"></span><span class="sg-ghost-label"></span></figure>
+          <figure><span class="sg-ghost-icon"></span><span class="sg-ghost-label"></span></figure>
+          <figure><span class="sg-ghost-icon"></span><span class="sg-ghost-label"></span></figure>
+          <figure><img src="assets/icons/app-icon-b-tarjetas.svg" alt=""><figcaption>Flux IA</figcaption></figure>
+          <figure><span class="sg-ghost-icon"></span><span class="sg-ghost-label"></span></figure>
+          <figure><img src="assets/icons/app-icon-c-onda.svg" alt=""><figcaption>Flux IA</figcaption></figure>
+        </div>
+      </div>
+      <p class="sg-caption">A 60 px, el tamaño real en la pantalla de inicio, junto a íconos genéricos. Arriba A; abajo B y C.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="sg-section" id="iconos">
+    <div class="sg-section__head">
+      <h2 class="h1"><span class="sg-num">12</span> Íconos de interfaz</h2>
+      <p>Dibujados para el proyecto: grilla de 24, trazo de 1,75 y puntas redondeadas. Toman el color del texto.
+        Las categorías no usan estos íconos: usan el emoji que manda la API.</p>
+    </div>
+    <div class="sg-ui-icons">
+      <div class="sg-ui-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-home"/></svg>home</div>
+      <div class="sg-ui-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-swap"/></svg>swap</div>
+      <div class="sg-ui-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-chart"/></svg>chart</div>
+      <div class="sg-ui-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-chat"/></svg>chat</div>
+      <div class="sg-ui-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-user"/></svg>user</div>
+      <div class="sg-ui-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-plus"/></svg>plus</div>
+      <div class="sg-ui-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-search"/></svg>search</div>
+      <div class="sg-ui-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-filter"/></svg>filter</div>
+      <div class="sg-ui-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-arrow-right"/></svg>arrow-right</div>
+      <div class="sg-ui-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-arrow-left"/></svg>arrow-left</div>
+      <div class="sg-ui-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-arrow-up"/></svg>arrow-up</div>
+      <div class="sg-ui-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-arrow-down"/></svg>arrow-down</div>
+      <div class="sg-ui-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-eye"/></svg>eye</div>
+      <div class="sg-ui-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-eye-off"/></svg>eye-off</div>
+      <div class="sg-ui-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-alert"/></svg>alert</div>
+      <div class="sg-ui-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-check"/></svg>check</div>
+      <div class="sg-ui-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-refresh"/></svg>refresh</div>
+      <div class="sg-ui-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-inbox"/></svg>inbox</div>
+      <div class="sg-ui-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-cloud-off"/></svg>cloud-off</div>
+      <div class="sg-ui-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-logout"/></svg>logout</div>
+      <div class="sg-ui-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-trash"/></svg>trash</div>
+      <div class="sg-ui-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-pencil"/></svg>pencil</div>
+      <div class="sg-ui-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-wallet"/></svg>wallet</div>
+      <div class="sg-ui-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons/ui.svg#i-lock"/></svg>lock</div>
+    </div>
+  </section>
+
+  <footer class="sg-footer">
+    Fuentes: Sora y Manrope, licencia SIL Open Font License (ver <code>assets/fonts/</code>).
+    Íconos dibujados para Flux IA. El movimiento está descrito en <code>DESIGN.md</code> y se construye en el paso 5.
+  </footer>
+</div>
+</body>
+</html>
