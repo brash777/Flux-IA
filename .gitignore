@@ -1,11 +1,13 @@
 # --- Secretos: lo mas importante de este archivo ---------------------
+# Sin barra inicial a proposito: estos patrones valen en cualquier carpeta,
+# asi que cubren backend/.env y cualquier .env que aparezca en frontend/.
 .env
 .env.*
 !.env.example
 
 # --- Compilacion -----------------------------------------------------
 target/
-!.mvn/wrapper/maven-wrapper.properties
+!backend/.mvn/wrapper/maven-wrapper.properties
 build/
 *.class
 *.jar
