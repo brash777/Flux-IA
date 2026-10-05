@@ -1,26 +1,27 @@
 /* =====================================================================
    Enrutador de Flux IA.
 
-   Rutas por hash (#/bienvenida, #/ingresar): funcionan con cualquier
+   Rutas por hash (#/inicio, #/movimientos…): funcionan con cualquier
    servidor de archivos estáticos, Live Server incluido, sin configurar
    nada. Los nombres de ruta están en español porque el usuario los ve en
    la barra de direcciones.
 
-   Cada pantalla es un módulo con una función mount(view, ctx) que arma su
-   contenido dentro de `view` y devuelve { unmount } para limpiarse al
-   salir: escuchas, animaciones y disparadores de scroll.
+   Cada pantalla es un módulo con mount(view, ctx) que arma su contenido
+   dentro de `view` y devuelve { unmount } para limpiarse al salir:
+   escuchas, animaciones y disparadores de scroll.
+
+   `resolve` decide a dónde se va de verdad (por ejemplo, al login si una
+   ruta exige sesión y no la hay). `onShow` avisa qué ruta quedó a la
+   vista, para la barra de navegación.
    ===================================================================== */
 
 import * as motion from './motion.js';
 
-export function createRouter({ outlet, device, routes, fallback }) {
+export function createRouter({ outlet, device, routes, resolve, onShow }) {
   let current = null;
   let lastRequest = 0;
 
-  function routeFromHash() {
-    const name = location.hash.replace(/^#\/?/, '');
-    return Object.hasOwn(routes, name) ? name : fallback;
-  }
+  const requested = () => location.hash.replace(/^#\/?/, '');
 
   function navigate(name) {
     const hash = `#/${name}`;
@@ -29,17 +30,21 @@ export function createRouter({ outlet, device, routes, fallback }) {
   }
 
   async function show(name, { launch = false } = {}) {
+    const target = resolve(name);
+    if (target !== name) history.replaceState(null, '', `#/${target}`);
+
     // Si el usuario toca dos destinos seguidos, gana el último.
     const request = ++lastRequest;
-    const screen = await routes[name]();
+    const screen = await routes[target].load();
     if (request !== lastRequest) return;
 
     const view = document.createElement('section');
     view.className = 'view';
-    view.dataset.view = name;
+    view.dataset.view = target;
     outlet.append(view);
+    onShow?.(target);
 
-    const mounted = screen.mount(view, { navigate, device, launch }) ?? {};
+    const mounted = screen.mount(view, { navigate, device, launch, route: target }) ?? {};
     const previous = current;
     current = { view, unmount: mounted.unmount ?? (() => {}) };
 
@@ -69,8 +74,8 @@ export function createRouter({ outlet, device, routes, fallback }) {
   }
 
   function start({ launch }) {
-    window.addEventListener('hashchange', () => show(routeFromHash()));
-    show(routeFromHash(), { launch });
+    window.addEventListener('hashchange', () => show(requested()));
+    show(requested(), { launch });
   }
 
   return { start, navigate };

@@ -83,4 +83,13 @@
   <symbol id="i-lock" viewBox="0 0 24 24">
     <rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/>
   </symbol>
+  <symbol id="i-close" viewBox="0 0 24 24">
+    <path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>
+  </symbol>
+  <symbol id="i-send" viewBox="0 0 24 24">
+    <path d="M4.5 11.5 19.5 4.5l-5 15-3.2-6.8z"/><path d="m11.3 12.7 8.2-8.2"/>
+  </symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24">
+    <rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="m4.5 7.5 7.5 5.5 7.5-5.5"/>
+  </symbol>
 </svg>
