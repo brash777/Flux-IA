@@ -8,12 +8,16 @@ Volver al [README del proyecto](../README.md).
 
 ## Cómo abrirla
 
-1. Levanta el backend (ver [backend/README.md](../backend/README.md)). Tiene que
-   responder en `http://localhost:8080`.
-2. En VS Code, abre `frontend/index.html` con la extensión **Live Server**
-   («Open with Live Server»). Queda en
-   `http://127.0.0.1:5500/frontend/index.html`.
+1. Levanta el backend (ver [backend/README.md](../backend/README.md)).
+2. Abre **http://localhost:8080/**: el backend entrega esta carpeta y la API
+   en el mismo origen. Desde un celular de la misma red, cambia `localhost`
+   por la IP del computador; en Expo Go o el APK, ver
+   [mobile/README.md](../mobile/README.md).
 3. Ingresa con el usuario de prueba: `diego.f@fluxia.app` / `Flux2026!`.
+
+Para editar con recarga automática sirve también **Live Server** («Open with
+Live Server» sobre `frontend/index.html`): en los puertos 5500 y 5501 la app
+busca la API en el 8080 del mismo equipo.
 
 En el computador la app se ve dentro de un marco de teléfono. Para verla a
 tamaño real: herramientas de desarrollador → modo dispositivo → 390×844.
@@ -22,9 +26,10 @@ tamaño real: herramientas de desarrollador → modo dispositivo → 390×844.
   ve una vez por pestaña.
 - `styleguide.html` muestra el sistema de diseño en vivo.
 
-> Hay que abrirla con un servidor (Live Server), no con doble clic: los
-> módulos de JavaScript y los íconos no cargan con `file://`. El backend solo
-> acepta los orígenes de `CORS_ALLOWED_ORIGINS` (por omisión, los del 5500).
+> Hay que abrirla con un servidor (el backend o Live Server), no con doble
+> clic: los módulos de JavaScript y los íconos no cargan con `file://`. Con
+> Live Server, el backend solo acepta los orígenes de `CORS_ALLOWED_ORIGINS`
+> (por omisión, los del 5500); servida por el backend no hace falta CORS.
 
 ## Pantallas
 
@@ -55,6 +60,7 @@ frontend/
 │   ├── router.js         rutas por hash
 │   ├── api.js            ÚNICA capa que llama al backend
 │   ├── motion.js         toda la animación (GSAP + ScrollTrigger)
+│   ├── keyboard.js       que el teclado del celular no tape ni desarme la app
 │   ├── format.js         cifras y fechas a texto (no calcula nada)
 │   ├── ui.js, dom.js     piezas compartidas y construcción segura de nodos
 │   └── screens/          una pantalla por archivo
@@ -80,7 +86,9 @@ diseño en [DESIGN.md](DESIGN.md).
 
 ## Configuración
 
-`js/config.js` tiene la dirección de la API (`http://localhost:8080/api/v1`) y
-la zona horaria con la que se muestran las fechas. Esa zona tiene que ser la
-misma que `flux.timezone` del backend, para que un gasto aparezca en el mismo
-mes en la lista y en los reportes.
+`js/config.js` decide la dirección de la API: la del mismo origen
+(`/api/v1`) cuando la app la entrega el backend, y el puerto 8080 del mismo
+equipo cuando corre en Live Server. También tiene la zona horaria con la que
+se muestran las fechas. Esa zona tiene que ser la misma que `flux.timezone`
+del backend, para que un gasto aparezca en el mismo mes en la lista y en los
+reportes.
