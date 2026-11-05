@@ -65,11 +65,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         } catch (JwtService.TokenExpiredException ex) {
             reject(request, response, "TOKEN_EXPIRED",
-                    "Tu sesion expiro. Refresca el token para continuar.");
+                    "Tu sesión expiró. Refresca el token para continuar.");
             return;
         } catch (JwtService.TokenInvalidException ex) {
             reject(request, response, "TOKEN_INVALID",
-                    "El token de acceso no es valido.");
+                    "El token de acceso no es válido.");
             return;
         }
 
