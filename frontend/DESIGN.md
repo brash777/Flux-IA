@@ -356,7 +356,8 @@ pantalla.
   Chat y Perfil.
 - Es **una sola barra** para toda la app (vive en `index.html`, fuera de
   las pantallas): no se mueve al cambiar de pestaña. Se oculta en la
-  bienvenida y en el ingreso.
+  bienvenida y en el ingreso, y en el celular mientras se escribe en un
+  campo: el teclado ya ocupa media pantalla (`js/keyboard.js`).
 - Activa: fondo lila al 16 %, ícono `--flux-200` y texto blanco.
 
 ### Acción principal en el encabezado, no flotante
@@ -388,9 +389,17 @@ en el formulario, donde se pueden leer con calma.
 
 Burbujas del usuario en lila con texto oscuro; las del asistente, en vidrio
 sin desenfoque con el ícono de la app al lado. Las respuestas entran como
-texto (`white-space: pre-wrap`); solo se reconoce la negrita, construyendo
-nodos. Si la IA está apagada o sin clave, el aviso va en la conversación,
-con palabras propias, no el error del servidor.
+texto, con un formato mínimo armado con nodos: un párrafo por línea, listas
+con «-» o «1.» y **negrita**. Se escriben palabra por palabra, con un cursor
+al final, y la conversación sigue el final mientras quien lee no suba. Si la
+IA está apagada o sin clave, el aviso va en la conversación, con palabras
+propias, no el error del servidor.
+
+Con el teclado abierto, como en los chats de IA: la barra inferior se
+oculta, el campo queda justo encima del teclado y la cabecera arriba. En
+iPhone el teclado no achica la página, así que `js/keyboard.js` ajusta la
+app a la parte visible (`visualViewport`). Al enviar, el teclado se cierra y
+la respuesta se lee con la pantalla entera.
 
 ### Estados
 
@@ -511,8 +520,9 @@ Dos excepciones, en CSS, porque tienen que ser instantáneas y funcionar
 aunque el JavaScript no haya cargado:
 
 - la respuesta al tocar un botón (escala a 97 % en 100 ms);
-- los indicadores continuos: el que gira mientras se espera y el brillo del
-  esqueleto.
+- los indicadores continuos: el que gira mientras se espera, el brillo del
+  esqueleto y el cursor que parpadea mientras se escribe una respuesta del
+  chat.
 
 ### Duraciones y curvas
 
@@ -527,6 +537,9 @@ sola fuente.
 | `--dur-slow` | 480 ms | Gráficos, burbujas del chat. |
 | `--dur-count` | 900 ms | Conteo de cifras. |
 | `--dur-launch` | 1400 ms | Apertura completa (tope). |
+| `--dur-write-word` | 28 ms | Cada palabra de una respuesta del chat. |
+| `--dur-write-max` | 1800 ms | Tope de la respuesta entera, por larga que sea. |
+| `--dur-caret` | 1 s | Parpadeo del cursor mientras se escribe. |
 | `--stagger` | 50 ms | Escalonado entre elementos. |
 | `--stagger-max` | 400 ms | Tope del escalonado completo. |
 | `--rise` | 16 px | Distancia de entrada. |
@@ -547,7 +560,7 @@ sola fuente.
 | **Inicio** | La tarjeta de saldo se va con el scroll y, cuando sale la mitad, aparece fija arriba la variante compacta (solo `opacity`: tiene desenfoque). Las cifras cuentan de 0 a su valor. Las tarjetas entran escalonadas. |
 | **Movimientos** | Las filas entran escalonadas al cargar y al paginar: solo las nuevas. |
 | **Reportes** | Al entrar en pantalla: la dona se traza con `stroke-dashoffset`, porción tras porción, y las barras crecen desde la base. Es la excepción de los gráficos (ver abajo). |
-| **Chat** | Cada burbuja entra con un rebote corto (escala 0,92 → 1 y sube 8 px). Indicador de «escribiendo»: tres puntos que suben y bajan en secuencia. |
+| **Chat** | Cada burbuja entra con un rebote corto (escala 0,92 → 1 y sube 8 px). Indicador de «escribiendo»: tres puntos que suben y bajan en secuencia. La respuesta se escribe palabra por palabra, con un cursor al final (ver la excepción de abajo). |
 | **Cambio de pantalla** | La saliente se funde y baja 8 px; la entrante sube 16 px y aparece. 280 ms en total. |
 | **Botones** | Escala 97 % al tocar (CSS). |
 
@@ -585,6 +598,13 @@ sola fuente.
    el contenido se puede leer desde el primer cuadro; si los datos llegan a
    mitad de una entrada, se muestran ya. El escalonado completo no pasa de
    400 ms, aunque la lista sea larga.
+   **Excepción: la respuesta del chat**, que se escribe palabra por palabra
+   porque así se lee como una conversación, igual que en los chats de IA.
+   Para que no estorbe: tarda como mucho `--dur-write-max` (1,8 s), tocarla
+   la completa, una pregunta nueva completa la anterior y, con
+   `prefers-reduced-motion`, aparece entera. Mientras se escribe, la
+   conversación lleva `aria-busy`: un lector de pantalla la lee entera al
+   terminar.
 6. **`prefers-reduced-motion: reduce`:** sin *parallax*, sin `scrub`, sin
    conteos (la cifra aparece ya en su valor), sin escalas ni desplazamientos.
    Solo fundidos de 180 ms. La apertura pasa a un fundido del ícono a la
