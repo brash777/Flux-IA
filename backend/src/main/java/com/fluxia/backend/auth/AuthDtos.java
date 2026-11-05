@@ -29,7 +29,7 @@ public final class AuthDtos {
     public record RegisterRequest(
 
             @NotBlank(message = "El correo es obligatorio.")
-            @Email(message = "Ingresa un correo valido.")
+            @Email(message = "Ingresa un correo válido.")
             @Size(max = 255, message = "El correo es demasiado largo.")
             String email,
 
@@ -38,9 +38,9 @@ public final class AuthDtos {
              * una contrasena de cuatro digitos se agota por fuerza bruta
              * en 10 000 intentos.
              */
-            @NotBlank(message = "La contrasena es obligatoria.")
+            @NotBlank(message = "La contraseña es obligatoria.")
             @Size(min = 8, max = 72,
-                    message = "La contrasena debe tener entre 8 y 72 caracteres.")
+                    message = "La contraseña debe tener entre 8 y 72 caracteres.")
             String password,
 
             @NotBlank(message = "El nombre es obligatorio.")
@@ -49,19 +49,19 @@ public final class AuthDtos {
     ) {
     }
 
-    @Schema(description = "Credenciales de inicio de sesion")
+    @Schema(description = "Credenciales de inicio de sesión")
     public record LoginRequest(
 
             @NotBlank(message = "El correo es obligatorio.")
-            @Email(message = "Ingresa un correo valido.")
+            @Email(message = "Ingresa un correo válido.")
             String email,
 
-            @NotBlank(message = "La contrasena es obligatoria.")
+            @NotBlank(message = "La contraseña es obligatoria.")
             String password
     ) {
     }
 
-    @Schema(description = "Token de refresco obtenido al iniciar sesion")
+    @Schema(description = "Token de refresco obtenido al iniciar sesión")
     public record RefreshRequest(
 
             @NotBlank(message = "El token de refresco es obligatorio.")
@@ -69,24 +69,24 @@ public final class AuthDtos {
     ) {
     }
 
-    @Schema(description = "Correo al que enviar el enlace de recuperacion")
+    @Schema(description = "Correo al que enviar el enlace de recuperación")
     public record ForgotPasswordRequest(
 
             @NotBlank(message = "El correo es obligatorio.")
-            @Email(message = "Ingresa un correo valido.")
+            @Email(message = "Ingresa un correo válido.")
             String email
     ) {
     }
 
-    @Schema(description = "Token del enlace de recuperacion y contrasena nueva")
+    @Schema(description = "Token del enlace de recuperación y contraseña nueva")
     public record ResetPasswordRequest(
 
             @NotBlank(message = "El token es obligatorio.")
             String token,
 
-            @NotBlank(message = "La contrasena es obligatoria.")
+            @NotBlank(message = "La contraseña es obligatoria.")
             @Size(min = 8, max = 72,
-                    message = "La contrasena debe tener entre 8 y 72 caracteres.")
+                    message = "La contraseña debe tener entre 8 y 72 caracteres.")
             String newPassword
     ) {
     }
@@ -95,7 +95,7 @@ public final class AuthDtos {
     // Salidas
     // -----------------------------------------------------------------
 
-    @Schema(description = "Sesion abierta: tokens y datos del usuario")
+    @Schema(description = "Sesión abierta: tokens y datos del usuario")
     public record SessionResponse(
             String accessToken,
             Instant accessTokenExpiresAt,
@@ -131,7 +131,7 @@ public final class AuthDtos {
         }
     }
 
-    @Schema(description = "Confirmacion simple de una operacion")
+    @Schema(description = "Confirmación simple de una operación")
     public record MessageResponse(String message) {
     }
 }
