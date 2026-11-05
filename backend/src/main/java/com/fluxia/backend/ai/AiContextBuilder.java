@@ -105,7 +105,7 @@ public class AiContextBuilder {
                     .append('\n');
         }
 
-        context.append("\nGastos por categoria (mes en curso)\n");
+        context.append("\nGastos por categoría (mes en curso)\n");
         if (expenses.slices().isEmpty()) {
             context.append("  Sin gastos registrados este mes.\n");
         } else {
@@ -123,7 +123,7 @@ public class AiContextBuilder {
             context.append("  Total de gastos: ").append(money(expenses.total())).append('\n');
         }
 
-        context.append("\nTendencia de los ultimos ").append(TREND_MONTHS).append(" meses\n");
+        context.append("\nTendencia de los últimos ").append(TREND_MONTHS).append(" meses\n");
         for (ReportDtos.MonthPoint month : trend.months()) {
             context.append("  ")
                     .append(month.label()).append(' ').append(month.year())
@@ -163,6 +163,6 @@ public class AiContextBuilder {
 
     /** Null se traduce a texto, no a "0 %", que seria enganoso. */
     private String percent(BigDecimal value) {
-        return value != null ? value + " %" : "sin comparacion disponible";
+        return value != null ? value + " %" : "sin comparación disponible";
     }
 }
