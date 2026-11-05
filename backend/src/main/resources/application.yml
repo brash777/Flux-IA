@@ -31,6 +31,17 @@ spring:
     password: ${DB_PASSWORD}
     hikari:
       maximum-pool-size: 10
+      # Un computador que se suspende o cambia de red deja conexiones TCP
+      # muertas que nadie cierra. Sin límites, el driver espera para siempre
+      # una respuesta que no llega, el único hilo que abre conexiones queda
+      # bloqueado y toda petición falla hasta reiniciar el servidor. Con
+      # estos tiempos, la conexión muerta falla, se descarta y se abre otra.
+      connection-timeout: 10000   # ms que una petición espera una conexión
+      keepalive-time: 60000       # ms entre comprobaciones de las inactivas
+      data-source-properties:
+        loginTimeout: 10          # s para abrir una conexión
+        socketTimeout: 30         # s sin respuesta; ninguna consulta tarda tanto
+        tcpKeepAlive: true
 
   jpa:
     # El esquema lo manda Flyway. Hibernate solo verifica que las
