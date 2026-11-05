@@ -77,6 +77,11 @@ spring:
 
 server:
   port: ${PORT:8080}
+  # Detras de un tunel o de un proxy con HTTPS (cloudflared, Render), la
+  # peticion llega en http. Con esto se respeta X-Forwarded-Proto y el
+  # servidor sabe que el origen real es https; si no, tomaria las
+  # peticiones de su propia app por peticiones de otro origen.
+  forward-headers-strategy: native
   error:
     # Nunca devolver trazas internas al cliente.
     include-message: never
