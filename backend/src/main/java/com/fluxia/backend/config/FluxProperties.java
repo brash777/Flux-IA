@@ -1,9 +1,11 @@
 package com.fluxia.backend.config;
 
+import com.fluxia.backend.ai.AiProvider;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.time.Duration;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -106,23 +108,40 @@ public class FluxProperties {
     public static class Ai {
 
         private boolean enabled = true;
+
+        /** Groq, Gemini, Anthropic o cualquier API compatible con OpenAI. */
+        private AiProvider provider = AiProvider.GROQ;
+
         private String apiKey;
 
         /**
-         * Base alternativa de la API. Se deja vacio para usar la
-         * oficial; solo sirve para apuntar a un servidor simulado en
-         * las pruebas.
+         * Base alternativa de la API. Vacia, se usa la del proveedor; hace
+         * falta solo con {@code openai} o para apuntar a un servidor
+         * simulado.
          */
         private String baseUrl;
 
-        private String model = "claude-opus-5-5";
+        /** Modelo principal. Vacio, se usa el del proveedor. */
+        private String model;
 
         /**
-         * Tope de tokens de la respuesta. En Opus 5.5 el razonamiento
-         * interno del modelo tambien consume de este tope, de modo que
-         * un valor muy ajustado puede truncar la respuesta.
+         * Modelos que se prueban, en orden, si el principal no responde.
+         * Vacio, se usan los del proveedor.
+         */
+        private List<String> fallbackModels = new ArrayList<>();
+
+        /**
+         * Tope de tokens de la respuesta. En los modelos con razonamiento,
+         * el razonamiento tambien consume de este tope, de modo que un
+         * valor muy ajustado puede truncar la respuesta.
          */
         private int maxTokens = 4096;
+
+        /**
+         * Cuantos turnos previos de la conversacion se envian al modelo.
+         * Alcanzan para las repreguntas y mantienen el pedido chico.
+         */
+        private int maxHistoryTurns = 8;
 
         /**
          * Profundidad de razonamiento: LOW, MEDIUM, HIGH, XHIGH o MAX.
@@ -134,12 +153,58 @@ public class FluxProperties {
 
         private Duration timeout = Duration.ofSeconds(60);
 
+        /**
+         * Los modelos en el orden en que se prueban: el principal y los de
+         * respaldo. Lo que no se configuro sale del proveedor.
+         */
+        public List<String> modelChain() {
+            boolean customModel = model != null && !model.isBlank();
+            List<String> chain = new ArrayList<>();
+            chain.add(customModel ? model : provider.getDefaultModel());
+            // Con un modelo elegido a mano no se suman los respaldos del
+            // proveedor: podrian ser de otra familia y responder distinto.
+            if (!fallbackModels.isEmpty()) {
+                chain.addAll(fallbackModels);
+            } else if (!customModel) {
+                chain.addAll(provider.getDefaultFallbacks());
+            }
+            return chain.stream()
+                    .filter(name -> name != null && !name.isBlank())
+                    .map(String::trim)
+                    .distinct()
+                    .toList();
+        }
+
         public boolean isEnabled() {
             return enabled;
         }
 
         public void setEnabled(boolean enabled) {
             this.enabled = enabled;
+        }
+
+        public AiProvider getProvider() {
+            return provider;
+        }
+
+        public void setProvider(AiProvider provider) {
+            this.provider = provider;
+        }
+
+        public List<String> getFallbackModels() {
+            return fallbackModels;
+        }
+
+        public void setFallbackModels(List<String> fallbackModels) {
+            this.fallbackModels = fallbackModels == null ? new ArrayList<>() : fallbackModels;
+        }
+
+        public int getMaxHistoryTurns() {
+            return maxHistoryTurns;
+        }
+
+        public void setMaxHistoryTurns(int maxHistoryTurns) {
+            this.maxHistoryTurns = maxHistoryTurns;
         }
 
         public String getApiKey() {
