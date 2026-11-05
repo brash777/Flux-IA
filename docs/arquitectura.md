@@ -177,9 +177,22 @@ AiController ──► AiChatService
                       ├─► AiContextBuilder ──► ReportService + TransactionService
                       │        (saldo, categorías, tendencia, movimientos)
                       │
-                      └─► SDK de Anthropic ──► modelo
+                      └─► ChatModel ──► modelo (Groq, Gemini o Anthropic)
                                (la clave vive solo acá)
 ```
+
+**El proveedor se elige con una variable de entorno** (`AI_PROVIDER`). Groq y
+Gemini exponen su API en el formato de OpenAI, así que un mismo cliente sirve
+para los dos; Anthropic usa su SDK oficial. `AiChatService` no sabe con cuál
+habla: arma la conversación y decide qué hacer si el modelo falla. Por omisión
+se usa Groq, cuyo plan gratuito no pide tarjeta.
+
+**Modelos de respaldo.** En un plan gratuito la cuota se mide por minuto y por
+día, y cada modelo tiene la suya. Si el principal se queda sin cuota, se cae o
+no escribe nada, responde el siguiente de la lista; una clave rechazada, en
+cambio, corta la lista, porque fallaría igual con todos. Solo se envían los
+últimos 8 turnos de la conversación, para que una charla larga no agote los
+tokens por minuto.
 
 **La clave de la API nunca sale del servidor.** Si estuviera en el frontend,
 cualquiera podría extraerla del código descargado y gastar crédito a nombre del
@@ -200,13 +213,15 @@ cosas que los datos no respaldaban. También prohíben dar consejos de inversió
 que en una aplicación financiera es tanto un problema legal como de
 responsabilidad.
 
-**Configuración del modelo:** `claude-opus-5-5` con nivel de esfuerzo `LOW`, que
-alcanza para respuestas de chat y es la opción más económica. En este modelo el
-razonamiento está siempre activo y consume del tope de `max_tokens`, por eso el
-tope es 4096 y no un valor ajustado.
+**Configuración del modelo:** con Groq, `openai/gpt-oss-120b` y de respaldo
+`openai/gpt-oss-20b`, con nivel de esfuerzo `LOW`, que alcanza para respuestas
+de chat y es el que menos cuota gasta. Son modelos con razonamiento: el
+razonamiento consume del tope de tokens, por eso el tope es 4096 y no un valor
+ajustado, y llega aparte, así que al usuario solo le llega la respuesta. Una
+pregunta típica usa unos 1.300 tokens.
 
 **Degradación.** Con `AI_ENABLED=false` el endpoint responde 503 y el resto de la
-aplicación funciona igual. Permite desarrollar sin clave y sin gastar crédito.
+aplicación funciona igual. Permite desarrollar sin clave.
 
 ## Manejo de errores
 
