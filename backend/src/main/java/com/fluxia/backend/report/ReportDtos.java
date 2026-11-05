@@ -20,7 +20,7 @@ public final class ReportDtos {
     private ReportDtos() {
     }
 
-    @Schema(description = "Saldo y totales del periodo, con la variacion respecto al anterior")
+    @Schema(description = "Saldo y totales del periodo, con la variación respecto al anterior")
     public record SummaryResponse(
 
             String period,
@@ -28,24 +28,24 @@ public final class ReportDtos {
             OffsetDateTime from,
             OffsetDateTime to,
 
-            @Schema(description = "Saldo historico acumulado hasta el fin del periodo")
+            @Schema(description = "Saldo histórico acumulado hasta el fin del periodo")
             BigDecimal balance,
 
             BigDecimal income,
             BigDecimal expense,
 
-            @Schema(description = "Ingresos menos gastos DEL PERIODO (no el saldo historico)")
+            @Schema(description = "Ingresos menos gastos DEL PERIODO (no el saldo histórico)")
             BigDecimal net,
 
-            @Schema(description = "Porcion de los ingresos que no se gasto, en porcentaje. Null si no hubo ingresos.")
+            @Schema(description = "Porción de los ingresos que no se gastó, en porcentaje. Null si no hubo ingresos.")
             BigDecimal savingsRate,
 
-            @Schema(description = "Variacion porcentual frente al periodo anterior")
+            @Schema(description = "Variación porcentual frente al periodo anterior")
             Comparison comparison
     ) {
     }
 
-    @Schema(description = "Variacion frente al periodo anterior. Null cuando el anterior fue cero y no hay base de comparacion.")
+    @Schema(description = "Variación frente al periodo anterior. Null cuando el anterior fue cero y no hay base de comparación.")
     public record Comparison(
             BigDecimal previousIncome,
             BigDecimal previousExpense,
@@ -54,7 +54,7 @@ public final class ReportDtos {
     ) {
     }
 
-    @Schema(description = "Gasto por categoria, para el grafico de dona")
+    @Schema(description = "Gasto por categoría, para el gráfico de dona")
     public record ByCategoryResponse(
             String period,
             OffsetDateTime from,
@@ -64,7 +64,7 @@ public final class ReportDtos {
     ) {
     }
 
-    @Schema(description = "Una porcion del grafico")
+    @Schema(description = "Una porción del gráfico")
     public record CategorySlice(
             UUID categoryId,
             String slug,
@@ -78,7 +78,7 @@ public final class ReportDtos {
     ) {
     }
 
-    @Schema(description = "Serie mensual para el grafico de barras")
+    @Schema(description = "Serie mensual para el gráfico de barras")
     public record TrendResponse(
             List<MonthPoint> months
     ) {
