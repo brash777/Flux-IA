@@ -1,0 +1,52 @@
+{
+  "expo": {
+    "name": "Flux IA",
+    "slug": "flux-ia",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0A0614",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.fluxia.app",
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      }
+    },
+    "android": {
+      "package": "com.fluxia.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "backgroundColor": "#2C106E"
+      }
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 120,
+          "backgroundColor": "#0A0614"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "09825e27-1896-4b6d-bbbf-d53bb9df3fe1"
+      }
+    },
+    "owner": "brash777"
+  }
+}
