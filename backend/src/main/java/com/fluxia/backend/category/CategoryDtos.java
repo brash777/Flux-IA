@@ -14,7 +14,7 @@ public final class CategoryDtos {
     private CategoryDtos() {
     }
 
-    @Schema(description = "Categoria propia nueva")
+    @Schema(description = "Categoría propia nueva")
     public record CreateRequest(
 
             @NotBlank(message = "El nombre es obligatorio.")
@@ -33,7 +33,7 @@ public final class CategoryDtos {
     ) {
     }
 
-    @Schema(description = "Una categoria visible para el usuario")
+    @Schema(description = "Una categoría visible para el usuario")
     public record Response(
             UUID id,
             String slug,
