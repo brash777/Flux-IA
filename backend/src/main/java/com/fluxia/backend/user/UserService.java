@@ -59,7 +59,7 @@ public class UserService {
 
         if (!passwordEncoder.matches(request.currentPassword(), user.getPasswordHash())) {
             throw ApiException.badRequest("CURRENT_PASSWORD_INVALID",
-                    "La contrasena actual no es correcta.");
+                    "La contraseña actual no es correcta.");
         }
 
         user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
