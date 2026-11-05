@@ -1,0 +1,13 @@
+{
+  "name": "flux-ia-e2e",
+  "private": true,
+  "type": "module",
+  "description": "Pruebas de punta a punta de Flux IA contra el servidor corriendo.",
+  "scripts": {
+    "api": "node api.mjs",
+    "ui": "node ui.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "1.56.1"
+  }
+}
