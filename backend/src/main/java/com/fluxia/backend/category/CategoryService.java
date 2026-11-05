@@ -54,7 +54,7 @@ public class CategoryService {
 
         if (alreadyVisible) {
             throw ApiException.conflict("CATEGORY_EXISTS",
-                    "Ya tienes una categoria llamada '" + request.name() + "'.");
+                    "Ya tienes una categoría llamada '" + request.name() + "'.");
         }
 
         User user = userRepository.getReferenceById(userId);
@@ -79,15 +79,15 @@ public class CategoryService {
     @Transactional
     public void delete(UUID userId, UUID categoryId) {
         Category category = categoryRepository.findByIdVisibleTo(categoryId, userId)
-                .orElseThrow(() -> ApiException.notFound("La categoria no existe."));
+                .orElseThrow(() -> ApiException.notFound("La categoría no existe."));
 
         if (category.isSystemCategory()) {
             throw ApiException.badRequest("CATEGORY_IS_SYSTEM",
-                    "Las categorias del sistema no se pueden eliminar.");
+                    "Las categorías del sistema no se pueden eliminar.");
         }
         if (transactionRepository.existsByCategoryId(categoryId)) {
             throw ApiException.badRequest("CATEGORY_IN_USE",
-                    "La categoria tiene movimientos asociados. Reasignalos antes de eliminarla.");
+                    "La categoría tiene movimientos asociados. Reasígnalos antes de eliminarla.");
         }
 
         categoryRepository.delete(category);
@@ -110,7 +110,7 @@ public class CategoryService {
 
         if (normalized.isBlank()) {
             throw ApiException.badRequest("CATEGORY_NAME_INVALID",
-                    "El nombre debe tener al menos una letra o numero.");
+                    "El nombre debe tener al menos una letra o número.");
         }
         return normalized.length() > 40 ? normalized.substring(0, 40) : normalized;
     }
