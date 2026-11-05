@@ -5,12 +5,14 @@ tus ingresos y gastos, ves a dónde va tu dinero en reportes y le preguntas al
 asistente cosas como «¿en qué gasté más este mes?». El asistente responde con
 tus movimientos reales, calculados en el servidor.
 
-El repositorio tiene las dos partes del proyecto:
+El repositorio tiene todas las partes del proyecto:
 
 | Carpeta | Qué contiene |
 |---|---|
-| [`backend/`](backend/) | API REST en Java 21 + Spring Boot + PostgreSQL. Toda cifra se calcula aquí. |
+| [`backend/`](backend/) | API REST en Java 21 + Spring Boot + PostgreSQL. Toda cifra se calcula aquí. También entrega la app web. |
 | [`frontend/`](frontend/) | App móvil en HTML, CSS y JavaScript puros, instalable como PWA. |
+| [`mobile/`](mobile/) | La misma app para Expo Go y como APK de Android, dentro de una WebView. |
+| [`e2e/`](e2e/) | Pruebas de punta a punta de la API y de la interfaz, contra el servidor corriendo. |
 | [`docs/`](docs/) | Arquitectura, auditoría del prototipo, capturas y el prototipo original. |
 
 ## Capturas
@@ -47,7 +49,8 @@ Datos de la semilla de prueba, a 390×844.
 | Flyway | 11 | Migraciones versionadas del esquema |
 | Spring Security + jjwt | 6.5 / 0.13 | Autenticación con JWT |
 | springdoc-openapi | 2.9 | Documentación navegable en `/docs` |
-| anthropic-java | 2.68 | SDK oficial para el asistente de IA |
+| Groq (API compatible con OpenAI) | `gpt-oss-120b` | Asistente de IA, plan gratuito |
+| anthropic-java | 2.68 | Alternativa de pago para el asistente (`AI_PROVIDER=anthropic`) |
 
 **Frontend**
 
@@ -70,6 +73,8 @@ Flux IA/
 │   ├── index.html, js/, css/, assets/
 │   ├── DESIGN.md                           sistema de diseño
 │   └── styleguide.html                     el sistema de diseño en vivo
+├── mobile/         Expo Go y APK (WebView)       → mobile/README.md
+├── e2e/            pruebas de punta a punta      → e2e/README.md
 ├── docs/
 │   ├── arquitectura.md
 │   ├── auditoria-prototipo.md
@@ -85,7 +90,7 @@ Flux IA/
 
 - **JDK 21.** No hace falta instalar Maven: el proyecto trae el *wrapper*.
 - **PostgreSQL**, local o en Supabase.
-- **VS Code con la extensión Live Server**, para servir el frontend.
+- Para el celular: **Node 20 o superior** y la app **Expo Go**.
 
 ### 1. Configurar el backend
 
@@ -101,8 +106,10 @@ Edita `backend/.env` con los datos de tu base (`DB_URL`, `DB_USERNAME`,
 openssl rand -base64 48   # pega el resultado en JWT_SECRET
 ```
 
-Sin clave de IA, deja `AI_ENABLED=false`: todo funciona salvo el chat, que lo
-avisa con un mensaje claro.
+Para el asistente, saca una clave gratuita de Groq en
+https://console.groq.com/keys (no pide tarjeta) y pégala en `AI_API_KEY`. Sin
+clave, deja `AI_ENABLED=false`: todo funciona salvo el chat, que lo avisa con un
+mensaje claro. Gemini y Anthropic también sirven: ver `backend/.env.example`.
 
 > **Si usas Supabase:** la conexión directa solo tiene IPv6. En una red sin
 > IPv6 el backend no arranca (`No route to host`) y hay que usar el *pooler*
@@ -119,20 +126,40 @@ SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run
 El perfil `dev` crea las tablas y carga la semilla con el usuario de prueba.
 Cuando el log diga `Started FluxIaApplication`, la API responde en
 `http://localhost:8080` y su documentación en
-**http://localhost:8080/docs**.
+**http://localhost:8080/docs**. (Si `backend/.env` tiene otro `PORT`, usa ese
+en todas las direcciones.)
 
-### 3. Abrir el frontend
+### 3. Abrir la app
 
-En VS Code, clic derecho sobre `frontend/index.html` → **Open with Live
-Server**. Se abre en `http://127.0.0.1:5500/frontend/index.html`.
+El backend también entrega la app web: abre **http://localhost:8080/**. La
+app y la API comparten origen, así que no hay nada más que configurar.
 
 Para verla con tamaño de teléfono: herramientas de desarrollador → modo
 dispositivo → 390×844. En una ventana normal se ve dentro de un marco de
 teléfono.
 
+Para editar el frontend con recarga automática también sirve Live Server
+(clic derecho sobre `frontend/index.html` → **Open with Live Server**): en
+los puertos 5500 y 5501 la app busca la API en el 8080.
+
 ### 4. Ingresar
 
 **Usuario de prueba:** `diego.f@fluxia.app` / `Flux2026!`
+
+### 5. En el celular (Expo Go o APK)
+
+Con el backend corriendo, desde `mobile/`:
+
+```bash
+npm install
+npm start
+```
+
+Escanea el QR con Expo Go: la app busca el backend sola en el computador que
+corre el servidor de Expo y, si no lo encuentra, pide la dirección
+(`http://192.168.x.x:8080`). El celular y el computador tienen que estar en
+la misma red. Cómo generar el APK y qué hacer
+si la red aísla los dispositivos: [mobile/README.md](mobile/README.md).
 
 ## API
 
@@ -183,6 +210,13 @@ configurar para evaluar el proyecto: lo que se lee es lo que corre.
 en [frontend/DESIGN.md](frontend/DESIGN.md), con el contraste de cada texto
 calculado sobre el peor caso. El movimiento respeta `prefers-reduced-motion`.
 
+**9. Un solo frontend, también en el celular.** La app de Expo no reescribe las
+pantallas: muestra la app web dentro de una WebView. Dos clientes con su propia
+lógica podrían volver a mostrar cifras distintas, que es justo el error del
+prototipo. El backend entrega la app web, así el celular necesita una sola
+dirección y no hay CORS de por medio. Detalle en
+[mobile/README.md](mobile/README.md).
+
 Más detalle en [docs/arquitectura.md](docs/arquitectura.md) y las convenciones
 en [CLAUDE.md](CLAUDE.md).
 
@@ -193,17 +227,30 @@ cd backend
 ./mvnw test
 ```
 
-24 pruebas unitarias sobre los cálculos: límites de períodos, convención de
-signos, porcentajes del gráfico, tasa de ahorro y variaciones. No necesitan base
-de datos. El SQL se valida al arrancar contra PostgreSQL: con
+40 pruebas unitarias: los cálculos (límites de períodos, convención de signos,
+porcentajes del gráfico, tasa de ahorro y variaciones) y el asistente de IA
+(modelos de respaldo, qué conversación le llega al modelo y cómo se traduce
+cada respuesta del proveedor). No necesitan base de datos ni red. El SQL se
+valida al arrancar contra PostgreSQL: con
 `ddl-auto=validate`, el servidor no arranca si el esquema y las entidades
 difieren.
 
-El frontend se verificó de punta a punta contra el backend con la semilla:
-ingreso, registro, recuperación, crear, editar y borrar movimientos, filtros,
-reportes, chat sin IA y perfil, a 360 y 390 px de ancho y con movimiento
-reducido. Esas pruebas se hicieron con un navegador automatizado y no están en
-el repositorio (ver pendientes).
+Con el servidor corriendo, [`e2e/`](e2e/) prueba el sistema completo:
+
+```bash
+cd e2e
+npm install
+node api.mjs http://localhost:8080        # 78 pruebas de la API
+node ui.mjs http://localhost:8080 390     # 36 de la interfaz, en Chrome
+```
+
+La de la API recorre todos los endpoints y comprueba que las cifras cuadren
+entre pantallas (la dona suma el gasto del resumen, la lista del mes da los
+mismos totales, la tendencia coincide). La de la interfaz ingresa, crea, edita
+y borra un movimiento, registra un usuario, recupera la contraseña, simula una
+caída de red y revisa que no haya errores de consola ni desbordes horizontales.
+
+La app de Expo tiene sus propias pruebas: `cd mobile && npm test`.
 
 ## El prototipo original
 
@@ -218,10 +265,10 @@ sí; la auditoría explica por qué el backend las calcula.
    `dev`, el código vuelve en la respuesta y la app lo carga sola.
 2. **Service worker** para usar la app sin conexión. Solo debe guardar en caché
    los archivos de la app, nunca respuestas de la API.
-3. **Pruebas automatizadas del frontend** en el repositorio.
-4. **Mensajes del backend con tildes:** varios dicen «contrasena» o «valido».
-5. **Colores de categoría para fondo oscuro:** los de la API vienen del
+3. **Colores de categoría para fondo oscuro:** los de la API vienen del
    prototipo claro; hoy se compensa en el frontend.
-6. **Producción:** apagar `/docs`, limitar la frecuencia de peticiones en
+4. **Servidor publicado** con HTTPS, para que el APK funcione fuera de la red
+   local. Hoy el celular se conecta a la IP del computador.
+5. **Producción:** apagar `/docs`, limitar la frecuencia de peticiones en
    `/auth/login` y `/ai/chat`, y limpiar periódicamente los tokens vencidos
    (ver CLAUDE.md).
