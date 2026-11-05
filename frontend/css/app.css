@@ -175,10 +175,13 @@ button {
 /* --- Pantalla ------------------------------------------------------- */
 
 /* El scroll ocurre aquí y no en window: este es el «scroller» que recibe
-   cada ScrollTrigger. */
+   cada ScrollTrigger. overflow-x explícito: con solo overflow-y, el eje x
+   pasa a auto y las esferas de la bienvenida, que sobresalen del borde,
+   dejaban deslizar la pantalla hacia el costado. */
 .screen {
   position: absolute;
   inset: 0;
+  overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
