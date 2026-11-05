@@ -23,7 +23,7 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/api/v1/auth")
-@Tag(name = "Autenticacion", description = "Registro, inicio de sesion y recuperacion de contrasena")
+@Tag(name = "Autenticación", description = "Registro, inicio de sesión y recuperación de contraseña")
 @SecurityRequirements
 public class AuthController {
 
@@ -41,7 +41,7 @@ public class AuthController {
 
     @PostMapping("/register")
     @Operation(summary = "Crear una cuenta nueva",
-            description = "Crea el usuario, su cuenta de dinero inicial y abre sesion.")
+            description = "Crea el usuario, su cuenta de dinero inicial y abre sesión.")
     public ResponseEntity<AuthDtos.SessionResponse> register(
             @Valid @RequestBody AuthDtos.RegisterRequest request) {
 
@@ -51,37 +51,37 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    @Operation(summary = "Iniciar sesion",
-            description = "Devuelve un token de acceso de 15 minutos y uno de refresco de 30 dias.")
+    @Operation(summary = "Iniciar sesión",
+            description = "Devuelve un token de acceso de 15 minutos y uno de refresco de 30 días.")
     public AuthDtos.SessionResponse login(@Valid @RequestBody AuthDtos.LoginRequest request) {
         return authService.login(request);
     }
 
     @PostMapping("/refresh")
-    @Operation(summary = "Renovar la sesion",
+    @Operation(summary = "Renovar la sesión",
             description = "Cambia un token de refresco por un par nuevo. El token presentado queda revocado.")
     public AuthDtos.SessionResponse refresh(@Valid @RequestBody AuthDtos.RefreshRequest request) {
         return authService.refresh(request);
     }
 
     @PostMapping("/logout")
-    @Operation(summary = "Cerrar sesion",
-            description = "Revoca el token de refresco. El token de acceso sigue valido hasta que vence.")
+    @Operation(summary = "Cerrar sesión",
+            description = "Revoca el token de refresco. El token de acceso sigue válido hasta que vence.")
     public AuthDtos.MessageResponse logout(@Valid @RequestBody AuthDtos.RefreshRequest request) {
         authService.logout(request.refreshToken());
-        return new AuthDtos.MessageResponse("Sesion cerrada correctamente.");
+        return new AuthDtos.MessageResponse("Sesión cerrada correctamente.");
     }
 
     @PostMapping("/forgot-password")
-    @Operation(summary = "Pedir enlace de recuperacion",
+    @Operation(summary = "Pedir enlace de recuperación",
             description = """
-                    Genera un token de recuperacion valido por 30 minutos.
+                    Genera un token de recuperación válido por 30 minutos.
 
-                    Responde siempre lo mismo, exista o no el correo: asi no se
+                    Responde siempre lo mismo, exista o no el correo: así no se
                     puede usar este endpoint para averiguar quien tiene cuenta.
 
                     Mientras no haya servicio de correo, en el perfil dev el token
-                    viene en la respuesta y tambien queda en el log del servidor.
+                    viene en la respuesta y también queda en el log del servidor.
                     """)
     public Map<String, Object> forgotPassword(
             @Valid @RequestBody AuthDtos.ForgotPasswordRequest request) {
@@ -90,21 +90,21 @@ public class AuthController {
 
         if (exposeResetToken && token.isPresent()) {
             return Map.of(
-                    "message", "Si el correo esta registrado, recibiras un enlace para restablecerla.",
+                    "message", "Si el correo está registrado, recibirás un enlace para restablecerla.",
                     "devToken", token.get());
         }
         return Map.of(
-                "message", "Si el correo esta registrado, recibiras un enlace para restablecerla.");
+                "message", "Si el correo está registrado, recibirás un enlace para restablecerla.");
     }
 
     @PostMapping("/reset-password")
-    @Operation(summary = "Restablecer la contrasena",
-            description = "Cambia la contrasena con un token de recuperacion y cierra todas las sesiones abiertas.")
+    @Operation(summary = "Restablecer la contraseña",
+            description = "Cambia la contraseña con un token de recuperación y cierra todas las sesiones abiertas.")
     public AuthDtos.MessageResponse resetPassword(
             @Valid @RequestBody AuthDtos.ResetPasswordRequest request) {
 
         authService.resetPassword(request);
         return new AuthDtos.MessageResponse(
-                "Contrasena actualizada. Inicia sesion con la nueva.");
+                "Contraseña actualizada. Inicia sesión con la nueva.");
     }
 }
