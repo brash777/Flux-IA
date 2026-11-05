@@ -111,13 +111,13 @@ public class AuthService {
             passwordEncoder.matches(request.password(),
                     "$2a$10$ZZZZZZZZZZZZZZZZZZZZZeZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ");
             throw ApiException.unauthorized("INVALID_CREDENTIALS",
-                    "El correo o la contrasena no son correctos.");
+                    "El correo o la contraseña no son correctos.");
         }
 
         User user = found.get();
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
             throw ApiException.unauthorized("INVALID_CREDENTIALS",
-                    "El correo o la contrasena no son correctos.");
+                    "El correo o la contraseña no son correctos.");
         }
 
         return openSession(user);
@@ -139,11 +139,11 @@ public class AuthService {
         RefreshToken stored = refreshTokenRepository
                 .findByTokenHash(sha256(request.refreshToken()))
                 .orElseThrow(() -> ApiException.unauthorized("REFRESH_TOKEN_INVALID",
-                        "El token de refresco no es valido. Inicia sesion de nuevo."));
+                        "El token de refresco no es válido. Inicia sesión de nuevo."));
 
         if (!stored.isUsable()) {
             throw ApiException.unauthorized("REFRESH_TOKEN_INVALID",
-                    "El token de refresco vencio o fue revocado. Inicia sesion de nuevo.");
+                    "El token de refresco venció o fue revocado. Inicia sesión de nuevo.");
         }
 
         stored.revoke();
@@ -179,7 +179,7 @@ public class AuthService {
         if (found.isEmpty()) {
             // No se revela que el correo no esta registrado: el
             // controlador responde lo mismo en los dos casos.
-            log.info("Pedido de recuperacion para un correo no registrado.");
+            log.info("Pedido de recuperación para un correo no registrado.");
             return Optional.empty();
         }
 
@@ -192,7 +192,7 @@ public class AuthService {
                 sha256(token),
                 OffsetDateTime.now().plus(properties.getPasswordReset().getTokenTtl())));
 
-        log.info("Token de recuperacion generado para el usuario {}", user.getId());
+        log.info("Token de recuperación generado para el usuario {}", user.getId());
         return Optional.of(token);
     }
 
@@ -208,11 +208,11 @@ public class AuthService {
         PasswordResetToken stored = passwordResetTokenRepository
                 .findByTokenHash(sha256(request.token()))
                 .orElseThrow(() -> ApiException.badRequest("RESET_TOKEN_INVALID",
-                        "El enlace de recuperacion no es valido."));
+                        "El enlace de recuperación no es válido."));
 
         if (!stored.isUsable()) {
             throw ApiException.badRequest("RESET_TOKEN_INVALID",
-                    "El enlace de recuperacion vencio o ya fue usado. Pide uno nuevo.");
+                    "El enlace de recuperación venció o ya fue usado. Pide uno nuevo.");
         }
 
         User user = stored.getUser();
@@ -222,7 +222,7 @@ public class AuthService {
         stored.markUsed();
         int revoked = refreshTokenRepository.revokeAllForUser(user.getId(), OffsetDateTime.now());
 
-        log.info("Contrasena restablecida para el usuario {}; {} sesiones revocadas",
+        log.info("Contraseña restablecida para el usuario {}; {} sesiones revocadas",
                 user.getId(), revoked);
     }
 
