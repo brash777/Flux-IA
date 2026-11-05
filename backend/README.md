@@ -22,7 +22,8 @@ Volver al [README del proyecto](../README.md).
 | Flyway | 11.7.2 | Migraciones versionadas del esquema |
 | Spring Security + jjwt | 6.5 / 0.13.0 | Autenticación con JWT |
 | springdoc-openapi | 2.9.1 | Documentación navegable en `/docs` |
-| anthropic-java | 2.68.0 | SDK oficial para llamar al modelo de IA |
+| Groq (API compatible con OpenAI) | `openai/gpt-oss-120b` | Asistente de IA, plan gratuito |
+| anthropic-java | 2.68.0 | Alternativa de pago (`AI_PROVIDER=anthropic`) |
 
 No se usa Lombok: los getters y setters están escritos a mano, para que no haya
 procesamiento de anotaciones que configurar en el IDE.
@@ -89,16 +90,33 @@ DB_PASSWORD=unaClave
 #   openssl rand -base64 48
 JWT_SECRET=<pegá acá el resultado>
 
-# Opcional: sin clave de IA, poné AI_ENABLED=false y todo lo demás funciona.
-ANTHROPIC_API_KEY=
-AI_ENABLED=false
+# Asistente de IA: clave gratuita de Groq en https://console.groq.com/keys
+# Sin clave, poné AI_ENABLED=false y todo lo demás funciona.
+AI_PROVIDER=groq
+AI_API_KEY=
+AI_ENABLED=true
 
 # Orígenes del frontend. Live Server usa el 5500.
 CORS_ALLOWED_ORIGINS=http://localhost:5500,http://127.0.0.1:5500
 ```
 
-Con `AI_ENABLED=true` y sin `ANTHROPIC_API_KEY`, el servidor **no arranca** a
+Con `AI_ENABLED=true` y sin `AI_API_KEY`, el servidor **no arranca** a
 propósito: es mejor fallar al inicio que tener un chat roto.
+
+#### El asistente de IA
+
+| `AI_PROVIDER` | Costo | Modelo por omisión | De respaldo |
+|---|---|---|---|
+| `groq` (por omisión) | Gratis, sin tarjeta | `openai/gpt-oss-120b` | `openai/gpt-oss-20b` |
+| `gemini` | Gratis, sin tarjeta | `gemini-3.8-flash` | `gemini-3.6-flash`, `gemini-3.5-flash-lite` |
+| `anthropic` | De pago | `claude-opus-5-5` | — |
+| `openai` | Según el proveedor | `AI_MODEL` (obligatorio) | `AI_FALLBACK_MODELS` |
+
+El plan gratuito de Groq da 1.000 consultas por día y 8.000 tokens por minuto,
+**por modelo**; una pregunta usa unos 1.300 tokens. Si el modelo principal se
+queda sin cuota, se cae o no escribe nada, responde el de respaldo. Una clave
+rechazada no prueba los respaldos: fallaría igual con todos. `AI_MODEL` y
+`AI_FALLBACK_MODELS` cambian los modelos sin tocar código.
 
 `.env` está en `.gitignore` y nunca se sube al repositorio.
 
@@ -134,10 +152,18 @@ y carga los datos de ejemplo.
 
 | Recurso | URL |
 |---|---|
+| La app web (`../frontend/`) | http://localhost:8080/ |
 | Documentación navegable | http://localhost:8080/docs |
 | Especificación OpenAPI | http://localhost:8080/api-docs |
 
 **Usuario de prueba:** `diego.f@fluxia.app` / `Flux2026!`
+
+El servidor entrega la carpeta `../frontend/` como archivos estáticos
+(`spring.web.resources.static-locations`), así la app y la API comparten
+origen: un celular o la app de Expo necesitan una sola dirección y no hay
+CORS de por medio. Solo se abren `index.html`, `css/`, `js/` y `assets/`;
+el resto de esa carpeta exige token. Si el frontend vive en otro lugar,
+`FRONTEND_DIR=file:/ruta/al/frontend/`.
 
 ### 5. Probar que anda
 
@@ -210,6 +236,28 @@ Filtros de `GET /transactions`: `from`, `to` (ISO-8601), `category` (slug),
 |---|---|---|
 | POST | `/api/v1/ai/chat` | Pregunta al asistente con el contexto financiero real |
 
+### Errores
+
+Todo error llega con la misma forma, y el `message` está escrito para mostrarlo
+tal cual al usuario:
+
+```json
+{ "code": "VALIDATION_ERROR", "message": "Hay campos inválidos en la petición.",
+  "fields": { "amount": "El monto debe ser mayor que cero." }, "path": "/api/v1/transactions" }
+```
+
+| Código | Cuándo |
+|---|---|
+| 400 | Validación (`fields` campo por campo), parámetro con formato incorrecto (`period=SEMANA`, un id que no es UUID, una fecha mal escrita) o JSON ilegible |
+| 401 | Sin token, token vencido o credenciales incorrectas |
+| 404 | Recurso inexistente **o ajeno**, y rutas que no existen |
+| 405 / 415 | Método no admitido en esa ruta / cuerpo que no es JSON |
+| 409 | Correo ya registrado, categoría repetida |
+| 503 | Asistente de IA apagado o no disponible |
+
+Un 500 queda solo para fallos del servidor, y nunca lleva el detalle técnico:
+ese va al log.
+
 ---
 
 ## Decisiones de diseño
@@ -276,9 +324,14 @@ cuatro carpetas distintas.
 ./mvnw test
 ```
 
-24 pruebas unitarias sobre los cálculos: límites de períodos, convención de
-signos, porcentajes del gráfico, tasa de ahorro y variaciones. No necesitan base
-de datos.
+40 pruebas unitarias: los cálculos (límites de períodos, convención de signos,
+porcentajes del gráfico, tasa de ahorro y variaciones) y el asistente de IA
+(modelos de respaldo, qué conversación le llega al modelo y cómo se traduce
+cada respuesta del proveedor, contra un servidor simulado). No necesitan base
+de datos ni red.
+
+Las pruebas de punta a punta, contra el servidor corriendo, están en
+[`../e2e/`](../e2e/): 78 sobre la API y 36 sobre la interfaz.
 
 Para verificar el SQL hay que levantar la aplicación contra PostgreSQL: con
 `spring.jpa.hibernate.ddl-auto=validate`, el servidor no arranca si las
