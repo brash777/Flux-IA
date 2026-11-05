@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/v1/reports")
-@Tag(name = "Reportes", description = "Saldo, totales por periodo, gasto por categoria y tendencia mensual")
+@Tag(name = "Reportes", description = "Saldo, totales por periodo, gasto por categoría y tendencia mensual")
 public class ReportController {
 
     private final ReportService reportService;
@@ -32,8 +32,8 @@ public class ReportController {
     @GetMapping("/summary")
     @Operation(summary = "Resumen del periodo",
             description = """
-                    Saldo historico, ingresos y gastos del periodo, tasa de ahorro
-                    y variacion frente al periodo anterior.
+                    Saldo histórico, ingresos y gastos del periodo, tasa de ahorro
+                    y variación frente al periodo anterior.
 
                     Alimenta la tarjeta de saldo de la pantalla de inicio y las dos
                     tarjetas de cifras de la pantalla de reportes.
@@ -53,15 +53,15 @@ public class ReportController {
     }
 
     @GetMapping("/by-category")
-    @Operation(summary = "Totales por categoria",
-            description = "Datos del grafico de dona, con el porcentaje de cada categoria ya calculado.")
+    @Operation(summary = "Totales por categoría",
+            description = "Datos del gráfico de dona, con el porcentaje de cada categoría ya calculado.")
     public ReportDtos.ByCategoryResponse byCategory(
             @AuthenticationPrincipal AuthenticatedUser user,
 
             @Parameter(description = "MONTH, QUARTER o YEAR")
             @RequestParam(defaultValue = "MONTH") ReportPeriod period,
 
-            @Parameter(description = "EXPENSE para gastos por categoria, INCOME para ingresos")
+            @Parameter(description = "EXPENSE para gastos por categoría, INCOME para ingresos")
             @RequestParam(defaultValue = "EXPENSE") TransactionType type) {
 
         return reportService.byCategory(user.id(), period, type);
@@ -70,10 +70,10 @@ public class ReportController {
     @GetMapping("/monthly-trend")
     @Operation(summary = "Tendencia mensual",
             description = """
-                    Serie de los ultimos meses para el grafico de barras.
+                    Serie de los últimos meses para el gráfico de barras.
 
-                    Los meses sin movimientos vienen en cero, no se omiten: asi el
-                    grafico conserva la escala temporal real.
+                    Los meses sin movimientos vienen en cero, no se omiten: así el
+                    gráfico conserva la escala temporal real.
                     """)
     public ReportDtos.TrendResponse monthlyTrend(
             @AuthenticationPrincipal AuthenticatedUser user,
