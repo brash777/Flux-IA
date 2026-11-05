@@ -107,18 +107,28 @@ flux:
 
   ai:
     enabled: ${AI_ENABLED:true}
+    # groq (gratis, por omision), gemini (gratis), anthropic (de pago) u
+    # openai (cualquier API compatible: exige AI_BASE_URL y AI_MODEL).
+    provider: ${AI_PROVIDER:groq}
     # La clave de IA vive SOLO aqui, en el servidor. El frontend nunca
     # la ve: le pega a POST /api/v1/ai/chat y el backend llama al modelo.
-    api-key: ${ANTHROPIC_API_KEY:}
-    model: claude-opus-5-5
-    # Tope de tokens de la respuesta. En Opus 5.5 el razonamiento del
-    # modelo tambien consume de este tope, asi que un valor muy bajo
-    # podria cortar la respuesta a medias.
+    # ANTHROPIC_API_KEY se sigue leyendo para no romper un .env anterior.
+    api-key: ${AI_API_KEY:${ANTHROPIC_API_KEY:}}
+    base-url: ${AI_BASE_URL:}
+    # Vacios, se usan el modelo y los de respaldo del proveedor
+    # (AiProvider). Los de respaldo van separados por coma.
+    model: ${AI_MODEL:}
+    fallback-models: ${AI_FALLBACK_MODELS:}
+    # Tope de tokens de la respuesta. En los modelos con razonamiento,
+    # el razonamiento tambien consume de este tope, asi que un valor muy
+    # bajo podria cortar la respuesta a medias.
     max-tokens: 4096
-    # Nivel de esfuerzo: LOW alcanza para respuestas de chat y es el mas
-    # economico. En Opus 5.5 el valor por omision es MEDIUM, por eso se
-    # declara explicito.
+    # Nivel de esfuerzo: LOW alcanza para respuestas de chat, es el mas
+    # rapido y el que menos cuota gasta.
     effort: LOW
+    # Turnos previos que se mandan al modelo: los del plan gratuito se
+    # miden en tokens por minuto, y una charla larga los agotaria.
+    max-history-turns: 8
     timeout: PT60S
 
   password-reset:
