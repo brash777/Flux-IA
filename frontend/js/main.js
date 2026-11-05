@@ -6,6 +6,7 @@ import { createRouter } from './router.js';
 import { hasSession, onSessionExpired } from './api.js';
 import * as motion from './motion.js';
 import { setFlash } from './flash.js';
+import { watchKeyboard } from './keyboard.js';
 
 const LAUNCH_KEY = 'flux.launchShown';
 
@@ -71,4 +72,5 @@ onSessionExpired(() => {
   router.navigate('ingresar');
 });
 
+watchKeyboard();
 router.start({ launch: shouldPlayLaunch() });
