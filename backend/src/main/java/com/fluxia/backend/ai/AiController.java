@@ -33,14 +33,14 @@ public class AiController {
     @Operation(summary = "Preguntarle al asistente",
             description = """
                     El servidor adjunta a la pregunta el resumen financiero real del
-                    usuario (saldo, totales por categoria, tendencia mensual y
-                    ultimos movimientos) calculado desde la base de datos, y despues
+                    usuario (saldo, totales por categoría, tendencia mensual y
+                    últimos movimientos) calculado desde la base de datos, y después
                     consulta al modelo.
 
                     El cliente no envia ni puede modificar ese contexto: se construye
                     a partir del usuario del token.
 
-                    Responde 503 si el asistente esta desactivado (AI_ENABLED=false)
+                    Responde 503 si el asistente está desactivado (AI_ENABLED=false)
                     o sin clave configurada en el servidor.
                     """)
     public AiDtos.ChatResponse chat(
