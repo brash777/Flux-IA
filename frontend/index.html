@@ -3,8 +3,10 @@
 <head>
   <meta charset="utf-8">
   <!-- viewport-fit=cover: la app se dibuja bajo la muesca y la barra
-       inferior; los márgenes los ponen los tokens --safe-*. -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+       inferior; los márgenes los ponen los tokens --safe-*.
+       interactive-widget: en Android el teclado achica la página en vez
+       de taparla. iOS lo ignora; ahí se ocupa js/keyboard.js. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
   <title>Flux IA</title>
   <meta name="description" content="Tus finanzas personales, con un asistente de IA que responde con tus datos reales.">
   <meta name="theme-color" content="#0A0614">
