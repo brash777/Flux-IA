@@ -60,6 +60,14 @@ spring:
     enabled: true
     locations: classpath:db/migration
 
+  web:
+    resources:
+      # El servidor tambien entrega la app web (frontend/). Asi la app y la
+      # API comparten origen: un celular o la app de Expo necesitan una
+      # sola direccion, sin CORS ni IPs escritas en el frontend. La ruta es
+      # relativa a backend/, desde donde se arranca (igual que el .env).
+      static-locations: ${FRONTEND_DIR:file:../frontend/}
+
   jackson:
     # Los nulos SI se serializan. En esta API un null es informacion:
     # savingsRate null significa "no hubo ingresos, no se puede calcular",
