@@ -6,7 +6,8 @@
 
    Las respuestas del modelo se insertan como TEXTO (CLAUDE.md): son la
    salida de un modelo y podrían traer algo que pareciera HTML. Solo se
-   reconoce **negrita**, construyendo nodos <strong>, nunca con innerHTML.
+   reconoce un formato mínimo (párrafos, listas y **negrita**),
+   construyendo nodos, nunca con innerHTML.
    ===================================================================== */
 
 import * as api from '../api.js';
@@ -15,6 +16,9 @@ import * as motion from '../motion.js';
 
 const APP_ICON = 'assets/icons/app-icon-b-tarjetas.svg';
 const MAX_TURNS = 20; // el backend acepta hasta 20 turnos previos
+// Si quien lee está a menos de esto del final, la conversación lo sigue;
+// si subió más, se lo deja leer tranquilo.
+const FOLLOW_MARGIN_PX = 80;
 
 const SUGGESTIONS = ['¿En qué gasté más este mes?', '¿Cuánto ahorré este mes?', 'Dame un resumen del mes'];
 
@@ -40,20 +44,57 @@ const UNAVAILABLE = {
   },
 };
 
+const BULLET = /^[-*•]\s+(.+)$/;
+const NUMBERED = /^(\d{1,3})[.)]\s+(.+)$/;
+const HEADING = /^#{1,6}\s+(.+)$/;
+const RULE = /^([-*_])\1{2,}$/;
+
 /** **negrita** → <strong>, el resto como texto. */
-function richText(text) {
-  const parts = text.split(/(\*\*[^*]+\*\*)/g).filter(Boolean);
-  return parts.map((part) => (part.startsWith('**') && part.endsWith('**')
+function inline(text) {
+  return text.split(/(\*\*[^*]+\*\*)/g).filter(Boolean).map((part) => (part.length > 4 && part.startsWith('**') && part.endsWith('**')
     ? h('strong', {}, part.slice(2, -2))
     : part));
+}
+
+/**
+ * La respuesta en bloques: cada línea es un párrafo; las que empiezan con
+ * «-», «*» o «1.» forman una lista, y un título de markdown queda como un
+ * párrafo en negrita. Los modelos escriben así, y los asteriscos o
+ * numerales sueltos se verían como basura en la burbuja.
+ */
+function formatAnswer(text) {
+  const blocks = [];
+  let list = null;
+  for (const raw of text.split('\n')) {
+    const line = raw.trim();
+    // Una línea vacía no corta la lista: los modelos separan así los ítems.
+    if (!line || RULE.test(line)) continue;
+    const bullet = BULLET.exec(line);
+    const numbered = NUMBERED.exec(line);
+    if (bullet || numbered) {
+      const tag = bullet ? 'ul' : 'ol';
+      if (list?.localName !== tag) {
+        list = h(tag, { start: numbered?.[1] });
+        blocks.push(list);
+      }
+      list.append(h('li', {}, inline(bullet ? bullet[1] : numbered[2])));
+    } else {
+      list = null;
+      const heading = HEADING.exec(line);
+      blocks.push(h('p', {}, heading ? h('strong', {}, heading[1].replaceAll('**', '')) : inline(line)));
+    }
+  }
+  return h('div', { class: 'answer' }, blocks);
 }
 
 export function mount(view) {
   view.classList.add('app-bg');
   const fx = motion.scope(view);
   const history = [];
+  const touch = window.matchMedia('(pointer: coarse)');
   let alive = true;
   let waiting = false;
+  let finishWriting = () => {};
 
   const log = h('div', { class: 'chat-log', role: 'log', 'aria-live': 'polite', 'aria-label': 'Conversación' });
   const scroller = h('main', { class: 'screen screen--chat' },
@@ -63,6 +104,10 @@ export function mount(view) {
 
   const input = h('input', { class: 'input', name: 'question', type: 'text', maxlength: '2000', autocomplete: 'off', enterkeyhint: 'send', placeholder: 'Pregunta sobre tus finanzas', 'aria-label': 'Tu pregunta' });
   const send = h('button', { class: 'btn btn--icon btn--accent', type: 'submit', 'aria-label': 'Enviar' }, icon('send'));
+  // El botón no se lleva el foco: si el campo lo perdiera al tocarlo, la
+  // barra inferior volvería y el botón se movería antes de que llegue el
+  // clic.
+  send.addEventListener('mousedown', (event) => event.preventDefault());
   const composer = h('form', { class: 'chat-composer glass glass--strong' }, input, send);
   composer.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -70,7 +115,19 @@ export function mount(view) {
   });
   view.append(scroller, composer);
 
-  const toBottom = () => scroller.scrollTo({ top: scroller.scrollHeight, behavior: motion.prefersReducedMotion() ? 'auto' : 'smooth' });
+  const nearBottom = () => scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight < FOLLOW_MARGIN_PX;
+  const toBottom = (smooth = true) => scroller.scrollTo({ top: scroller.scrollHeight, behavior: smooth && !motion.prefersReducedMotion() ? 'smooth' : 'auto' });
+
+  // Al abrirse o cerrarse el teclado cambia el alto visible: si se estaba
+  // viendo el final de la conversación, se sigue viendo.
+  let atBottom = true;
+  let height = scroller.clientHeight;
+  scroller.addEventListener('scroll', () => { atBottom = nearBottom(); }, { passive: true });
+  const resizes = new ResizeObserver(() => {
+    if (scroller.clientHeight !== height && atBottom) toBottom(false);
+    height = scroller.clientHeight;
+  });
+  resizes.observe(scroller);
 
   function aiRow(...content) {
     const bubble = h('div', { class: 'bubble bubble--ai', dataset: { origin: '0% 100%' } }, content);
@@ -88,6 +145,24 @@ export function mount(view) {
     toBottom();
   }
 
+  /* La respuesta se escribe palabra por palabra y la pantalla sigue el
+     final. Mientras tanto la conversación queda «ocupada» (aria-busy): un
+     lector de pantalla la lee entera al terminar, no a pedazos. */
+  function answerRow(text) {
+    const answer = formatAnswer(text);
+    aiRow(answer);
+    log.setAttribute('aria-busy', 'true');
+    finishWriting = fx.write(answer, {
+      onStep: () => {
+        if (nearBottom()) toBottom(false);
+      },
+      onDone: () => {
+        log.removeAttribute('aria-busy');
+        finishWriting = () => {};
+      },
+    });
+  }
+
   /* Bienvenida del asistente y sugerencias para empezar. */
   aiRow(h('span', {}, 'Hola, soy tu asistente. Respondo con tus movimientos reales: pregúntame en qué gastas, cuánto ahorraste o cómo vas este mes.'));
   const chips = h('div', { class: 'suggestions' }, SUGGESTIONS.map((text) => {
@@ -100,6 +175,10 @@ export function mount(view) {
   async function ask(raw) {
     const question = raw.trim();
     if (!question || waiting) return;
+    // En el celular, enviar cierra el teclado: la respuesta se lee con la
+    // pantalla entera, como en los chats de IA.
+    if (touch.matches) input.blur();
+    finishWriting();
     waiting = true;
     chips.remove();
     input.value = '';
@@ -115,7 +194,7 @@ export function mount(view) {
       if (!alive) return;
       stopTyping();
       typingRow.remove();
-      aiRow(...richText(response.answer));
+      answerRow(response.answer);
       history.push({ role: 'user', content: question }, { role: 'assistant', content: response.answer });
     } catch (error) {
       if (!alive) return;
@@ -141,6 +220,7 @@ export function mount(view) {
   return {
     unmount() {
       alive = false;
+      resizes.disconnect();
       fx.revert();
     },
   };
