@@ -77,7 +77,7 @@ public enum ReportPeriod {
         return switch (this) {
             case MONTH -> "Mes";
             case QUARTER -> "Trimestre";
-            case YEAR -> "Ano";
+            case YEAR -> "Año";
         };
     }
 
