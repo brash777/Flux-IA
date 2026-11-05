@@ -37,7 +37,7 @@ public class OpenApiConfig {
                                 se calculan a partir de la tabla de transacciones:
                                 no hay totales guardados aparte.
 
-                                Para probar los endpoints protegidos: inicia sesion en
+                                Para probar los endpoints protegidos: inicia sesión en
                                 POST /api/v1/auth/login, copia el accessToken y pegalo
                                 en el boton Authorize de arriba.
                                 """))
