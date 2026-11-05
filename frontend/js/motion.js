@@ -42,6 +42,11 @@ const DUR = {
 };
 const RISE = token('--rise', 16);
 const EASE = { out: 'power3.out', inOut: 'power2.inOut', back: 'back.out(1.6)' };
+// Respuesta del chat: milisegundos por palabra y tope total, en ms.
+const WRITE = {
+  word: token('--dur-write-word', 28),
+  max: token('--dur-write-max', 1800),
+};
 
 /* GSAP avisa en consola cuando recibe una lista vacía; no todas las
    secciones tienen todo (barras, burbujas…), así que se filtra antes. */
@@ -401,6 +406,9 @@ function dotsScene(sections, dots, scroller) {
 export function scope(root) {
   const ctx = ready ? gsap.context(() => {}, root) : null;
   const run = (fn) => (ctx ? ctx.add(fn) : undefined);
+  // Lo que no es de GSAP (cuadros pedidos con requestAnimationFrame) y
+  // también hay que cortar al salir.
+  const cleanups = new Set();
   return {
     /** Elementos que entran escalonados (tarjetas, filas nuevas). */
     stagger(elements) {
@@ -508,7 +516,88 @@ export function scope(root) {
       return () => tween?.kill();
     },
 
+    /**
+     * Respuesta del asistente: el texto aparece palabra por palabra, con un
+     * cursor al final, como en los chats de IA. Es la excepción a «el
+     * movimiento nunca retrasa» (DESIGN.md, sección 12): dura como mucho
+     * --dur-write-max aunque la respuesta sea larga, y tocarla la completa.
+     * Sin animación, el texto queda entero de una vez.
+     *
+     * onStep se llama tras cada tramo, para que la pantalla siga el final;
+     * onDone, al terminar. Devuelve cómo completarla al instante.
+     */
+    write(container, { onStep = () => {}, onDone = () => {} } = {}) {
+      const parts = [];
+      let total = 0;
+      const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        const words = node.data.match(/\S+\s*|\s+/g) ?? [];
+        parts.push({ node, words, from: total, shown: words.length });
+        total += words.length;
+      }
+      if (!animates() || total === 0) {
+        onStep();
+        onDone();
+        return () => {};
+      }
+
+      const caret = el('span', 'caret');
+      caret.setAttribute('aria-hidden', 'true');
+      const render = (count) => {
+        let current = null;
+        for (const part of parts) {
+          const shown = Math.max(0, Math.min(part.words.length, count - part.from));
+          if (shown > 0) current = part;
+          if (shown === part.shown) continue;
+          part.shown = shown;
+          part.node.data = part.words.slice(0, shown).join('');
+          for (let block = part.node.parentElement; shown > 0 && block && block !== container; block = block.parentElement) {
+            block.hidden = false;
+          }
+        }
+        current?.node.after(caret);
+      };
+
+      // Cada bloque aparece con su primera palabra: vacío, dejaría un
+      // renglón en blanco o una viñeta sola.
+      container.querySelectorAll('p, li, ul, ol').forEach((block) => { block.hidden = true; });
+      render(0);
+
+      const duration = Math.min(WRITE.max, total * WRITE.word);
+      const start = performance.now();
+      let frame = 0;
+      let finished = false;
+      const cancel = () => cancelAnimationFrame(frame);
+      const finish = () => {
+        if (finished) return;
+        finished = true;
+        cancel();
+        cleanups.delete(cancel);
+        container.removeEventListener('click', finish);
+        render(total);
+        caret.remove();
+        onStep();
+        onDone();
+      };
+      const tick = (now) => {
+        const count = Math.ceil(((now - start) / duration) * total);
+        if (count >= total) {
+          finish();
+          return;
+        }
+        render(count);
+        onStep();
+        frame = requestAnimationFrame(tick);
+      };
+      cleanups.add(cancel);
+      container.addEventListener('click', finish);
+      frame = requestAnimationFrame(tick);
+      return finish;
+    },
+
     revert() {
+      cleanups.forEach((cancel) => cancel());
+      cleanups.clear();
       ctx?.revert();
     },
   };
