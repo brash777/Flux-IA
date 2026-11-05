@@ -20,8 +20,8 @@ public final class TransactionDtos {
     @Schema(description = "Datos de un movimiento nuevo")
     public record CreateRequest(
 
-            @NotBlank(message = "La descripcion es obligatoria.")
-            @Size(max = 140, message = "La descripcion es demasiado larga.")
+            @NotBlank(message = "La descripción es obligatoria.")
+            @Size(max = 140, message = "La descripción es demasiado larga.")
             String description,
 
             /*
@@ -39,7 +39,7 @@ public final class TransactionDtos {
             @NotNull(message = "El tipo es obligatorio (INCOME o EXPENSE).")
             TransactionType type,
 
-            @NotNull(message = "La categoria es obligatoria.")
+            @NotNull(message = "La categoría es obligatoria.")
             UUID categoryId,
 
             @Schema(description = "Opcional: si se omite, se usa la cuenta principal del usuario.")
@@ -50,10 +50,10 @@ public final class TransactionDtos {
     ) {
     }
 
-    @Schema(description = "Campos a modificar. Los que se omitan quedan como estan.")
+    @Schema(description = "Campos a modificar. Los que se omitan quedan como están.")
     public record UpdateRequest(
 
-            @Size(max = 140, message = "La descripcion es demasiado larga.")
+            @Size(max = 140, message = "La descripción es demasiado larga.")
             String description,
 
             @DecimalMin(value = "0.01", message = "El monto debe ser mayor que cero.")
@@ -115,7 +115,7 @@ public final class TransactionDtos {
     public record AccountRef(UUID id, String name, String currency) {
     }
 
-    @Schema(description = "Pagina de movimientos con sus totales")
+    @Schema(description = "Página de movimientos con sus totales")
     public record PageResponse(
             java.util.List<Response> items,
             int page,
