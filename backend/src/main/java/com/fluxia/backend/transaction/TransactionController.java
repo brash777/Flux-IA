@@ -47,8 +47,8 @@ public class TransactionController {
                     Listado paginado con filtros opcionales, equivalente a los chips
                     de la pantalla de movimientos.
 
-                    Devuelve ademas los totales de TODO el filtro, no solo de la
-                    pagina actual.
+                    Devuelve además los totales de TODO el filtro, no solo de la
+                    página actual.
 
                     El rango de fechas es semiabierto [from, to): un movimiento
                     nunca se cuenta en dos periodos a la vez.
@@ -64,25 +64,25 @@ public class TransactionController {
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime to,
 
-            @Parameter(description = "Slug de categoria: comida, transporte, ocio, servicios, supermercado, ingreso. 'todos' no filtra.")
+            @Parameter(description = "Slug de categoría: comida, transporte, ocio, servicios, supermercado, ingreso. 'todos' no filtra.")
             @RequestParam(required = false) String category,
 
             @Parameter(description = "INCOME o EXPENSE")
             @RequestParam(required = false) TransactionType type,
 
-            @Parameter(description = "Texto a buscar en la descripcion")
+            @Parameter(description = "Texto a buscar en la descripción")
             @RequestParam(required = false) String search,
 
             @RequestParam(defaultValue = "0") int page,
 
-            @Parameter(description = "Maximo 100")
+            @Parameter(description = "Máximo 100")
             @RequestParam(defaultValue = "20") int size) {
 
         return transactionService.list(user.id(), from, to, category, type, search, page, size);
     }
 
     @GetMapping("/recent")
-    @Operation(summary = "Movimientos mas recientes",
+    @Operation(summary = "Movimientos más recientes",
             description = "Alimenta la tarjeta de actividad reciente de la pantalla de inicio.")
     public List<TransactionDtos.Response> recent(
             @AuthenticationPrincipal AuthenticatedUser user,
@@ -106,8 +106,8 @@ public class TransactionController {
                     El monto va siempre positivo; el sentido lo indica el campo
                     type (INCOME o EXPENSE).
 
-                    Se valida que la categoria sea coherente con el tipo: un gasto
-                    no puede ir en una categoria de ingresos.
+                    Se valida que la categoría sea coherente con el tipo: un gasto
+                    no puede ir en una categoría de ingresos.
                     """)
     public ResponseEntity<TransactionDtos.Response> create(
             @AuthenticationPrincipal AuthenticatedUser user,
