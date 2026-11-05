@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 /** Perfil del usuario autenticado: la pantalla de perfil del prototipo. */
 @RestController
 @RequestMapping("/api/v1/me")
-@Tag(name = "Perfil", description = "Datos del usuario con sesion abierta")
+@Tag(name = "Perfil", description = "Datos del usuario con sesión abierta")
 public class UserController {
 
     private final UserService userService;
@@ -42,14 +42,14 @@ public class UserController {
     }
 
     @PostMapping("/password")
-    @Operation(summary = "Cambiar mi contrasena",
-            description = "Exige la contrasena actual y cierra las demas sesiones abiertas.")
+    @Operation(summary = "Cambiar mi contraseña",
+            description = "Exige la contraseña actual y cierra las demás sesiones abiertas.")
     public AuthDtos.MessageResponse changePassword(
             @AuthenticationPrincipal AuthenticatedUser user,
             @Valid @RequestBody UserDtos.ChangePasswordRequest request) {
 
         userService.changePassword(user.id(), request);
         return new AuthDtos.MessageResponse(
-                "Contrasena actualizada. Las demas sesiones fueron cerradas.");
+                "Contraseña actualizada. Las demás sesiones fueron cerradas.");
     }
 }
