@@ -25,7 +25,7 @@ public final class AccountDtos {
             AccountType type,
 
             @Pattern(regexp = "^[A-Z]{3}$",
-                    message = "La moneda debe ser un codigo de 3 letras, por ejemplo ARS.")
+                    message = "La moneda debe ser un código de 3 letras, por ejemplo ARS.")
             String currency
     ) {
     }
