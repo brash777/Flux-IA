@@ -21,7 +21,7 @@ import java.util.UUID;
 /** Categorias visibles para el usuario: las del sistema mas las suyas. */
 @RestController
 @RequestMapping("/api/v1/categories")
-@Tag(name = "Categorias", description = "Categorias del sistema y propias del usuario")
+@Tag(name = "Categorías", description = "Categorías del sistema y propias del usuario")
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -31,14 +31,14 @@ public class CategoryController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar categorias",
-            description = "Las del sistema mas las propias. Alimenta los chips de filtro de la pantalla de movimientos.")
+    @Operation(summary = "Listar categorías",
+            description = "Las del sistema más las propias. Alimenta los chips de filtro de la pantalla de movimientos.")
     public List<CategoryDtos.Response> list(@AuthenticationPrincipal AuthenticatedUser user) {
         return categoryService.list(user.id());
     }
 
     @PostMapping
-    @Operation(summary = "Crear una categoria propia",
+    @Operation(summary = "Crear una categoría propia",
             description = "El slug se genera a partir del nombre, sin acentos ni espacios.")
     public ResponseEntity<CategoryDtos.Response> create(
             @AuthenticationPrincipal AuthenticatedUser user,
@@ -50,7 +50,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Eliminar una categoria propia",
+    @Operation(summary = "Eliminar una categoría propia",
             description = "Falla si es del sistema o si tiene movimientos asociados.")
     public ResponseEntity<Void> delete(
             @AuthenticationPrincipal AuthenticatedUser user,
