@@ -71,6 +71,12 @@ public class SecurityConfig {
                         // springdoc.api-docs.enabled=false
                         .requestMatchers("/docs", "/docs/**", "/swagger-ui/**", "/api-docs/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
+                        // La app web que entrega este mismo servidor: son
+                        // archivos publicos, como si los sirviera Live
+                        // Server. Solo lectura, y solo estas carpetas: el
+                        // resto de frontend/ (node_modules, .md) queda cerrado.
+                        .requestMatchers(HttpMethod.GET, "/", "/index.html", "/styleguide.html",
+                                "/manifest.webmanifest", "/css/**", "/js/**", "/assets/**").permitAll()
                         // El navegador manda OPTIONS antes de cada
                         // peticion con token; no lleva credenciales.
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
@@ -85,7 +91,7 @@ public class SecurityConfig {
                                     response.getWriter(),
                                     ApiErrorResponse.of(
                                             "UNAUTHENTICATED",
-                                            "Necesitas iniciar sesion para acceder a este recurso.",
+                                            "Necesitas iniciar sesión para acceder a este recurso.",
                                             request.getRequestURI()));
                         }))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
