@@ -219,13 +219,13 @@ public class TransactionService {
 
     private Category requireVisibleCategory(UUID categoryId, UUID userId) {
         return categoryRepository.findByIdVisibleTo(categoryId, userId)
-                .orElseThrow(() -> ApiException.notFound("La categoria no existe."));
+                .orElseThrow(() -> ApiException.notFound("La categoría no existe."));
     }
 
     private Category resolveCategoryBySlug(String slug, UUID userId) {
         List<Category> matches = categoryRepository.findBySlugVisibleTo(slug, userId);
         if (matches.isEmpty()) {
-            throw ApiException.notFound("No existe la categoria '" + slug + "'.");
+            throw ApiException.notFound("No existe la categoría '" + slug + "'.");
         }
         // La consulta ordena la propia del usuario antes que la del sistema.
         return matches.get(0);
@@ -250,7 +250,7 @@ public class TransactionService {
 
         if (!coherent) {
             throw ApiException.badRequest("CATEGORY_KIND_MISMATCH",
-                    "La categoria '" + category.getName() + "' es de tipo "
+                    "La categoría '" + category.getName() + "' es de tipo "
                             + category.getKind() + " y no admite un movimiento de tipo "
                             + type + ".");
         }
