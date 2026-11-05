@@ -25,13 +25,13 @@ public final class AiDtos {
             @Size(max = 2000, message = "La pregunta no puede exceder 2000 caracteres.")
             String question,
 
-            @Schema(description = "Turnos previos de la conversacion, del mas antiguo al mas reciente. Opcional.")
-            @Size(max = 20, message = "Se admiten como maximo 20 turnos previos.")
+            @Schema(description = "Turnos previos de la conversación, del más antiguo al más reciente. Opcional.")
+            @Size(max = 20, message = "Se admiten como máximo 20 turnos previos.")
             List<Turn> history
     ) {
     }
 
-    @Schema(description = "Un turno de la conversacion")
+    @Schema(description = "Un turno de la conversación")
     public record Turn(
 
             @Schema(description = "user o assistant")
