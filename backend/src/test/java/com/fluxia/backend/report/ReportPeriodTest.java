@@ -87,10 +87,10 @@ class ReportPeriodTest {
     }
 
     @Test
-    @DisplayName("Cada periodo tiene su nombre en espanol")
+    @DisplayName("Cada periodo tiene su nombre en español, con tilde")
     void eachPeriodHasSpanishLabel() {
         assertThat(ReportPeriod.MONTH.label()).isEqualTo("Mes");
         assertThat(ReportPeriod.QUARTER.label()).isEqualTo("Trimestre");
-        assertThat(ReportPeriod.YEAR.label()).isEqualTo("Ano");
+        assertThat(ReportPeriod.YEAR.label()).isEqualTo("Año");
     }
 }
