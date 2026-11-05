@@ -64,7 +64,7 @@ public class JwtService {
         if (secret.startsWith("${") && secret.endsWith("}")) {
             throw new IllegalStateException(
                     "JWT_SECRET no se resolvio: llego el texto literal del marcador.\n\n"
-                            + "La variable no esta disponible al arrancar. Revisa:\n"
+                            + "La variable no está disponible al arrancar. Revisa:\n"
                             + "  1. Que exista un archivo .env en la raiz del proyecto\n"
                             + "     (se copia con: cp .env.example .env).\n"
                             + "  2. Que tenga la linea JWT_SECRET= con un valor de al menos "
@@ -72,7 +72,7 @@ public class JwtService {
                             + "     (se genera con: openssl rand -base64 48).\n"
                             + "  3. Si exportaste la variable a mano en la terminal, que no haya\n"
                             + "     quedado un valor viejo: editar el .env no actualiza una\n"
-                            + "     variable ya exportada en esa misma sesion.");
+                            + "     variable ya exportada en esa misma sesión.");
         }
 
         byte[] bytes = secret.getBytes(StandardCharsets.UTF_8);
@@ -138,14 +138,14 @@ public class JwtService {
     /** El token es legitimo pero ya vencio. */
     public static class TokenExpiredException extends RuntimeException {
         public TokenExpiredException() {
-            super("El token de acceso vencio.");
+            super("El token de acceso venció.");
         }
     }
 
     /** El token no se puede verificar: firma, emisor o formato invalidos. */
     public static class TokenInvalidException extends RuntimeException {
         public TokenInvalidException() {
-            super("El token de acceso no es valido.");
+            super("El token de acceso no es válido.");
         }
     }
 }
