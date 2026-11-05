@@ -18,15 +18,15 @@ public final class UserDtos {
     ) {
     }
 
-    @Schema(description = "Cambio de contrasena de un usuario con sesion abierta")
+    @Schema(description = "Cambio de contraseña de un usuario con sesión abierta")
     public record ChangePasswordRequest(
 
-            @NotBlank(message = "La contrasena actual es obligatoria.")
+            @NotBlank(message = "La contraseña actual es obligatoria.")
             String currentPassword,
 
-            @NotBlank(message = "La contrasena nueva es obligatoria.")
+            @NotBlank(message = "La contraseña nueva es obligatoria.")
             @Size(min = 8, max = 72,
-                    message = "La contrasena debe tener entre 8 y 72 caracteres.")
+                    message = "La contraseña debe tener entre 8 y 72 caracteres.")
             String newPassword
     ) {
     }
