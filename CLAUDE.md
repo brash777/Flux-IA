@@ -8,6 +8,8 @@ acá, hay que justificarla en el mensaje del commit.
 ```
 backend/    Spring Boot: pom.xml, mvnw, .mvn/, src/, .env.example
 frontend/   app móvil en HTML, CSS y JavaScript puros
+mobile/     Expo (Expo Go y APK): la app web dentro de una WebView
+e2e/        pruebas de punta a punta de la API y de la interfaz
 docs/       arquitectura, auditoría del prototipo, prototipo y referencias/
 ```
 
@@ -15,7 +17,8 @@ docs/       arquitectura, auditoría del prototipo, prototipo y referencias/
   (`cd backend && ./mvnw test`).
 - El `.env` vive en `backend/.env`. `application.yml` lo carga con la ruta
   relativa `./.env`, así que el servidor tiene que arrancarse desde `backend/`;
-  desde otra carpeta no lo encuentra y falla por falta de variables.
+  desde otra carpeta no lo encuentra y falla por falta de variables. Desde ahí
+  también encuentra `../frontend/`, que entrega como archivos estáticos.
 - Las reglas de las secciones siguientes, hasta «Frontend», son del backend.
 
 ## Idioma
@@ -125,8 +128,9 @@ poder sustentarlo oralmente.
 
 ## Frontend
 
-Vive en `frontend/`. Se abre con Live Server (puerto 5500) y se diseña para un
-celular de 390×844, *mobile-first*.
+Vive en `frontend/`. La entrega el backend en `http://localhost:8080/` (o se
+abre con Live Server, puerto 5500) y se diseña para un celular de 390×844,
+*mobile-first*.
 
 ### Sin frameworks ni paso de build
 
@@ -216,13 +220,37 @@ frontend/
   `ScrollTrigger.refresh()` cuando llegan los datos.
 - Una cifra animada termina **exactamente** en el valor de la API.
 - Con `prefers-reduced-motion`: sin parallax ni conteos, solo fundidos.
-- El movimiento nunca retrasa leer un dato ni tocar un botón.
+- El movimiento nunca retrasa leer un dato ni tocar un botón. Excepción: la
+  respuesta del chat se escribe palabra por palabra, como en los chats de IA,
+  pero tarda 1,8 s como mucho, tocarla la completa y con reduced motion
+  aparece entera (DESIGN.md, sección 12).
 
 ### Código
 
 - Nombres en inglés; textos de la interfaz y comentarios en español.
 - `const` por omisión, funciones pequeñas, sin variables globales: cada archivo
   es un módulo.
+
+## Móvil (Expo)
+
+Vive en `mobile/`: Expo SDK 57, para Expo Go y para compilar el APK con EAS.
+
+- **El SDK sigue al de Expo Go en las tiendas**, no al último publicado en npm:
+  un proyecto más nuevo que el Expo Go instalado no abre. Antes de subir de
+  SDK, confirmar en el changelog de Expo que su Expo Go ya está en la App
+  Store y en Play Store.
+
+- **No es un segundo frontend.** Muestra la app web que entrega el backend
+  dentro de una WebView. Una pantalla, una regla o una cifra nueva se agrega
+  en `frontend/`, nunca aquí: dos clientes con su propia lógica podrían volver
+  a mostrar cifras distintas.
+- Lo nativo se limita a lo que el navegador no da: la dirección del servidor,
+  la pantalla de carga, el aviso de «sin conexión» y el botón «atrás».
+- Las dependencias se agregan con `npx expo install`, que elige la versión
+  compatible con el SDK. Solo módulos incluidos en Expo Go.
+- `android/` e `ios/` no se versionan: Expo los genera desde `app.json`.
+- Los colores salen de `src/theme.js`, copia de `frontend/css/tokens.css`.
+- Mismas reglas de idioma y de mensajes al usuario que el resto del proyecto.
 
 ## Commits
 
@@ -241,11 +269,13 @@ frontend/
 3. **Limitar la frecuencia de peticiones** en `/auth/login` y en `/ai/chat`.
 4. **Limpieza periódica** de `refresh_tokens` y `password_reset_tokens`
    vencidos (el método del repositorio ya existe, falta la tarea programada).
-5. **Evaluar los `fallbacks` del modelo de IA** para que una negativa del modelo
-   no deje al chat sin respuesta.
+5. **Plan de pago para la IA** con datos reales: el gratuito de Groq tiene
+   cuota por minuto y por día, y el de Gemini puede usar las conversaciones
+   para mejorar sus productos. Se cambia con `AI_PROVIDER` y `AI_API_KEY`.
 6. **Service worker** del frontend: solo archivos de la app en caché, nunca
    respuestas de la API, y sin registrarlo con Live Server.
-7. **Tildes en los mensajes del backend** («contrasena», «valido»): el
-   frontend los muestra tal cual.
-8. **Colores de categoría para fondo oscuro**, con una migración nueva. Hoy el
+7. **Colores de categoría para fondo oscuro**, con una migración nueva. Hoy el
    frontend los compensa (DESIGN.md, sección 3).
+8. **Servidor publicado con HTTPS** para que el APK funcione fuera de la red
+   local. Entonces la app móvil ya no necesita texto en claro
+   (`usesCleartextTraffic`, `NSAllowsArbitraryLoads` en `mobile/app.json`).
