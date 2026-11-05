@@ -948,9 +948,6 @@ body.device-host {
   padding: 0;
 }
 
-/* --- Apertura ------------------------------------------------------- */
-
-.launch {
 /* --- Teclado en pantalla (js/keyboard.js) --------------------------- */
 
 /* Con el teclado de iPhone abierto, la app ocupa solo la parte que se ve:
@@ -971,6 +968,9 @@ body.device-host {
   display: none;
 }
 
+/* --- Apertura ------------------------------------------------------- */
+
+.launch {
   position: absolute;
   z-index: 50;
   inset: 0;
@@ -2031,8 +2031,8 @@ body.device-host {
   border-radius: var(--icon-radius);
 }
 
-/* Las respuestas de la IA entran con textContent; pre-wrap respeta sus
-   saltos de línea sin interpretar HTML. */
+/* Todo texto entra como nodos de texto, nunca como HTML; pre-wrap respeta
+   los saltos de línea de los avisos. */
 .bubble {
   max-width: 85%;
   margin: 0;
@@ -2054,6 +2054,54 @@ body.device-host {
   background: var(--glass-sheen), var(--glass-solid);
   box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
   color: var(--text);
+}
+
+/* Respuesta con formato (js/screens/chat.js): párrafos, listas y negrita
+   armados como nodos. */
+.answer {
+  white-space: normal;
+}
+
+.answer p,
+.answer ul,
+.answer ol {
+  margin: 0;
+}
+
+.answer > * + * {
+  margin-top: var(--space-2);
+}
+
+.answer ul,
+.answer ol {
+  padding-left: var(--space-5);
+}
+
+.answer li + li {
+  margin-top: var(--space-1);
+}
+
+.answer strong {
+  color: var(--text-strong);
+}
+
+/* Cursor mientras se escribe la respuesta. Es un indicador de progreso,
+   así que va en CSS, como los puntos de «escribiendo» (CLAUDE.md). */
+.caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  margin-left: 2px;
+  border-radius: 1px;
+  background: var(--flux-200);
+  vertical-align: text-bottom;
+  animation: caret-blink var(--dur-caret) steps(1, end) infinite;
+}
+
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
 }
 
 .suggestions {
@@ -2085,6 +2133,16 @@ body.device-host {
   padding: 0;
   border: 0;
   background: none;
+}
+
+/* Escribiendo en el celular: sin la barra inferior, el campo baja a su
+   lugar y la conversación llega hasta él. */
+.is-typing .chat-composer {
+  bottom: var(--space-2);
+}
+
+.is-typing .screen--chat {
+  padding-bottom: calc(var(--space-14) + var(--space-6));
 }
 
 .chat-composer .input:focus {
@@ -2138,16 +2196,6 @@ body.device-host {
   font-size: var(--fs-sm);
   color: var(--text-muted);
   overflow-wrap: anywhere;
-/* Escribiendo en el celular: sin la barra inferior, el campo baja a su
-   lugar y la conversación llega hasta él. */
-.is-typing .chat-composer {
-  bottom: var(--space-2);
-}
-
-.is-typing .screen--chat {
-  padding-bottom: calc(var(--space-14) + var(--space-6));
-}
-
 }
 
 .info-row {
