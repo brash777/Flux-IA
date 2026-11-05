@@ -948,6 +948,26 @@ body.device-host {
 /* --- Apertura ------------------------------------------------------- */
 
 .launch {
+/* --- Teclado en pantalla (js/keyboard.js) --------------------------- */
+
+/* Con el teclado de iPhone abierto, la app ocupa solo la parte que se ve:
+   la cabecera no se va por arriba y el campo queda encima del teclado.
+   En el computador, el marco no cambia. */
+@media (max-width: 599px) {
+  .keyboard-open .device {
+    position: fixed;
+    top: var(--viewport-top, 0px);
+    left: 0;
+    height: var(--viewport-h, 100dvh);
+  }
+}
+
+/* Mientras se escribe en el celular, el teclado ya ocupa media pantalla:
+   la barra inferior se oculta y deja ese lugar al contenido. */
+.is-typing .nav-bar {
+  display: none;
+}
+
   position: absolute;
   z-index: 50;
   inset: 0;
@@ -2115,6 +2135,16 @@ body.device-host {
   font-size: var(--fs-sm);
   color: var(--text-muted);
   overflow-wrap: anywhere;
+/* Escribiendo en el celular: sin la barra inferior, el campo baja a su
+   lugar y la conversación llega hasta él. */
+.is-typing .chat-composer {
+  bottom: var(--space-2);
+}
+
+.is-typing .screen--chat {
+  padding-bottom: calc(var(--space-14) + var(--space-6));
+}
+
 }
 
 .info-row {
