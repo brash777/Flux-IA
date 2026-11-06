@@ -131,6 +131,13 @@ flux:
     max-history-turns: 8
     timeout: PT60S
 
+  # Topes contra el abuso: probar contrasenas y agotar la cuota de la IA.
+  rate-limit:
+    login-failures: ${RATE_LIMIT_LOGIN_FAILURES:10}
+    login-window: 5m
+    chat-requests: ${RATE_LIMIT_CHAT_REQUESTS:20}
+    chat-window: 1m
+
   password-reset:
     token-ttl: PT30M
 

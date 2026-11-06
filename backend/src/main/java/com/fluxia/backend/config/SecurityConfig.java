@@ -2,6 +2,7 @@ package com.fluxia.backend.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fluxia.backend.auth.JwtAuthenticationFilter;
+import com.fluxia.backend.ratelimit.RateLimitFilter;
 import com.fluxia.backend.shared.ApiErrorResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,13 +45,16 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final RateLimitFilter rateLimitFilter;
     private final FluxProperties properties;
     private final ObjectMapper objectMapper;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+                          RateLimitFilter rateLimitFilter,
                           FluxProperties properties,
                           ObjectMapper objectMapper) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.rateLimitFilter = rateLimitFilter;
         this.properties = properties;
         this.objectMapper = objectMapper;
     }
@@ -94,6 +98,8 @@ public class SecurityConfig {
                                             request.getRequestURI()));
                         }))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                // Despues del token, para saber de quien es cada pregunta al chat.
+                .addFilterAfter(rateLimitFilter, JwtAuthenticationFilter.class)
                 .build();
     }
 

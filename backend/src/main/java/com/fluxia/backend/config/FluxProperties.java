@@ -32,6 +32,7 @@ public class FluxProperties {
     private final Ai ai = new Ai();
     private final Cors cors = new Cors();
     private final PasswordReset passwordReset = new PasswordReset();
+    private final RateLimit rateLimit = new RateLimit();
 
     public ZoneId getTimezone() {
         return timezone;
@@ -55,6 +56,10 @@ public class FluxProperties {
 
     public PasswordReset getPasswordReset() {
         return passwordReset;
+    }
+
+    public RateLimit getRateLimit() {
+        return rateLimit;
     }
 
     /** Ajustes de firma y vigencia de los tokens. */
@@ -281,6 +286,52 @@ public class FluxProperties {
 
         public void setTokenTtl(Duration tokenTtl) {
             this.tokenTtl = tokenTtl;
+        }
+    }
+
+    /** Topes de peticiones en el ingreso y en el chat. */
+    public static class RateLimit {
+
+        /** Intentos de ingreso fallidos por IP antes de bloquear. */
+        private int loginFailures = 10;
+
+        private Duration loginWindow = Duration.ofMinutes(5);
+
+        /** Preguntas al asistente por usuario. */
+        private int chatRequests = 20;
+
+        private Duration chatWindow = Duration.ofMinutes(1);
+
+        public int getLoginFailures() {
+            return loginFailures;
+        }
+
+        public void setLoginFailures(int loginFailures) {
+            this.loginFailures = loginFailures;
+        }
+
+        public Duration getLoginWindow() {
+            return loginWindow;
+        }
+
+        public void setLoginWindow(Duration loginWindow) {
+            this.loginWindow = loginWindow;
+        }
+
+        public int getChatRequests() {
+            return chatRequests;
+        }
+
+        public void setChatRequests(int chatRequests) {
+            this.chatRequests = chatRequests;
+        }
+
+        public Duration getChatWindow() {
+            return chatWindow;
+        }
+
+        public void setChatWindow(Duration chatWindow) {
+            this.chatWindow = chatWindow;
         }
     }
 }

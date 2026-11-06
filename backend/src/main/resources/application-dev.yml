@@ -30,3 +30,9 @@ springdoc:
     enabled: ${DOCS_ENABLED:true}
   api-docs:
     enabled: ${DOCS_ENABLED:true}
+
+# Las pruebas de punta a punta se equivocan de contrasena a proposito desde
+# la misma IP: con el tope de produccion se bloquearian entre corridas.
+flux:
+  rate-limit:
+    login-failures: ${RATE_LIMIT_LOGIN_FAILURES:200}
