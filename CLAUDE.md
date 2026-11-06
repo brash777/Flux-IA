@@ -9,7 +9,7 @@ acá, hay que justificarla en el mensaje del commit.
 backend/    Spring Boot: pom.xml, mvnw, .mvn/, src/, .env.example
 frontend/   app móvil en HTML, CSS y JavaScript puros
 mobile/     Expo (Expo Go y APK): la app web dentro de una WebView
-e2e/        pruebas de punta a punta de la API y de la interfaz
+e2e/        pruebas de punta a punta y la cuenta de ejemplo de JoAn
 docs/       arquitectura, auditoría del prototipo, prototipo y referencias/
 ```
 
@@ -89,6 +89,10 @@ que lo evita.
   que la haya corrido.
 - La semilla de prueba vive en `backend/src/main/resources/db/dev/` y se carga solo con el perfil `dev`.
   En producción esa carpeta no se incluye.
+  Una base que ya aplicó la semilla solo arranca con el perfil `dev`: Flyway no
+  acepta una migración aplicada que no encuentra.
+- La siguiente migración es la `V902`: Flyway rechaza una versión menor que la
+  última aplicada, y las bases de desarrollo ya aplicaron la `V900` de la semilla.
 - Toda columna que se filtre o se ordene necesita índice. Los que ya existen
   están justificados con un comentario en la migración.
 
@@ -265,17 +269,15 @@ Vive en `mobile/`: Expo SDK 58, para Expo Go y para compilar el APK con EAS.
 1. **Servicio de correo** para los enlaces de recuperación. Hoy el token se
    devuelve en la respuesta en perfil `dev`; en producción hay que enviarlo por
    correo y dejar de devolverlo.
-2. **Apagar la documentación pública:** `springdoc.api-docs.enabled=false`.
-3. **Limitar la frecuencia de peticiones** en `/auth/login` y en `/ai/chat`.
-4. **Limpieza periódica** de `refresh_tokens` y `password_reset_tokens`
-   vencidos (el método del repositorio ya existe, falta la tarea programada).
-5. **Plan de pago para la IA** con datos reales: el gratuito de Groq tiene
+2. **Plan de pago para la IA** con datos reales: el gratuito de Groq tiene
    cuota por minuto y por día, y el de Gemini puede usar las conversaciones
    para mejorar sus productos. Se cambia con `AI_PROVIDER` y `AI_API_KEY`.
-6. **Service worker** del frontend: solo archivos de la app en caché, nunca
-   respuestas de la API, y sin registrarlo con Live Server.
-7. **Colores de categoría para fondo oscuro**, con una migración nueva. Hoy el
+3. **Service worker** del frontend: solo archivos de la app en caché, nunca
+   respuestas de la API, y sin registrarlo con Live Server. Exige HTTPS: en
+   `http://` con la IP del computador el navegador no lo registra.
+4. **Colores de categoría para fondo oscuro**, con una migración nueva. Hoy el
    frontend los compensa (DESIGN.md, sección 3).
-8. **Servidor publicado con HTTPS** para que el APK funcione fuera de la red
+5. **Servidor publicado con HTTPS** para que el APK funcione fuera de la red
    local. Entonces la app móvil ya no necesita texto en claro
    (`usesCleartextTraffic`, `NSAllowsArbitraryLoads` en `mobile/app.json`).
+   Esa base no debe tener la semilla: ver «Base de datos».

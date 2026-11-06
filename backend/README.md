@@ -21,7 +21,7 @@ Volver al [README del proyecto](../README.md).
 | PostgreSQL | 13 o superior | Base de datos |
 | Flyway | 11.7.2 | Migraciones versionadas del esquema |
 | Spring Security + jjwt | 6.5 / 0.13.0 | Autenticación con JWT |
-| springdoc-openapi | 2.9.1 | Documentación navegable en `/docs` |
+| springdoc-openapi | 2.9.1 | Documentación navegable en `/docs` (perfil `dev`) |
 | Groq (API compatible con OpenAI) | `openai/gpt-oss-120b` | Asistente de IA, plan gratuito |
 | anthropic-java | 2.68.0 | Alternativa de pago (`AI_PROVIDER=anthropic`) |
 
@@ -153,8 +153,8 @@ y carga los datos de ejemplo.
 | Recurso | URL |
 |---|---|
 | La app web (`../frontend/`) | http://localhost:8080/ |
-| Documentación navegable | http://localhost:8080/docs |
-| Especificación OpenAPI | http://localhost:8080/api-docs |
+| Documentación navegable (perfil `dev`) | http://localhost:8080/docs |
+| Especificación OpenAPI (perfil `dev`) | http://localhost:8080/api-docs |
 
 **Usuario de prueba:** `diego.f@fluxia.app` / `Flux2026!`
 

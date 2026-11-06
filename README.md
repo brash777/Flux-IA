@@ -48,7 +48,7 @@ Datos de la semilla de prueba, a 390×844.
 | PostgreSQL | 13 o superior | Base de datos (local o Supabase) |
 | Flyway | 11 | Migraciones versionadas del esquema |
 | Spring Security + jjwt | 6.5 / 0.13 | Autenticación con JWT |
-| springdoc-openapi | 2.9 | Documentación navegable en `/docs` |
+| springdoc-openapi | 2.9 | Documentación navegable en `/docs` (perfil `dev`) |
 | Groq (API compatible con OpenAI) | `gpt-oss-120b` | Asistente de IA, plan gratuito |
 | anthropic-java | 2.68 | Alternativa de pago para el asistente (`AI_PROVIDER=anthropic`) |
 
@@ -126,7 +126,7 @@ SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run
 El perfil `dev` crea las tablas y carga la semilla con el usuario de prueba.
 Cuando el log diga `Started FluxIaApplication`, la API responde en
 `http://localhost:8080` y su documentación en
-**http://localhost:8080/docs**. (Si `backend/.env` tiene otro `PORT`, usa ese
+**http://localhost:8080/docs**, solo con el perfil `dev`. (Si `backend/.env` tiene otro `PORT`, usa ese
 en todas las direcciones.)
 
 ### 3. Abrir la app
@@ -269,6 +269,3 @@ sí; la auditoría explica por qué el backend las calcula.
    prototipo claro; hoy se compensa en el frontend.
 4. **Servidor publicado** con HTTPS, para que el APK funcione fuera de la red
    local. Hoy el celular se conecta a la IP del computador.
-5. **Producción:** apagar `/docs`, limitar la frecuencia de peticiones en
-   `/auth/login` y `/ai/chat`, y limpiar periódicamente los tokens vencidos
-   (ver CLAUDE.md).
