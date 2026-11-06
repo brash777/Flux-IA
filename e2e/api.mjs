@@ -224,6 +224,14 @@ async function main() {
   // Como la pide un navegador: sin Accept JSON, que con razón da 406.
   const app = await fetch(BASE + '/');
   ok('el backend entrega la app web en /', app.status === 200 && (await app.text()).includes('<title>Flux IA</title>'), app.status);
+  const appFile = await fetch(BASE + '/js/main.js');
+  ok('los archivos de la app se guardan y se revalidan', appFile.headers.get('cache-control') === 'no-cache', appFile.headers.get('cache-control'));
+  const unchanged = await fetch(BASE + '/js/main.js', { headers: { 'If-Modified-Since': appFile.headers.get('last-modified') } });
+  ok('un archivo sin cambios -> 304', unchanged.status === 304, unchanged.status);
+  const apiData = await fetch(API + '/reports/summary?period=MONTH', { headers: { Authorization: 'Bearer ' + T } });
+  ok('los datos de la API no se guardan', (apiData.headers.get('cache-control') ?? '').includes('no-store'), apiData.headers.get('cache-control'));
+  const manifest = await fetch(BASE + '/manifest.webmanifest');
+  ok('el manifiesto sale con su tipo', manifest.headers.get('content-type')?.startsWith('application/manifest+json'), manifest.headers.get('content-type'));
   ok('/docs responde', [200, 301, 302].includes((await call('GET', '/docs', { raw: true })).status));
   const spec = await call('GET', '/api-docs', { raw: true });
   ok('/api-docs -> especificación OpenAPI', spec.status === 200 && spec.data.openapi, spec.status);
