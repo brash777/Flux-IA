@@ -19,8 +19,8 @@ export const API_BASE = LIVE_SERVER_PORTS.has(location.port)
    flux.timezone del backend: es la que decide en qué mes cae cada
    movimiento, y la pantalla no puede decir «30 sep» de un gasto que el
    reporte cuenta en octubre. */
-export const APP_TIMEZONE = 'America/Argentina/Buenos_Aires';
+export const APP_TIMEZONE = 'America/Bogota';
 
 /* Moneda cuando la API todavía no dijo cuál usar. Es la misma que asigna
    el backend a una cuenta nueva. */
-export const DEFAULT_CURRENCY = 'ARS';
+export const DEFAULT_CURRENCY = 'COP';

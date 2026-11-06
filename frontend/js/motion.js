@@ -430,7 +430,8 @@ export function scope(root) {
     /**
      * Cuenta de 0 al valor de la API. El texto final es exactamente el que
      * da `format(value)`: el conteo es solo visual y al terminar se
-     * reemplaza por la cadena exacta.
+     * reemplaza por la cadena exacta. Mientras cuenta usa enteros, para que
+     * los centavos no aparezcan y desaparezcan en cada cuadro.
      */
     countUp(element, value, format) {
       const finalText = format(value);
@@ -446,7 +447,7 @@ export function scope(root) {
           n: target,
           duration: token('--dur-count', 900) / 1000,
           ease: 'power2.out',
-          onUpdate: () => { element.textContent = format(state.n); },
+          onUpdate: () => { element.textContent = format(Math.round(state.n)); },
           onComplete: () => { element.textContent = finalText; },
         });
       });

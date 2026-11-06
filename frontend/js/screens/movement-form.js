@@ -100,7 +100,7 @@ export async function openMovementForm({ transaction = null, onChange }) {
     label: 'Monto',
     name: 'amount',
     value: editing ? amountForInput(transaction.amount) : '',
-    attrs: { inputmode: 'decimal', autocomplete: 'off', placeholder: '0,00', required: true },
+    attrs: { inputmode: 'decimal', autocomplete: 'off', placeholder: '0', required: true },
   });
   const descriptionField = inputField({
     label: 'Descripción',

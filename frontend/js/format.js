@@ -12,22 +12,24 @@ const moneyFormats = new Map();
 
 function moneyFormat(currency) {
   if (!moneyFormats.has(currency)) {
-    moneyFormats.set(currency, new Intl.NumberFormat('es-AR', {
+    moneyFormats.set(currency, new Intl.NumberFormat('es-CO', {
       style: 'currency',
       currency,
-      minimumFractionDigits: 2,
+      // En pesos colombianos no se suelen mostrar centavos, pero si un monto
+      // los tiene se ven: la cifra tiene que ser exacta.
+      minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     }));
   }
   return moneyFormats.get(currency);
 }
 
-/** «$ 56.410,00». El monto llega positivo; el signo lo pone signedMoney. */
+/** «$ 56.410». El monto llega positivo; el signo lo pone signedMoney. */
 export function money(amount, currency = DEFAULT_CURRENCY) {
   return moneyFormat(currency).format(Math.abs(Number(amount)));
 }
 
-/** «+$ 43.000,00» o «−$ 5.800,00», según el tipo del movimiento. Cero no
+/** «+$ 43.000» o «−$ 5.800», según el tipo del movimiento. Cero no
     lleva signo. */
 export function signedMoney(amount, type, currency = DEFAULT_CURRENCY) {
   if (Number(amount) === 0) return money(0, currency);
@@ -39,7 +41,7 @@ export function netMoney(value, currency = DEFAULT_CURRENCY) {
   return signedMoney(value, Number(value) < 0 ? 'EXPENSE' : 'INCOME', currency);
 }
 
-const percentFormat = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const percentFormat = new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 /** Variación porcentual con signo: «+34,88 %» / «−57,29 %». */
 export function changePercent(value) {
@@ -67,10 +69,10 @@ export function lengthClass(text) {
 /* --- Fechas --------------------------------------------------------- */
 
 const dayKeyFormat = new Intl.DateTimeFormat('en-CA', { timeZone: APP_TIMEZONE, year: 'numeric', month: '2-digit', day: '2-digit' });
-const shortDate = new Intl.DateTimeFormat('es-AR', { timeZone: APP_TIMEZONE, day: 'numeric', month: 'short' });
-const longDate = new Intl.DateTimeFormat('es-AR', { timeZone: APP_TIMEZONE, weekday: 'long', day: 'numeric', month: 'long' });
-const timeFormat = new Intl.DateTimeFormat('es-AR', { timeZone: APP_TIMEZONE, hour: '2-digit', minute: '2-digit', hour12: false });
-const monthName = new Intl.DateTimeFormat('es-AR', { timeZone: APP_TIMEZONE, month: 'long' });
+const shortDate = new Intl.DateTimeFormat('es-CO', { timeZone: APP_TIMEZONE, day: 'numeric', month: 'short' });
+const longDate = new Intl.DateTimeFormat('es-CO', { timeZone: APP_TIMEZONE, weekday: 'long', day: 'numeric', month: 'long' });
+const timeFormat = new Intl.DateTimeFormat('es-CO', { timeZone: APP_TIMEZONE, hour: '2-digit', minute: '2-digit', hour12: false });
+const monthName = new Intl.DateTimeFormat('es-CO', { timeZone: APP_TIMEZONE, month: 'long' });
 
 /** «2026-10-05» en la zona de la app: sirve para agrupar por día. */
 export function dayKey(date) {
@@ -105,7 +107,7 @@ export function currentMonthName() {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
-/* Desfase de la zona de la app en una fecha dada, como «-03:00». */
+/* Desfase de la zona de la app en una fecha dada, como «-05:00». */
 function offsetAt(date) {
   const parts = new Intl.DateTimeFormat('en-US', { timeZone: APP_TIMEZONE, timeZoneName: 'longOffset' })
     .formatToParts(date);
@@ -162,7 +164,8 @@ export function parseAmount(input) {
   return `${whole.replace(/^0+(?=\d)/, '')}.${fraction.padEnd(2, '0')}`;
 }
 
-/** Monto de la API para un campo editable: «2450,50». */
+/** Monto de la API para un campo editable: «2450» o «2450,50». */
 export function amountForInput(amount) {
-  return Number(amount).toFixed(2).replace('.', ',');
+  const value = Number(amount);
+  return Number.isInteger(value) ? String(value) : value.toFixed(2).replace('.', ',');
 }
