@@ -13,7 +13,7 @@ import java.util.UUID;
 @Service
 public class AccountService {
 
-    private static final String DEFAULT_CURRENCY = "ARS";
+    private static final String DEFAULT_CURRENCY = "COP";
 
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;

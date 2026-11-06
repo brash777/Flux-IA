@@ -70,7 +70,7 @@ class TransactionTest {
 
     private Transaction sample(TransactionType type, String amount, CategoryKind kind) {
         User user = new User("demo@fluxia.app", "hash", "Demo Usuario");
-        Account account = new Account(user, "Cuenta principal", AccountType.BANK, "ARS");
+        Account account = new Account(user, "Cuenta principal", AccountType.BANK, "COP");
         Category category = new Category(null, "prueba", "Prueba", "🧪", "#6c63ff", kind);
 
         return new Transaction(user, account, category, "Movimiento de prueba",

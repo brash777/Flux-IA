@@ -83,7 +83,7 @@ public class AuthService {
                 passwordEncoder.encode(request.password()),
                 request.fullName().trim()));
 
-        accountRepository.save(new Account(user, "Cuenta principal", AccountType.BANK, "ARS"));
+        accountRepository.save(new Account(user, "Cuenta principal", AccountType.BANK, "COP"));
 
         log.info("Usuario registrado: {}", user.getId());
         return openSession(user);
