@@ -24,10 +24,9 @@ el botón «atrás» de Android.
 
 - **Node 20 o superior** en el computador.
 - En el celular, **Expo Go** de la tienda (Play Store o App Store). Este
-  proyecto usa el **SDK 57**, el que trae Expo Go en las tiendas. El SDK 58
-  ya salió, pero su Expo Go todavía no llegó a la App Store ni a Play Store:
-  no actualizar el proyecto hasta que llegue, o Expo Go dirá que es
-  incompatible.
+  proyecto usa el **SDK 58**, el que trae Expo Go en las tiendas. Cuando Expo
+  Go pase a un SDK más nuevo, el proyecto no abrirá hasta subirlo también: en
+  iPhone no se puede instalar un Expo Go anterior.
 - En iPhone, cuando Expo Go pida acceso a la **red local**, hay que
   permitirlo: sin eso no llega ni al servidor de Expo ni al backend.
 - El backend corriendo (ver [backend/README.md](../backend/README.md)).
@@ -155,5 +154,5 @@ compilar a partir de `app.json`.
 
 ```bash
 npm test             # dirección del servidor y dónde buscar el backend
-npx expo-doctor      # dependencias compatibles con el SDK 57
+npx expo-doctor      # dependencias compatibles con el SDK 58
 ```
