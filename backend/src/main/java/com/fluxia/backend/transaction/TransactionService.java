@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,12 @@ public class TransactionService {
 
     /** Tope de elementos por pagina, para que nadie pida 10 000 de una vez. */
     private static final int MAX_PAGE_SIZE = 100;
+
+    /** Antes de esto, una fecha es un error de tipeo y no un movimiento real. */
+    private static final OffsetDateTime OLDEST_ALLOWED = OffsetDateTime.parse("2000-01-01T00:00:00Z");
+
+    /** Margen para un celular con el reloj un poco adelantado. */
+    private static final Duration CLOCK_TOLERANCE = Duration.ofHours(1);
 
     private final TransactionRepository transactionRepository;
     private final CategoryRepository categoryRepository;
@@ -141,6 +148,8 @@ public class TransactionService {
 
     @Transactional
     public TransactionDtos.Response create(UUID userId, TransactionDtos.CreateRequest request) {
+        requireReasonableDate(request.occurredAt());
+
         User user = userRepository.getReferenceById(userId);
         Category category = requireVisibleCategory(request.categoryId(), userId);
         Account account = resolveAccount(request.accountId(), userId);
@@ -170,6 +179,10 @@ public class TransactionService {
     public TransactionDtos.Response update(UUID userId,
                                            UUID transactionId,
                                            TransactionDtos.UpdateRequest request) {
+
+        if (request.occurredAt() != null) {
+            requireReasonableDate(request.occurredAt());
+        }
 
         Transaction transaction = requireOwned(userId, transactionId);
 
@@ -260,5 +273,20 @@ public class TransactionService {
         BigDecimal income = sums.getOrDefault(TransactionType.INCOME, BigDecimal.ZERO);
         BigDecimal expense = sums.getOrDefault(TransactionType.EXPENSE, BigDecimal.ZERO);
         return new TransactionDtos.Totals(income, expense, income.subtract(expense));
+    }
+
+    /**
+     * Rechaza fechas futuras y absurdamente viejas. Un movimiento de 2099
+     * contaria en el saldo de ese ano y desde hoy no se veria en ningun
+     * reporte; el saldo y las pantallas dejarian de cuadrar a simple vista.
+     */
+    private void requireReasonableDate(OffsetDateTime occurredAt) {
+        if (occurredAt.isAfter(OffsetDateTime.now().plus(CLOCK_TOLERANCE))) {
+            throw ApiException.badRequest("INVALID_DATE", "La fecha no puede estar en el futuro.");
+        }
+        if (occurredAt.isBefore(OLDEST_ALLOWED)) {
+            throw ApiException.badRequest("INVALID_DATE",
+                    "La fecha es demasiado antigua: debe ser del año 2000 en adelante.");
+        }
     }
 }

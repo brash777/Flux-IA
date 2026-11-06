@@ -124,6 +124,11 @@ async function main() {
   ok('monto negativo -> 400 con fields.amount', negative.status === 400 && negative.data?.fields?.amount, negative);
   const threeDecimals = await call('POST', '/transactions', { token: T, body: { description: 'x', amount: '1.001', type: 'EXPENSE', categoryId: expenseCategory.id, occurredAt: now() } });
   ok('monto con tres decimales -> 400', threeDecimals.status === 400, threeDecimals);
+  const dated = (occurredAt) => ({ token: T, body: { description: 'x', amount: '10', type: 'EXPENSE', categoryId: expenseCategory.id, occurredAt } });
+  const future = await call('POST', '/transactions', dated('2099-01-01T00:00:00Z'));
+  ok('fecha futura -> 400 con mensaje para el usuario', future.status === 400 && userMessage(future), future);
+  const ancient = await call('POST', '/transactions', dated('1900-01-01T00:00:00Z'));
+  ok('fecha de antes del 2000 -> 400 con mensaje para el usuario', ancient.status === 400 && userMessage(ancient), ancient);
   const empty = await call('POST', '/transactions', { token: T, body: {} });
   ok('cuerpo vacío -> 400 con varios fields', empty.status === 400 && Object.keys(empty.data?.fields ?? {}).length >= 3, empty);
   const wrongKind = await call('POST', '/transactions', { token: T, body: { description: 'x', amount: '10', type: 'EXPENSE', categoryId: incomeCategory.id, occurredAt: now() } });
