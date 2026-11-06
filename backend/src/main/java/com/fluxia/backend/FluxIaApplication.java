@@ -3,6 +3,7 @@ package com.fluxia.backend;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Punto de entrada del backend de Flux IA.
@@ -15,9 +16,12 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
  * <p>{@code @ConfigurationPropertiesScan} hace que Spring descubra las
  * clases anotadas con {@code @ConfigurationProperties} del paquete
  * {@code config}, que es donde se tipan los ajustes de application.yml.
+ * {@code @EnableScheduling} activa las tareas periodicas, como la limpieza
+ * de tokens vencidos.
  */
 @SpringBootApplication
 @ConfigurationPropertiesScan
+@EnableScheduling
 public class FluxIaApplication {
 
     public static void main(String[] args) {

@@ -24,4 +24,9 @@ public interface PasswordResetTokenRepository extends JpaRepository<PasswordRese
             WHERE prt.user.id = :userId AND prt.usedAt IS NULL
             """)
     int invalidatePendingForUser(@Param("userId") UUID userId, @Param("now") OffsetDateTime now);
+
+    /** Limpieza de pedidos que ya no sirven para nada. */
+    @Modifying
+    @Query("DELETE FROM PasswordResetToken prt WHERE prt.expiresAt < :before")
+    int deleteExpiredBefore(@Param("before") OffsetDateTime before);
 }
