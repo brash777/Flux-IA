@@ -781,6 +781,22 @@ button {
   white-space: nowrap;
 }
 
+/* Si no cabe, se corta la categoría: la fecha siempre se lee. */
+.tx-row__meta:has(.tx-row__category) {
+  display: flex;
+  gap: 0.25em;
+}
+
+.tx-row__category {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tx-row__when {
+  flex: none;
+}
+
 .tx-row__amount {
   font-size: var(--fs-money-md);
 }

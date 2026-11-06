@@ -79,17 +79,20 @@ export function dayKey(date) {
   return dayKeyFormat.format(new Date(date));
 }
 
-/** «Hoy», «Ayer» o «3 oct.». */
+/** «Hoy», «Ayer» o «3 oct». */
 export function relativeDay(date) {
   const key = dayKey(date);
   const today = dayKey(Date.now());
   const yesterday = dayKey(Date.now() - 86_400_000);
   if (key === today) return 'Hoy';
   if (key === yesterday) return 'Ayer';
-  return shortDate.format(new Date(date));
+  // Sin el «de» que agrega es-CO: esta fecha va en filas angostas.
+  const parts = shortDate.formatToParts(new Date(date));
+  const part = (type) => parts.find((p) => p.type === type).value;
+  return `${part('day')} ${part('month').replace('.', '')}`;
 }
 
-/** Encabezado de grupo: «Hoy», «Ayer» o «sábado 3 de octubre». */
+/** Encabezado de grupo: «Hoy», «Ayer» o «Sábado, 3 de octubre». */
 export function dayHeading(date) {
   const relative = relativeDay(date);
   if (relative === 'Hoy' || relative === 'Ayer') return relative;

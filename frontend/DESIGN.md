@@ -344,9 +344,11 @@ pantalla.
 
 - Chip de categoría (emoji y color de la API), descripción en hasta dos líneas,
   categoría y fecha, y monto.
-- **La descripción se corta con «…»; la cifra, nunca.**
+- **La descripción y la categoría se cortan con «…»; la cifra y la fecha, nunca.**
 - Fecha relativa solo cerca: «Hoy», «Ayer»; después, fecha corta («3 oct»), en
-  la zona del usuario.
+  la zona del usuario. Si la fila muestra el día, no muestra la hora: no cabe
+  junto a un monto largo. La hora se lee en el detalle y en el lector de
+  pantalla.
 - Toda la fila se toca y abre el detalle.
 
 ### Navegación inferior

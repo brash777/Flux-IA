@@ -65,14 +65,18 @@ export function categoryChip(category) {
 export function transactionRow(tx, onOpen, { showDay = true } = {}) {
   const currency = tx.account?.currency;
   const amount = signedMoney(tx.amount, tx.type, currency);
-  const when = showDay ? `${relativeDay(tx.occurredAt)}, ${time(tx.occurredAt)}` : time(tx.occurredAt);
+  // En la fila basta el día: con la hora, se cortaba en un celular angosto.
+  const when = showDay ? relativeDay(tx.occurredAt) : time(tx.occurredAt);
+  const fullMoment = showDay ? `${when}, ${time(tx.occurredAt)}` : when;
   const button = h('button', { class: 'tx-row', type: 'button', onclick: () => onOpen?.(tx) },
     categoryChip(tx.category),
     h('span', { class: 'tx-row__main' },
       h('span', { class: 'tx-row__title' }, tx.description),
-      h('span', { class: 'tx-row__meta' }, `${tx.category?.name ?? ''} · ${when}`)),
+      h('span', { class: 'tx-row__meta' },
+        h('span', { class: 'tx-row__category' }, tx.category?.name ?? ''),
+        h('span', { class: 'tx-row__when' }, `· ${when}`))),
     h('span', { class: `tx-row__amount money${tx.type === 'INCOME' ? ' is-income' : ''}` }, amount));
-  button.setAttribute('aria-label', `${tx.description}, ${tx.category?.name ?? ''}, ${amount}, ${when}`);
+  button.setAttribute('aria-label', `${tx.description}, ${tx.category?.name ?? ''}, ${amount}, ${fullMoment}`);
   return h('li', {}, button);
 }
 
