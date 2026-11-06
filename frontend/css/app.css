@@ -2252,3 +2252,9 @@ body.device-host {
     animation-duration: 1.6s;
   }
 }
+
+/* Lista esperando resultados nuevos: sigue a la vista, un poco atenuada. */
+.is-refreshing {
+  opacity: var(--opacity-busy);
+  transition: opacity var(--dur-fast) var(--ease-out);
+}

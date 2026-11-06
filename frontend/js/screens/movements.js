@@ -43,7 +43,7 @@ export function mount(view) {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(() => {
       filters.search = searchInput.value.trim();
-      reload();
+      reload({ keepList: true });
     }, 300);
   });
 
@@ -98,8 +98,15 @@ export function mount(view) {
     return { ...range, category: filters.category, search: filters.search, page: pageNumber, size: PAGE_SIZE };
   }
 
-  function reload() {
+  /* Al buscar, la lista sigue a la vista hasta que llegue la nueva: cambiarla
+     por el esqueleto a cada búsqueda la haría parpadear. */
+  function reload({ keepList = false } = {}) {
     loaded = 0;
+    if (keepList) {
+      listArea.classList.add('is-refreshing');
+      loadPage(0);
+      return;
+    }
     render(totals, h('span', { class: 'skeleton skeleton--line', style: { display: 'block', width: '60%' } }));
     render(listArea, h('div', { style: { marginTop: 'var(--space-5)' } }, skeletonList(5, 'Cargando movimientos…')));
     more.hidden = true;
@@ -122,6 +129,7 @@ export function mount(view) {
       page = result.page;
       showTotals(result.totals);
       if (pageNumber === 0) {
+        listArea.classList.remove('is-refreshing');
         render(listArea);
         lastKey = null;
         lastList = null;
@@ -141,8 +149,9 @@ export function mount(view) {
     } catch (error) {
       if (!alive || mine !== request || error.code === 'SESSION_EXPIRED') return;
       if (pageNumber === 0) {
+        listArea.classList.remove('is-refreshing');
         render(totals);
-        render(listArea, h('div', { style: { marginTop: 'var(--space-5)' } }, errorCard(error, reload)));
+        render(listArea, h('div', { style: { marginTop: 'var(--space-5)' } }, errorCard(error, () => reload())));
       } else {
         more.disabled = false;
         more.textContent = 'Reintentar';
