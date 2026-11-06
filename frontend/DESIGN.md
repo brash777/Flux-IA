@@ -351,6 +351,9 @@ pantalla.
 
 ### Navegación inferior
 
+- Cada destino mide lo que pide su etiqueta y reparte el espacio restante: en
+  quintos iguales, «Movimientos» no cabe en un celular de 360 px.
+
 - Barra de vidrio fuerte **flotante**, separada 8 px de los bordes y por encima
   de la zona segura inferior.
 - Cinco destinos, **siempre con texto**: Inicio, Movimientos, Reportes,

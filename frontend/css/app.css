@@ -799,7 +799,9 @@ button {
   right: calc(var(--safe-right) + var(--space-2));
   bottom: calc(var(--safe-bottom) + var(--space-2));
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  /* Cada destino mide lo que pide su etiqueta y reparte el resto: en quintos
+     iguales, «Movimientos» se salía del recuadro en un celular angosto. */
+  grid-template-columns: repeat(5, auto);
   height: var(--nav-h);
   padding: var(--space-1);
   border-radius: var(--r-lg);
@@ -813,6 +815,7 @@ button {
   gap: 2px;
   min-width: var(--touch);
   min-height: var(--touch);
+  padding-inline: var(--space-1);
   border-radius: 18px;
   color: var(--text-muted);
   font-size: var(--fs-xs);
