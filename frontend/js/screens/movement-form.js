@@ -112,7 +112,7 @@ export async function openMovementForm({ transaction = null, onChange }) {
     label: 'Fecha y hora',
     name: 'occurredAt',
     value: toLocalInput(transaction?.occurredAt ?? Date.now()),
-    attrs: { type: 'datetime-local', required: true },
+    attrs: { type: 'datetime-local', required: true, max: toLocalInput(Date.now()) },
   });
 
   const submit = h('button', { class: 'btn btn--primary btn--block', type: 'submit' }, editing ? 'Guardar cambios' : 'Guardar');
