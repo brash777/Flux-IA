@@ -61,7 +61,7 @@ que lo evita.
 - Los rangos son **semiabiertos**: `[desde, hasta)`. Así un movimiento no se
   cuenta dos veces entre dos períodos contiguos.
 - Los límites de los períodos se calculan en la zona de `flux.timezone`, no en
-  UTC. Un gasto del 31 de diciembre a las 21:00 de Buenos Aires pertenece a
+  UTC. Un gasto del 31 de diciembre a las 21:00 de Bogotá pertenece a
   diciembre, no a enero.
 
 ## Seguridad
@@ -233,7 +233,7 @@ frontend/
 
 ## Móvil (Expo)
 
-Vive en `mobile/`: Expo SDK 57, para Expo Go y para compilar el APK con EAS.
+Vive en `mobile/`: Expo SDK 58, para Expo Go y para compilar el APK con EAS.
 
 - **El SDK sigue al de Expo Go en las tiendas**, no al último publicado en npm:
   un proyecto más nuevo que el Expo Go instalado no abre. Antes de subir de

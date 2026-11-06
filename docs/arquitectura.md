@@ -82,8 +82,8 @@ considera la misma.
 El detalle más delicado del backend.
 
 Las fechas se guardan en UTC, pero «este mes» depende de dónde está el usuario.
-Sin convertir, un gasto del 31 de diciembre a las 21:00 de Buenos Aires
-(= 1 de enero a las 00:00 UTC) se contaría en el año siguiente.
+Sin convertir, un gasto del 31 de diciembre a las 21:00 de Bogotá
+(= 1 de enero a las 02:00 UTC) se contaría en el año siguiente.
 
 `ReportPeriod` calcula los límites en la zona de `flux.timezone` y los convierte
 al instante absoluto que se compara contra la base. La consulta de tendencia
