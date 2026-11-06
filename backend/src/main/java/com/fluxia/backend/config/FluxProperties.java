@@ -24,9 +24,9 @@ public class FluxProperties {
      *
      * <p>Importa mas de lo que parece: las fechas se guardan en UTC, y
      * sin esta conversion un gasto del 31 de diciembre a las 21:00 de
-     * Buenos Aires caeria en enero del ano siguiente.
+     * Bogotá caeria en enero del ano siguiente.
      */
-    private ZoneId timezone = ZoneId.of("America/Argentina/Buenos_Aires");
+    private ZoneId timezone = ZoneId.of("America/Bogota");
 
     private final Jwt jwt = new Jwt();
     private final Ai ai = new Ai();

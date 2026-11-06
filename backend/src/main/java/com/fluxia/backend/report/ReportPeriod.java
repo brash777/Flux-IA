@@ -14,8 +14,8 @@ import java.time.temporal.IsoFields;
  *
  * <p>Los limites se calculan en la zona horaria del usuario y luego se
  * convierten al instante absoluto que se compara contra la base de
- * datos. Sin esa conversion, "este mes" empezaria tres horas tarde para
- * alguien en Buenos Aires.
+ * datos. Sin esa conversion, "este mes" empezaria cinco horas antes para
+ * alguien en Bogotá.
  */
 public enum ReportPeriod {
 

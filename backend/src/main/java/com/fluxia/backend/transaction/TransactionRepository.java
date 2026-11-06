@@ -111,7 +111,7 @@ public interface TransactionRepository extends
      * {@code date_trunc} es propio de PostgreSQL, y sobre todo el
      * {@code AT TIME ZONE}. Las fechas se guardan en UTC, asi que
      * agrupar por mes directamente pondria un gasto del 31 de diciembre
-     * a las 21:00 de Buenos Aires en enero del ano siguiente. Convertir
+     * a las 21:00 de Bogotá en enero del ano siguiente. Convertir
      * a la zona del usuario antes de agrupar corrige ese desfase.
      */
     @Query(value = """

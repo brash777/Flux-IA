@@ -91,7 +91,7 @@ server:
 flux:
   # Zona con la que se delimitan los periodos de los reportes. Las
   # fechas se guardan en UTC; esta zona define donde empieza un mes.
-  timezone: ${APP_TIMEZONE:America/Argentina/Buenos_Aires}
+  timezone: ${APP_TIMEZONE:America/Bogota}
 
   jwt:
     secret: ${JWT_SECRET}
