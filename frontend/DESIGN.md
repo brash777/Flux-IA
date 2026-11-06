@@ -210,10 +210,11 @@ iPhone hace zoom al enfocar.
 - **Siempre tabulares** (`font-variant-numeric: tabular-nums`). Todos los
   dígitos miden lo mismo: un monto que cuenta no «baila» y las columnas quedan
   alineadas.
-- **Formato:** `Intl.NumberFormat('es-AR', { style: 'currency', currency })`
+- **Formato:** `Intl.NumberFormat('es-CO', { style: 'currency', currency })`
   en una sola función de `js/`. La moneda sale de la cuenta (`currency`,
-  `ARS` por omisión en el backend). Ejemplo: `$ 56.410,00`.
-- **Signo pegado al símbolo:** `+$ 43.000,00` y `−$ 5.800,00`, con el signo
+  `COP` por omisión en el backend). Sin centavos cuando no los hay: `$ 56.410`;
+  con ellos: `$ 123,45`.
+- **Signo pegado al símbolo:** `+$ 43.000` y `−$ 5.800`, con el signo
   menos tipográfico (U+2212), no el guion. El monto llega siempre positivo de
   la API; el signo sale de `type`.
 - **Nunca se corta una cifra** ni se reemplaza por «…». Si no entra, baja un
