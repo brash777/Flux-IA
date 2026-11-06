@@ -24,3 +24,9 @@ logging:
   level:
     com.fluxia.backend: DEBUG
     org.springframework.security: DEBUG
+
+springdoc:
+  swagger-ui:
+    enabled: ${DOCS_ENABLED:true}
+  api-docs:
+    enabled: ${DOCS_ENABLED:true}

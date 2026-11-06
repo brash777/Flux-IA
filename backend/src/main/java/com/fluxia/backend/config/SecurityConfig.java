@@ -66,9 +66,8 @@ public class SecurityConfig {
                         // Registro, inicio de sesion y recuperacion: por
                         // definicion se piden sin token.
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        // Documentacion navegable de la API.
-                        // En produccion conviene apagarla con
-                        // springdoc.api-docs.enabled=false
+                        // Documentacion navegable de la API. Solo existe con
+                        // DOCS_ENABLED=true o en el perfil dev (application.yml).
                         .requestMatchers("/docs", "/docs/**", "/swagger-ui/**", "/api-docs/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         // La app web que entrega este mismo servidor: son

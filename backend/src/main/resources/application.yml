@@ -134,10 +134,14 @@ flux:
   password-reset:
     token-ttl: PT30M
 
+# La documentacion muestra todas las rutas de la API: se publica solo si se
+# pide. El perfil dev la enciende.
 springdoc:
   swagger-ui:
+    enabled: ${DOCS_ENABLED:false}
     path: /docs
   api-docs:
+    enabled: ${DOCS_ENABLED:false}
     path: /api-docs
 
 logging:
