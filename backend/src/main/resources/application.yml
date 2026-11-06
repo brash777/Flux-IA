@@ -67,6 +67,12 @@ spring:
       # sola direccion, sin CORS ni IPs escritas en el frontend. La ruta es
       # relativa a backend/, desde donde se arranca (igual que el .env).
       static-locations: ${FRONTEND_DIR:file:../frontend/}
+      # El navegador guarda los archivos y pregunta si cambiaron antes de
+      # usarlos: abrir la app no los baja de nuevo, pero un cambio se ve al
+      # instante.
+      cache:
+        cachecontrol:
+          no-cache: true
 
   jackson:
     # Los nulos SI se serializan. En esta API un null es informacion:
