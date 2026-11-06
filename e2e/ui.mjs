@@ -30,7 +30,7 @@ function ok(name, condition, detail = '') {
 const clean = (text) => (text ?? '').replace(/\s+/g, ' ').trim();
 // El mismo formato que frontend/js/format.js, para comparar lo que se ve
 // con lo que manda la API.
-const ars = (n) => clean(new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(Number(n))));
+const cop = (n) => clean(new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(Math.abs(Number(n))));
 
 async function demoSummary() {
   const login = await fetch(`${BASE}/api/v1/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(DEMO) });
@@ -40,7 +40,7 @@ async function demoSummary() {
 }
 
 const browser = await chromium.launch(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : { channel: 'chrome' });
-const context = await browser.newContext({ viewport: { width: WIDTH, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, locale: 'es-AR' });
+const context = await browser.newContext({ viewport: { width: WIDTH, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, locale: 'es-CO' });
 const page = await context.newPage();
 
 // --- Qué cuenta como error ----------------------------------------------
@@ -124,8 +124,8 @@ try {
   const before = await demoSummary();
   await page.locator('article.balance-card .sr-only').first().waitFor({ timeout: 10000 });
   await page.waitForTimeout(2500); // conteo de las cifras
-  ok('el saldo de inicio es el de la API', clean(await page.locator('article.balance-card .sr-only').first().textContent()) === ars(before.balance));
-  ok('la cifra animada termina exactamente en el valor de la API', clean(await page.locator('article.balance-card .balance-card__amount').textContent()) === ars(before.balance));
+  ok('el saldo de inicio es el de la API', clean(await page.locator('article.balance-card .sr-only').first().textContent()) === cop(before.balance));
+  ok('la cifra animada termina exactamente en el valor de la API', clean(await page.locator('article.balance-card .balance-card__amount').textContent()) === cop(before.balance));
   await shot('02-inicio');
   await noHorizontalScroll('inicio');
 
@@ -141,7 +141,7 @@ try {
   await page.waitForTimeout(2500);
   const after = await demoSummary();
   ok('la API bajó el saldo exactamente 123,45', Math.round((before.balance - after.balance) * 100) === 12345, `${before.balance} -> ${after.balance}`);
-  ok('inicio muestra el saldo nuevo', clean(await page.locator('article.balance-card .sr-only').first().textContent()) === ars(after.balance));
+  ok('inicio muestra el saldo nuevo', clean(await page.locator('article.balance-card .sr-only').first().textContent()) === cop(after.balance));
 
   // --- Movimientos: buscar, editar y borrar ------------------------------
   await tab('movimientos');
@@ -158,7 +158,7 @@ try {
   await page.locator('.sheet button[type=submit]').click();
   ok('editar: aviso «Movimiento actualizado»', (await toast()).includes('Movimiento actualizado'));
   await page.waitForTimeout(1500);
-  ok('los totales del filtro muestran el monto editado', clean(await page.locator('.totals').textContent()).includes(ars(200)));
+  ok('los totales del filtro muestran el monto editado', clean(await page.locator('.totals').textContent()).includes(cop(200)));
   await page.locator('.tx-list li', { hasText: 'Prueba UI E2E' }).first().click();
   await page.getByRole('button', { name: 'Eliminar movimiento' }).click();
   await page.locator('.sheet').last().getByRole('button', { name: 'Eliminar', exact: true }).click();
