@@ -32,6 +32,38 @@ const clean = (text) => (text ?? '').replace(/\s+/g, ' ').trim();
 // con lo que manda la API.
 const cop = (n) => clean(new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(Math.abs(Number(n))));
 
+async function demoToken() {
+  const login = await fetch(`${BASE}/api/v1/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(DEMO) });
+  return (await login.json()).accessToken;
+}
+
+// Movimientos de la corrida: los de la semilla quedan en el pasado y el mes
+// en curso puede estar vacío, pero las pruebas necesitan datos en este mes.
+// Se borran al terminar.
+async function demoMovement(token, category, description, amount, type) {
+  const response = await fetch(`${BASE}/api/v1/transactions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+    body: JSON.stringify({ description, amount, type, categoryId: category.id, occurredAt: new Date().toISOString() }),
+  });
+  return (await response.json()).id;
+}
+
+async function createFixtures() {
+  const token = await demoToken();
+  const categories = await (await fetch(`${BASE}/api/v1/categories`, { headers: { Authorization: 'Bearer ' + token } })).json();
+  const bySlug = (slug) => categories.find((c) => c.slug === slug);
+  return [
+    await demoMovement(token, bySlug('comida'), 'Dato de prueba: gasto', '85000', 'EXPENSE'),
+    await demoMovement(token, bySlug('ingreso'), 'Dato de prueba: ingreso', '1200000', 'INCOME'),
+  ];
+}
+
+async function removeFixtures(ids) {
+  const token = await demoToken();
+  await Promise.all(ids.map((id) => fetch(`${BASE}/api/v1/transactions/${id}`, { method: 'DELETE', headers: { Authorization: 'Bearer ' + token } })));
+}
+
 async function demoSummary() {
   const login = await fetch(`${BASE}/api/v1/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(DEMO) });
   const { accessToken } = await login.json();
@@ -69,6 +101,8 @@ page.on('requestfailed', (r) => {
 });
 
 // --- Ayudas ----------------------------------------------------------------
+// Espera a que la página cumpla una condición; false si no llega a cumplirse.
+const until = (condition, arg) => page.waitForFunction(condition, arg, { timeout: 10000 }).then(() => true, () => false);
 const hash = () => page.evaluate(() => location.hash);
 // Durante una transición conviven la pantalla que sale y la que entra; se
 // espera a que quede una sola.
@@ -98,7 +132,9 @@ async function noHorizontalScroll(label) {
   ok(`${label}: sin scroll horizontal a ${WIDTH} px`, overflow.page <= 0 && overflow.screen <= 0, JSON.stringify(overflow));
 }
 
+let fixtures = [];
 try {
+  fixtures = await createFixtures();
   // --- Bienvenida e ingreso --------------------------------------------
   await page.goto(BASE + '/', { waitUntil: 'networkidle' });
   ok('sin sesión abre la bienvenida', (await hash()) === '#/bienvenida', await hash());
@@ -128,6 +164,15 @@ try {
   ok('la cifra animada termina exactamente en el valor de la API', clean(await page.locator('article.balance-card .balance-card__amount').textContent()) === cop(before.balance));
   await shot('02-inicio');
   await noHorizontalScroll('inicio');
+  ok('barra inferior: cada etiqueta cabe en su botón', await page.evaluate(() => [...document.querySelectorAll('.nav-bar__item')].every((item) => {
+    const range = document.createRange();
+    range.selectNodeContents(item);
+    return range.getBoundingClientRect().width <= item.getBoundingClientRect().width - 4;
+  })));
+  ok('recientes: la fecha se lee completa', await page.evaluate(() => {
+    const dates = [...document.querySelectorAll('.tx-row__when')];
+    return dates.length > 0 && dates.every((date) => date.scrollWidth <= date.clientWidth);
+  }));
 
   await page.locator('[aria-label="Nuevo movimiento"]').first().click();
   await page.locator('.sheet input[name=amount]').waitFor();
@@ -150,21 +195,23 @@ try {
   await shot('04-movimientos');
   await noHorizontalScroll('movimientos');
   await page.locator('input[name=search]').fill('Prueba UI');
-  await page.waitForTimeout(1500);
-  ok('la búsqueda encuentra exactamente uno', (await page.locator('.tx-list li').count()) === 1);
+  ok('la búsqueda encuentra exactamente uno', await until(() => {
+    const rows = [...document.querySelectorAll('.tx-list li')];
+    return rows.length === 1 && rows[0].textContent.includes('Prueba UI');
+  }));
   await page.locator('.tx-list li', { hasText: 'Prueba UI E2E' }).first().click();
   await page.locator('.sheet input[name=amount]').waitFor();
   await page.locator('.sheet input[name=amount]').fill('200');
   await page.locator('.sheet button[type=submit]').click();
   ok('editar: aviso «Movimiento actualizado»', (await toast()).includes('Movimiento actualizado'));
-  await page.waitForTimeout(1500);
-  ok('los totales del filtro muestran el monto editado', clean(await page.locator('.totals').textContent()).includes(cop(200)));
+  ok('los totales del filtro muestran el monto editado', await until(
+    (amount) => document.querySelector('.totals')?.textContent.replace(/\s+/g, ' ').includes(amount), cop(200)));
   await page.locator('.tx-list li', { hasText: 'Prueba UI E2E' }).first().click();
   await page.getByRole('button', { name: 'Eliminar movimiento' }).click();
   await page.locator('.sheet').last().getByRole('button', { name: 'Eliminar', exact: true }).click();
   ok('borrar: aviso «Movimiento eliminado»', (await toast()).includes('Movimiento eliminado'));
-  await page.waitForTimeout(1500);
-  ok('tras borrar se ve el estado vacío del filtro', (await page.locator('.tx-list li').count()) === 0 && (await page.getByText('No hay movimientos con estos filtros').count()) === 1);
+  ok('tras borrar se ve el estado vacío del filtro', await until(() => document.querySelectorAll('.tx-list li').length === 0
+    && document.body.textContent.includes('No hay movimientos con estos filtros')));
   ok('el saldo vuelve al original', (await demoSummary()).balance === before.balance);
 
   // --- Reportes, chat y perfil ---------------------------------------------
@@ -305,6 +352,7 @@ try {
   ok('el recorrido terminó sin interrupciones', false, error.message);
   await shot('zz-fallo').catch(() => {});
 } finally {
+  await removeFixtures(fixtures);
   ok('sin errores de consola ni peticiones sin respuesta', consoleErrors.length === 0, consoleErrors.join(' | '));
   ok('sin respuestas 5xx del servidor', serverErrors.length === 0, serverErrors.join(' | '));
   await browser.close();
