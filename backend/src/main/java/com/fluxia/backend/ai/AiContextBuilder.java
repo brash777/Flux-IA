@@ -42,14 +42,14 @@ public class AiContextBuilder {
 
     /**
      * Las fechas se guardan en UTC. Se convierten a la zona configurada
-     * antes de mostrarlas: si no, un gasto de las 14:30 de Buenos Aires
-     * le llegaria al modelo como si hubiera ocurrido a las 17:30, y
+     * antes de mostrarlas: si no, un gasto de las 14:30 de Bogotá
+     * le llegaria al modelo como si hubiera ocurrido a las 19:30, y
      * cualquier conclusion sobre horarios seria falsa.
      */
     private static final DateTimeFormatter DAY_FORMAT =
             DateTimeFormatter.ofPattern("dd/MM HH:mm");
 
-    private static final Locale SPANISH = Locale.forLanguageTag("es-AR");
+    private static final Locale SPANISH = Locale.forLanguageTag("es-CO");
 
     private final ReportService reportService;
     private final TransactionService transactionService;
@@ -158,7 +158,10 @@ public class AiContextBuilder {
         if (amount == null) {
             return "$0";
         }
-        return String.format(SPANISH, "$%,.2f", amount);
+        // Igual que en la app: sin centavos cuando no los hay, para que el
+        // modelo repita las cifras tal como se ven en pantalla.
+        String pattern = amount.stripTrailingZeros().scale() <= 0 ? "$%,.0f" : "$%,.2f";
+        return String.format(SPANISH, pattern, amount);
     }
 
     /** Null se traduce a texto, no a "0 %", que seria enganoso. */
