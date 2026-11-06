@@ -3,9 +3,9 @@ package com.fluxia.backend.report;
 import com.fluxia.backend.config.FluxProperties;
 import com.fluxia.backend.transaction.CategoryTotal;
 import com.fluxia.backend.transaction.MonthlyTotalRow;
+import com.fluxia.backend.transaction.SummaryTotals;
 import com.fluxia.backend.transaction.TransactionRepository;
 import com.fluxia.backend.transaction.TransactionType;
-import com.fluxia.backend.transaction.TypeTotal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +17,6 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -79,20 +78,16 @@ public class ReportService {
         ReportPeriod.Range current = period.currentRange(zone);
         ReportPeriod.Range previous = period.previousRange(zone);
 
-        Map<TransactionType, BigDecimal> currentSums =
-                asMap(transactionRepository.sumByTypeBetween(userId, current.from(), current.to()));
-        Map<TransactionType, BigDecimal> previousSums =
-                asMap(transactionRepository.sumByTypeBetween(userId, previous.from(), previous.to()));
-        Map<TransactionType, BigDecimal> historicSums =
-                asMap(transactionRepository.sumByTypeUntil(userId, current.to()));
+        SummaryTotals totals = transactionRepository.summaryTotals(
+                userId, current.from(), current.to(), previous.from(), previous.to());
 
-        BigDecimal income = get(currentSums, TransactionType.INCOME);
-        BigDecimal expense = get(currentSums, TransactionType.EXPENSE);
-        BigDecimal previousIncome = get(previousSums, TransactionType.INCOME);
-        BigDecimal previousExpense = get(previousSums, TransactionType.EXPENSE);
+        BigDecimal income = orZero(totals.currentIncome());
+        BigDecimal expense = orZero(totals.currentExpense());
+        BigDecimal previousIncome = orZero(totals.previousIncome());
+        BigDecimal previousExpense = orZero(totals.previousExpense());
 
-        BigDecimal balance = get(historicSums, TransactionType.INCOME)
-                .subtract(get(historicSums, TransactionType.EXPENSE));
+        BigDecimal balance = orZero(totals.historicIncome())
+                .subtract(orZero(totals.historicExpense()));
 
         return new ReportDtos.SummaryResponse(
                 period.name(),
@@ -271,15 +266,7 @@ public class ReportService {
         return label.substring(0, 1).toUpperCase(SPANISH) + label.substring(1);
     }
 
-    private Map<TransactionType, BigDecimal> asMap(List<TypeTotal> totals) {
-        Map<TransactionType, BigDecimal> map = new EnumMap<>(TransactionType.class);
-        for (TypeTotal total : totals) {
-            map.put(total.type(), total.total() != null ? total.total() : BigDecimal.ZERO);
-        }
-        return map;
-    }
-
-    private BigDecimal get(Map<TransactionType, BigDecimal> sums, TransactionType type) {
-        return sums.getOrDefault(type, BigDecimal.ZERO);
+    private BigDecimal orZero(BigDecimal value) {
+        return value != null ? value : BigDecimal.ZERO;
     }
 }

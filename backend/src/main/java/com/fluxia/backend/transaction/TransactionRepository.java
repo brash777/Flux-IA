@@ -52,39 +52,38 @@ public interface TransactionRepository extends
     // -----------------------------------------------------------------
 
     /**
-     * Suma por tipo dentro de un periodo. Devuelve como maximo dos
-     * filas (INCOME y EXPENSE); si un tipo no tiene movimientos, su
-     * fila no aparece y quien llama lo interpreta como cero.
+     * Todas las sumas del resumen en una sola consulta: las del periodo, las
+     * del periodo anterior y el saldo historico hasta el fin del periodo.
      *
-     * <p>El rango es semiabierto, {@code [desde, hasta)}: asi un
+     * <p>Son una sola porque cada ida y vuelta a la base cuesta unos 150 ms:
+     * con tres consultas separadas, el resumen de la pantalla de inicio
+     * tardaba mas de un segundo.
+     *
+     * <p>Los rangos son semiabiertos, {@code [desde, hasta)}: asi un
      * movimiento a las 23:59:59.999 del ultimo dia no se pierde ni se
      * cuenta dos veces entre dos periodos contiguos.
      */
     @Query("""
-            SELECT new com.fluxia.backend.transaction.TypeTotal(t.type, SUM(t.amount))
-            FROM Transaction t
-            WHERE t.user.id = :userId
-              AND t.occurredAt >= :from
-              AND t.occurredAt < :to
-            GROUP BY t.type
-            """)
-    List<TypeTotal> sumByTypeBetween(@Param("userId") UUID userId,
-                                     @Param("from") OffsetDateTime from,
-                                     @Param("to") OffsetDateTime to);
-
-    /**
-     * Suma por tipo sin limite inferior: es el saldo historico, que es
-     * lo que la pantalla de inicio muestra como "saldo total disponible".
-     */
-    @Query("""
-            SELECT new com.fluxia.backend.transaction.TypeTotal(t.type, SUM(t.amount))
+            SELECT new com.fluxia.backend.transaction.SummaryTotals(
+                SUM(CASE WHEN t.type = com.fluxia.backend.transaction.TransactionType.INCOME
+                          AND t.occurredAt >= :from THEN t.amount END),
+                SUM(CASE WHEN t.type = com.fluxia.backend.transaction.TransactionType.EXPENSE
+                          AND t.occurredAt >= :from THEN t.amount END),
+                SUM(CASE WHEN t.type = com.fluxia.backend.transaction.TransactionType.INCOME
+                          AND t.occurredAt >= :previousFrom AND t.occurredAt < :previousTo THEN t.amount END),
+                SUM(CASE WHEN t.type = com.fluxia.backend.transaction.TransactionType.EXPENSE
+                          AND t.occurredAt >= :previousFrom AND t.occurredAt < :previousTo THEN t.amount END),
+                SUM(CASE WHEN t.type = com.fluxia.backend.transaction.TransactionType.INCOME THEN t.amount END),
+                SUM(CASE WHEN t.type = com.fluxia.backend.transaction.TransactionType.EXPENSE THEN t.amount END))
             FROM Transaction t
             WHERE t.user.id = :userId
               AND t.occurredAt < :to
-            GROUP BY t.type
             """)
-    List<TypeTotal> sumByTypeUntil(@Param("userId") UUID userId,
-                                   @Param("to") OffsetDateTime to);
+    SummaryTotals summaryTotals(@Param("userId") UUID userId,
+                                @Param("from") OffsetDateTime from,
+                                @Param("to") OffsetDateTime to,
+                                @Param("previousFrom") OffsetDateTime previousFrom,
+                                @Param("previousTo") OffsetDateTime previousTo);
 
     /** Totales por categoria dentro de un periodo, de mayor a menor. */
     @Query("""

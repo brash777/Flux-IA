@@ -2,9 +2,9 @@ package com.fluxia.backend.report;
 
 import com.fluxia.backend.config.FluxProperties;
 import com.fluxia.backend.transaction.CategoryTotal;
+import com.fluxia.backend.transaction.SummaryTotals;
 import com.fluxia.backend.transaction.TransactionRepository;
 import com.fluxia.backend.transaction.TransactionType;
-import com.fluxia.backend.transaction.TypeTotal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -54,12 +54,10 @@ class ReportServiceTest {
     void reproducesPrototypeAudit() {
         // Son las cifras reales del arreglo TXS del prototipo. La
         // aplicacion mostraba 45.230 de saldo y 12.840 de gastos.
-        List<TypeTotal> totals = List.of(
-                new TypeTotal(TransactionType.INCOME, new BigDecimal("58000.00")),
-                new TypeTotal(TransactionType.EXPENSE, new BigDecimal("17250.00")));
-
-        when(transactionRepository.sumByTypeBetween(eq(USER_ID), any(), any())).thenReturn(totals);
-        when(transactionRepository.sumByTypeUntil(eq(USER_ID), any())).thenReturn(totals);
+        stubTotals(new SummaryTotals(
+                new BigDecimal("58000.00"), new BigDecimal("17250.00"),
+                null, null,
+                new BigDecimal("58000.00"), new BigDecimal("17250.00")));
 
         ReportDtos.SummaryResponse summary = reportService.summary(USER_ID, ReportPeriod.MONTH);
 
@@ -74,8 +72,7 @@ class ReportServiceTest {
     @Test
     @DisplayName("Sin movimientos, todos los totales son cero y no hay error")
     void handlesEmptyHistory() {
-        when(transactionRepository.sumByTypeBetween(eq(USER_ID), any(), any())).thenReturn(List.of());
-        when(transactionRepository.sumByTypeUntil(eq(USER_ID), any())).thenReturn(List.of());
+        stubTotals(new SummaryTotals(null, null, null, null, null, null));
 
         ReportDtos.SummaryResponse summary = reportService.summary(USER_ID, ReportPeriod.MONTH);
 
@@ -89,10 +86,10 @@ class ReportServiceTest {
     void savingsRateIsNullWithoutIncome() {
         // Distincion deliberada: "no ahorre nada" y "no se puede
         // calcular el ahorro" no son lo mismo.
-        when(transactionRepository.sumByTypeBetween(eq(USER_ID), any(), any()))
-                .thenReturn(List.of(new TypeTotal(TransactionType.EXPENSE, new BigDecimal("500.00"))));
-        when(transactionRepository.sumByTypeUntil(eq(USER_ID), any()))
-                .thenReturn(List.of(new TypeTotal(TransactionType.EXPENSE, new BigDecimal("500.00"))));
+        stubTotals(new SummaryTotals(
+                null, new BigDecimal("500.00"),
+                null, null,
+                null, new BigDecimal("500.00")));
 
         ReportDtos.SummaryResponse summary = reportService.summary(USER_ID, ReportPeriod.MONTH);
 
@@ -103,11 +100,10 @@ class ReportServiceTest {
     @Test
     @DisplayName("Sin periodo anterior con datos, la variacion es null y no un aumento infinito")
     void percentChangeIsNullWithoutBaseline() {
-        when(transactionRepository.sumByTypeBetween(eq(USER_ID), any(), any()))
-                .thenReturn(List.of(new TypeTotal(TransactionType.INCOME, new BigDecimal("1000.00"))))
-                .thenReturn(List.of());
-        when(transactionRepository.sumByTypeUntil(eq(USER_ID), any()))
-                .thenReturn(List.of(new TypeTotal(TransactionType.INCOME, new BigDecimal("1000.00"))));
+        stubTotals(new SummaryTotals(
+                new BigDecimal("1000.00"), null,
+                null, null,
+                new BigDecimal("1000.00"), null));
 
         ReportDtos.SummaryResponse summary = reportService.summary(USER_ID, ReportPeriod.MONTH);
 
@@ -190,5 +186,10 @@ class ReportServiceTest {
         assertThat(reportService.monthlyTrend(USER_ID, 500).months()).hasSize(24);
         assertThat(reportService.monthlyTrend(USER_ID, 0).months()).hasSize(1);
         assertThat(reportService.monthlyTrend(USER_ID, -3).months()).hasSize(1);
+    }
+
+    private void stubTotals(SummaryTotals totals) {
+        when(transactionRepository.summaryTotals(eq(USER_ID), any(), any(), any(), any()))
+                .thenReturn(totals);
     }
 }
