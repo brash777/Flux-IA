@@ -225,3 +225,13 @@ export const monthlyTrend = (months = 7) => request('GET', '/reports/monthly-tre
 /* --- Asistente ------------------------------------------------------ */
 
 export const chat = (question, history) => request('POST', '/ai/chat', { body: { question, history } });
+export const movementDraft = (text) => request('POST', '/ai/movement-draft', { body: { text } });
+export const limitProposal = (excludedCategoryIds) => request('POST', '/ai/daily-limit-proposal', { body: { excludedCategoryIds } });
+
+/* --- Tope diario, modo salida y tarjeta simulada ------------------- */
+
+export const spendingToday = () => request('GET', '/spending/today');
+export const saveSpendingSettings = (dailyLimit, excludedCategoryIds) =>
+  request('PUT', '/spending/settings', { body: { dailyLimit, excludedCategoryIds } });
+export const startGoingOut = () => request('POST', '/spending/going-out');
+export const cardPurchase = (data) => request('POST', '/spending/card-purchases', { body: data });
