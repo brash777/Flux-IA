@@ -1,7 +1,7 @@
 /* =====================================================================
-   Inicio: saldo, ingresos, gastos y tasa de ahorro del mes, y los
-   movimientos más recientes. Todas las cifras salen de
-   /reports/summary y /transactions/recent.
+   Inicio: saldo, ingresos, gastos y tasa de ahorro del mes, el tope de
+   hoy y los movimientos más recientes. Todas las cifras salen de
+   /reports/summary, /spending/today y /transactions/recent.
    ===================================================================== */
 
 import * as api from '../api.js';
@@ -10,6 +10,7 @@ import { h, icon, render } from '../dom.js';
 import { changePercent, currentMonthName, lengthClass, money, netMoney, percent } from '../format.js';
 import * as motion from '../motion.js';
 import { errorCard, skeletonBlock, skeletonList, stateCard, transactionRow } from '../ui.js';
+import { todayCard } from './daily-limit.js';
 import { openMovementForm } from './movement-form.js';
 
 export function mount(view, { navigate }) {
@@ -39,19 +40,19 @@ export function mount(view, { navigate }) {
       h('div', { class: 'section-title' }, h('h2', { class: 'h2' }, 'Recientes')),
       skeletonList(4, 'Cargando movimientos…'));
     try {
-      const [user, summary, recent, accounts] = await Promise.all([
-        api.me(), api.summary('MONTH'), api.recentTransactions(5), api.accounts(),
+      const [user, summary, recent, accounts, today] = await Promise.all([
+        api.me(), api.summary('MONTH'), api.recentTransactions(5), api.accounts(), api.spendingToday(),
       ]);
       if (!alive) return;
       greeting.textContent = `Hola, ${user.fullName.split(/\s+/)[0]}`;
-      show(summary, recent, accounts[0]?.currency ?? DEFAULT_CURRENCY);
+      show(summary, recent, today, accounts[0]?.currency ?? DEFAULT_CURRENCY);
     } catch (error) {
       if (!alive || error.code === 'SESSION_EXPIRED') return;
       render(content, errorCard(error, load));
     }
   }
 
-  function show(summary, recent, currency) {
+  function show(summary, recent, today, currency) {
     const fmt = (value) => money(value, currency);
     const balanceText = fmt(summary.balance);
     const amount = h('span', { class: `balance-card__amount money ${lengthClass(balanceText)}`, 'aria-hidden': 'true' });
@@ -98,8 +99,10 @@ export function mount(view, { navigate }) {
         action: { label: 'Nuevo movimiento', icon: 'plus', primary: true, onClick: () => openMovementForm({ onChange: load }) },
       });
 
+    const limit = todayCard(today, { currency, onChange: load });
+
     const seeAll = h('a', { class: 'btn btn--ghost', href: '#/movimientos' }, 'Ver todos');
-    render(content, card, stats,
+    render(content, card, stats, limit,
       h('div', { class: 'section-title' }, h('h2', { class: 'h2' }, 'Recientes'), recent.length ? seeAll : null),
       list);
 
@@ -109,7 +112,7 @@ export function mount(view, { navigate }) {
     fx.countUp(amount, summary.balance, fmt);
     fx.countUp(income, summary.income, fmt);
     fx.countUp(expense, summary.expense, fmt);
-    fx.stagger([...stats.children, ...content.querySelectorAll('.tx-list > li')]);
+    fx.stagger([...stats.children, limit, ...content.querySelectorAll('.tx-list > li')]);
     stopSticky();
     stopSticky = fx.sticky(scroller, card, sticky);
     motion.refresh();
