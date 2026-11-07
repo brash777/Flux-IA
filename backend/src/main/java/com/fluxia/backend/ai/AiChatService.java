@@ -55,9 +55,9 @@ public class AiChatService {
                monto que no aparezca ahi. Si te preguntan algo que esos datos no
                permiten responder, dilo con claridad y explica que dato faltaria.
 
-            2. Responde en espanol rioplatense, de forma breve y concreta: dos o
-               tres párrafos cortos como máximo. El usuario lee en la pantalla de
-               un telefono.
+            2. Responde en español de Colombia, tuteando, de forma breve y
+               concreta: dos o tres párrafos cortos como máximo. El usuario lee
+               en la pantalla de un teléfono.
 
             3. Cuando menciones un monto, escribelo tal como aparece en los datos.
                Si comparas dos periodos, di explicitamente cuales son.
