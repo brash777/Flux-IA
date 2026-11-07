@@ -624,6 +624,15 @@ export function closeSheet(backdrop, sheet) {
   return gsap.to(sheet, { yPercent: 100, duration: DUR.fast + 0.04, ease: 'power2.in' }).then();
 }
 
+/** Un bloque que aparece en su lugar: el resultado de una compra o lo que
+    propone la IA. Con movimiento reducido, solo se funde. */
+export function reveal(element) {
+  if (!ready) return;
+  gsap.fromTo(element, { opacity: 0, y: animates() ? 8 : 0 }, {
+    opacity: 1, y: 0, duration: DUR.base, ease: EASE.out, clearProps: 'transform,opacity',
+  });
+}
+
 export function toast(element, visibleFor = 2600) {
   if (!ready) {
     setTimeout(() => element.remove(), visibleFor);
