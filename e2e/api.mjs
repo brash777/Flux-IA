@@ -220,6 +220,66 @@ async function main() {
   ok('el chat responde (IA activa) o avisa con 503 (IA apagada)', (chat.status === 200 && chat.data.answer) || (chat.status === 503 && userMessage(chat)), chat);
   ok('pregunta vacía -> 400', (await call('POST', '/ai/chat', { token: T, body: { question: '' } })).status === 400);
 
+  section = 'tope diario y tarjeta simulada';
+  const limitEmail = `prueba.e2e.tope.${stamp}@fluxia.test`;
+  const L = (await call('POST', '/auth/register', { body: { fullName: 'Prueba Tope', email: limitEmail, password: 'Clave1234!' } })).data.accessToken;
+  const own = (await call('GET', '/categories', { token: L })).data;
+  const cat = (slug) => own.find((c) => c.slug === slug);
+  const fresh = await call('GET', '/spending/today', { token: L });
+  ok('sin ajustes: sin tope, null y no 0', fresh.status === 200 && fresh.data.dailyLimit === null && fresh.data.remaining === null && cents(fresh.data.spentToday) === 0, fresh);
+  ok('transporte y salud pasan siempre', ['transporte', 'salud'].every((slug) => fresh.data.alwaysAllowedCategories.some((c) => c.slug === slug)), fresh.data.alwaysAllowedCategories);
+  const settings = (dailyLimit, excludedCategoryIds) => call('PUT', '/spending/settings', { token: L, body: { dailyLimit, excludedCategoryIds } });
+  const negativeLimit = await settings('-5', []);
+  ok('tope negativo -> 400 con fields.dailyLimit', negativeLimit.status === 400 && negativeLimit.data?.fields?.dailyLimit, negativeLimit);
+  ok('excluir una categoría de ingresos -> 400', (await settings('50000', [cat('ingreso').id])).status === 400);
+  ok('excluir una categoría que no existe -> 404', (await settings('50000', ['00000000-0000-4000-8000-000000000000'])).status === 404);
+  const saved = await settings('50000', [cat('servicios').id]);
+  ok('guardar tope de 50.000 sin contar Servicios', saved.status === 200 && cents(saved.data.dailyLimit) === 5000000 && cents(saved.data.remaining) === 5000000 && saved.data.excludedCategories.map((c) => c.slug).join() === 'servicios', saved);
+
+  const spend = (slug, amount) => call('POST', '/transactions', { token: L, body: { description: `Prueba tope ${slug}`, amount, type: 'EXPENSE', categoryId: cat(slug).id, occurredAt: now() } });
+  await spend('comida', '20000');
+  await spend('servicios', '45000');
+  const afterSpend = await call('GET', '/spending/today', { token: L });
+  ok('20.000 en comida cuentan; 45.000 en servicios no', cents(afterSpend.data.spentToday) === 2000000 && cents(afterSpend.data.remaining) === 3000000 && Number(afterSpend.data.progressPercent) === 40, afterSpend.data);
+  const dayList = await call('GET', '/transactions', { token: L, query: { from: afterSpend.data.from, to: afterSpend.data.to, type: 'EXPENSE', size: 100 } });
+  const counted = dayList.data.items.filter((t) => t.category.slug !== 'servicios').reduce((sum, t) => sum + cents(t.amount), 0);
+  ok('lo gastado hoy es la suma de los movimientos del día que cuentan', counted === cents(afterSpend.data.spentToday), { counted, spentToday: afterSpend.data.spentToday });
+
+  const pay = (slug, amount, description = 'Compra de prueba') => call('POST', '/spending/card-purchases', { token: L, body: { description, amount, categoryId: cat(slug).id } });
+  const before = (await call('GET', '/transactions', { token: L })).data.totalItems;
+  const tooMuch = await pay('comida', '30000.01');
+  ok('compra que pasa el tope -> rechazada (200, approved false)', tooMuch.status === 200 && tooMuch.data.approved === false && tooMuch.data.decision === 'DECLINED_DAILY_LIMIT' && userMessage(tooMuch), tooMuch);
+  ok('la compra rechazada no crea movimiento', (await call('GET', '/transactions', { token: L })).data.totalItems === before);
+  const exact = await pay('comida', '30000');
+  ok('compra por lo que queda exacto -> aprobada y registrada', exact.data.approved === true && exact.data.transaction?.id && cents(exact.data.today.remaining) === 0, exact);
+  ok('un gasto fijo pasa aunque no quede tope', (await pay('servicios', '100000')).data?.approved === true);
+  ok('pagar con una categoría de ingresos -> 400', (await pay('ingreso', '1000')).status === 400);
+  ok('compra sin monto -> 400 con fields.amount', (await call('POST', '/spending/card-purchases', { token: L, body: { description: 'x', categoryId: cat('comida').id } })).data?.fields?.amount);
+
+  const out = await call('POST', '/spending/going-out', { token: L });
+  const until = out.data?.goingOut?.until;
+  const untilHour = until && new Intl.DateTimeFormat('en-GB', { timeZone: 'America/Bogota', hour: '2-digit', minute: '2-digit' }).format(new Date(until));
+  ok('modo salida activo hasta las 08:00 de Bogotá, en el futuro', out.status === 200 && out.data.goingOut.active && untilHour === '08:00' && new Date(until) > new Date(), out.data?.goingOut);
+  ok('con modo salida, una salida a comer se rechaza', (await pay('ocio', '10000')).data?.decision === 'DECLINED_GOING_OUT');
+  ok('con modo salida y sin tope, el transporte pasa', (await pay('transporte', '15000', 'Taxi a la casa')).data?.approved === true);
+  // Se compara el instante: la primera respuesta trae la hora de Bogotá y la segunda, leída de la base, en UTC.
+  const again = await call('POST', '/spending/going-out', { token: L });
+  ok('activarlo otra vez no lo alarga', new Date(again.data?.goingOut?.until).getTime() === new Date(until).getTime(), [until, again.data?.goingOut?.until]);
+  ok('no hay forma de apagarlo antes: DELETE -> 405', (await call('DELETE', '/spending/going-out', { token: L })).status === 405);
+  ok('el modo salida de este usuario no toca al demo', (await call('GET', '/spending/today', { token: T })).data?.goingOut?.active === false);
+
+  section = 'IA que hace cosas';
+  const draft = await call('POST', '/ai/movement-draft', { token: L, body: { text: 'gasolina 20 mil' } });
+  console.log(`      /ai/movement-draft -> ${draft.status} ${JSON.stringify(draft.data).slice(0, 160)}`);
+  ok('«gasolina 20 mil» -> gasto de 20.000 (IA activa) o 503', (draft.status === 200 && cents(draft.data.amount) === 2000000 && draft.data.type === 'EXPENSE' && own.some((c) => c.id === draft.data.categoryId)) || (draft.status === 503 && userMessage(draft)), draft);
+  ok('el borrador no se guarda solo', (await call('GET', '/transactions', { token: L })).data.totalItems === before + 3);
+  ok('texto vacío -> 400', (await call('POST', '/ai/movement-draft', { token: L, body: { text: '' } })).status === 400);
+  const noHistory = await call('POST', '/ai/daily-limit-proposal', { token: L, body: { excludedCategoryIds: [] } });
+  ok('sin días anteriores con gastos -> 400 NOT_ENOUGH_DATA, sin llamar a la IA', noHistory.status === 400 && noHistory.data.code === 'NOT_ENOUGH_DATA' && userMessage(noHistory), noHistory);
+  const proposal = await call('POST', '/ai/daily-limit-proposal', { token: T, body: {} });
+  console.log(`      /ai/daily-limit-proposal -> ${proposal.status} ${JSON.stringify(proposal.data).slice(0, 200)}`);
+  ok('propuesta del demo: no supera el promedio, o 400/503 con mensaje', (proposal.status === 200 && cents(proposal.data.dailyLimit) > 0 && Number(proposal.data.dailyLimit) <= Math.ceil(Number(proposal.data.averagePerDay) / 1000) * 1000) || ([400, 503].includes(proposal.status) && userMessage(proposal)), proposal);
+
   section = 'app web, documentación y CORS';
   // Como la pide un navegador: sin Accept JSON, que con razón da 406.
   const app = await fetch(BASE + '/');
