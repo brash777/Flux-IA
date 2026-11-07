@@ -31,7 +31,10 @@ users ──┬── accounts ──┐
                               │  todas las cifras salen de acá
 ```
 
-Más dos tablas de soporte, `refresh_tokens` y `password_reset_tokens`.
+Más dos tablas de soporte, `refresh_tokens` y `password_reset_tokens`, y
+`spending_settings` con `spending_excluded_categories`: el tope diario, el modo
+salida y los gastos fijos de cada usuario. Guardan decisiones del usuario, no
+cifras: lo gastado en el día se suma desde `transactions` en cada consulta.
 
 ### Decisiones del esquema
 
@@ -222,6 +225,49 @@ pregunta típica usa unos 1.300 tokens.
 
 **Degradación.** Con `AI_ENABLED=false` el endpoint responde 503 y el resto de la
 aplicación funciona igual. Permite desarrollar sin clave.
+
+### La IA que hace cosas
+
+Además del chat, el modelo trabaja en dos lugares. En los dos **propone y no
+decide**:
+
+- **`POST /ai/movement-draft`** convierte «gasolina 20 mil» en un movimiento.
+  Las instrucciones incluyen las palabras de plata de Colombia («luca», «palo»).
+  La respuesta llena el formulario y el usuario la guarda con
+  `POST /transactions`, con todas sus validaciones. Aun así, nada del modelo se
+  usa sin revisar: la categoría tiene que existir y ser del tipo correcto, el
+  monto ser positivo y la fecha no estar en el futuro.
+- **`POST /ai/daily-limit-proposal`** propone un tope diario. El promedio de los
+  últimos 30 días lo calcula el servidor con una suma en SQL, sin los gastos
+  fijos; el modelo elige un tope por debajo y explica por qué. Si propone algo
+  por encima del promedio, se descarta.
+
+Los dos le piden al modelo un JSON en las instrucciones y toman el primer
+objeto de la respuesta (`AiJson`), sin el «modo JSON» de cada proveedor: así
+funcionan igual con Groq, Gemini y Anthropic. Ninguno abre una transacción de
+base de datos mientras espera al modelo, para no retener una conexión uno o dos
+segundos.
+
+### Tope diario, modo salida y tarjeta simulada
+
+`SpendingService` decide cada compra con una regla fija (`decide`), en este
+orden: transporte y salud pasan siempre; con el modo salida, se rechaza todo lo
+demás; con tope, se rechaza la compra que lo haría pasar, salvo que sea un gasto
+fijo. No decide la IA: un emisor real da unos dos segundos para responder, y un
+modelo puede tardar más o equivocarse.
+
+La compra bloquea la fila de ajustes (`SELECT … FOR UPDATE`) hasta terminar:
+dos compras al mismo tiempo no pueden pasar las dos con un tope que solo
+alcanzaba para una.
+
+El modo salida dura hasta las 8:00 siguientes y **no tiene endpoint para
+apagarlo**: si se pudiera quitar con un toque, se quitaría justo cuando hace
+falta. Registrar un movimiento a mano nunca se bloquea, porque si el gasto ya
+ocurrió la cifra tiene que quedar.
+
+La tarjeta es simulada: rechazar compras de una tarjeta real solo lo puede
+hacer quien la emite, que le pregunta a un servidor por cada compra. La regla
+de `decide` es la que respondería esa pregunta.
 
 ## Manejo de errores
 
