@@ -235,6 +235,23 @@ Filtros de `GET /transactions`: `from`, `to` (ISO-8601), `category` (slug),
 | Método | Ruta | Qué hace |
 |---|---|---|
 | POST | `/api/v1/ai/chat` | Pregunta al asistente con el contexto financiero real |
+| POST | `/api/v1/ai/movement-draft` | Convierte «gasolina 20 mil» en un movimiento para revisar. No guarda nada |
+| POST | `/api/v1/ai/daily-limit-proposal` | Propone un tope diario que no supera el promedio de los últimos 30 días |
+
+Los tres cuentan juntos para el límite de consultas por minuto: gastan la
+misma cuota del proveedor.
+
+### Tope diario y tarjeta simulada
+
+| Método | Ruta | Qué hace |
+|---|---|---|
+| GET | `/api/v1/spending/today` | Lo gastado hoy que cuenta para el tope, lo que queda y el modo salida |
+| PUT | `/api/v1/spending/settings` | Guarda el tope (`null` lo quita) y los gastos fijos que no cuentan |
+| POST | `/api/v1/spending/going-out` | Activa el modo salida hasta las 8:00. No se puede apagar antes |
+| POST | `/api/v1/spending/card-purchases` | Paga con la tarjeta simulada: aprueba y registra el gasto, o rechaza sin guardar nada |
+
+Un rechazo de la tarjeta responde 200 con `approved: false`: no es un error.
+Transporte y salud pasan siempre, aun con el modo salida.
 
 ### Errores
 
