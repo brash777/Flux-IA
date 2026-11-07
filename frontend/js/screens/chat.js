@@ -20,7 +20,7 @@ const MAX_TURNS = 20; // el backend acepta hasta 20 turnos previos
 // si subió más, se lo deja leer tranquilo.
 const FOLLOW_MARGIN_PX = 80;
 
-const SUGGESTIONS = ['¿En qué gasté más este mes?', '¿Cuánto ahorré este mes?', 'Dame un resumen del mes'];
+const SUGGESTIONS = ['¿En qué gasté más este mes?', '¿Me compro unos tenis de 300 mil?', '¿Cuánto me queda hoy?', 'Dame un resumen del mes'];
 
 /* Avisos propios para cuando el asistente no puede responder: más claros
    que un 503. El resto de los errores muestra el mensaje de la API. */
@@ -164,7 +164,7 @@ export function mount(view) {
   }
 
   /* Bienvenida del asistente y sugerencias para empezar. */
-  aiRow(h('span', {}, 'Hola, soy tu asistente. Respondo con tus movimientos reales: pregúntame en qué gastas, cuánto ahorraste o cómo vas este mes.'));
+  aiRow(h('span', {}, 'Hola, soy tu asistente. Respondo con tus movimientos reales: pregúntame en qué gastas, cómo vas con tu tope o si te conviene una compra antes de hacerla.'));
   const chips = h('div', { class: 'suggestions' }, SUGGESTIONS.map((text) => {
     const chip = h('button', { class: 'chip', type: 'button' }, text);
     chip.addEventListener('click', () => ask(text));
