@@ -1620,6 +1620,270 @@ body.device-host {
   font-size: var(--fs-money-md);
 }
 
+/* --- Tope de hoy (js/screens/daily-limit.js) ----------------------- */
+
+.limit-card {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.limit-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.limit-card__label {
+  margin: 0;
+  font-family: var(--font-text);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text-muted);
+}
+
+.limit-card__amount {
+  margin: 0;
+  font-size: var(--fs-money-lg);
+  line-height: var(--lh-tight);
+  color: var(--text-strong);
+}
+
+.limit-card__amount.is-over {
+  color: var(--expense);
+}
+
+.limit-card__caption,
+.limit-card__text {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.limit-card__note {
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--text-subtle);
+}
+
+/* El ancho llega listo de la API (progressPercent): aquí no se calcula. */
+.meter {
+  height: var(--meter-h);
+  margin-top: var(--space-1);
+  overflow: hidden;
+  border-radius: var(--r-full);
+  background: var(--line);
+}
+
+.meter__fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--flux-300), var(--flux-200));
+}
+
+.meter.is-over .meter__fill {
+  background: var(--expense);
+}
+
+/* Uno o dos botones: siempre reparten el ancho. */
+.limit-card__actions {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.going-out {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-3);
+  border-radius: var(--r-sm);
+  background: var(--flux-soft);
+  box-shadow: inset 0 0 0 1px var(--flux-edge);
+  color: var(--text);
+  font-size: var(--fs-sm);
+}
+
+.going-out .icon {
+  flex: none;
+  margin-top: calc(var(--space-1) / 2);
+  color: var(--flux-300);
+}
+
+/* Hoja del tope: la propuesta de la IA y los gastos fijos. */
+.proposal {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--r-md);
+  background: var(--flux-soft);
+  box-shadow: inset 0 0 0 1px var(--flux-edge);
+}
+
+.proposal__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  margin: 0;
+  color: var(--text-strong);
+  font-weight: var(--fw-semibold);
+}
+
+.proposal__title .icon,
+.ai-fill .field__label .icon {
+  color: var(--flux-300);
+}
+
+.proposal__reason {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.proposal .btn {
+  justify-self: start;
+}
+
+.fieldset {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.fieldset legend {
+  margin-bottom: var(--space-2);
+  padding: 0;
+}
+
+.chip-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* --- Llenar con IA (js/screens/movement-form.js) ------------------- */
+
+.ai-fill {
+  padding: var(--space-4);
+  border-radius: var(--r-md);
+  background: var(--flux-soft);
+  box-shadow: inset 0 0 0 1px var(--flux-edge);
+}
+
+.ai-fill .field__label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.ai-fill__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-2);
+}
+
+.ai-fill__row .btn--primary {
+  min-height: var(--field-h);
+  padding-inline: var(--space-4);
+}
+
+/* --- Tarjeta simulada (js/screens/flux-card.js) -------------------- */
+
+.flux-card {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  align-items: center;
+  width: 100%;
+  max-width: var(--card-max-w);
+  aspect-ratio: var(--card-ratio);
+  margin: 0 auto;
+  padding: var(--space-5);
+  border-radius: var(--r-lg);
+  background: var(--hero-sheen), var(--hero-solid);
+  box-shadow: var(--shadow-hero);
+}
+
+.flux-card__brand {
+  font-family: var(--font-display);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-bold);
+  color: var(--text-strong);
+}
+
+.flux-card__chip {
+  width: var(--space-10);
+  height: var(--space-8);
+  border-radius: var(--r-sm);
+  background: var(--card-glass-front);
+}
+
+.flux-card__tag {
+  justify-self: end;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--text-on-hero);
+}
+
+.flux-card__note {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.purchase-result {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  border-radius: var(--r-md);
+}
+
+.purchase-result.is-approved {
+  background: var(--income-soft);
+  box-shadow: inset 0 0 0 1px var(--income-edge);
+}
+
+.purchase-result.is-declined {
+  background: var(--expense-soft);
+  box-shadow: inset 0 0 0 1px var(--expense-edge);
+}
+
+.purchase-result__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-bold);
+  color: var(--text-strong);
+}
+
+.is-approved .purchase-result__title .icon {
+  color: var(--income);
+}
+
+.is-declined .purchase-result__title .icon {
+  color: var(--expense);
+}
+
+.purchase-result__text {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text);
+}
+
 /* --- Movimientos ---------------------------------------------------- */
 
 .search {
