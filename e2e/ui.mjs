@@ -178,6 +178,7 @@ try {
   await page.locator('.sheet input[name=amount]').waitFor();
   await page.locator('.sheet input[name=amount]').fill('123,45');
   await page.locator('.sheet input[name=description]').fill('Prueba UI E2E');
+  ok('nuevo movimiento: se puede escribir como se diría, para que lo llene la IA', await page.locator('.sheet .ai-fill input').isVisible());
   await shot('03-nuevo-movimiento');
   await page.locator('.sheet button[type=submit]').click();
   ok('crear: aviso «Movimiento guardado»', (await toast()).includes('Movimiento guardado'));
@@ -313,6 +314,40 @@ try {
   ok('registro: entra a inicio con el estado vacío', true);
   await page.waitForTimeout(1500);
   await shot('09-inicio-vacio');
+
+  // --- Tope diario, tarjeta simulada y modo salida -------------------------
+  // Con la usuaria recién creada: el modo salida no se puede apagar, y no
+  // debe quedar activo en la cuenta demo.
+  const limitCard = page.locator('.limit-card');
+  ok('inicio: sin tope, la tarjeta ofrece que la IA proponga uno', (await limitCard.textContent()).includes('Proponer un tope con IA'));
+  await limitCard.locator('[aria-label="Elegir un tope diario"]').click();
+  await page.locator('.sheet input[name=dailyLimit]').fill('30.000');
+  await page.locator('.sheet button[type=submit]').click();
+  ok('tope: aviso «Tope guardado»', (await toast()).includes('Tope guardado'));
+  ok('tope: quedan los 30.000, como dice la API', await until((text) => document.querySelector('.limit-card__amount')?.textContent.replace(/\s+/g, ' ').trim() === text, cop(30000)));
+  await noHorizontalScroll('inicio con tope');
+  const payWithCard = async (amount, place) => {
+    await page.locator('.limit-card__actions button', { hasText: 'Pagar' }).click();
+    await page.locator('.sheet input[name=amount]').fill(amount);
+    await page.locator('.sheet input[name=description]').fill(place);
+    await page.locator('.sheet select').selectOption({ label: '🎮 Ocio' });
+    await page.locator('.sheet button[type=submit]').click();
+    await page.locator('.purchase-result:not([hidden])').waitFor({ timeout: 10000 });
+    const text = clean(await page.locator('.purchase-result').textContent());
+    await page.keyboard.press('Escape');
+    await page.locator('.sheet').waitFor({ state: 'detached', timeout: 5000 });
+    return text;
+  };
+  ok('tarjeta: una compra de 50.000 con 30.000 de tope se rechaza', (await payWithCard('50000', 'Bar de prueba')).startsWith('Rechazada'));
+  ok('tarjeta: una de 10.000 se aprueba', (await payWithCard('10000', 'Cine de prueba')).startsWith('Aprobada'));
+  ok('tope: después de pagar quedan 20.000', await until((text) => document.querySelector('.limit-card__amount')?.textContent.replace(/\s+/g, ' ').trim() === text, cop(20000)));
+  await page.locator('.limit-card__actions button', { hasText: 'Hoy salgo' }).click();
+  await page.locator('.sheet button', { hasText: 'Activar' }).click();
+  ok('modo salida: aviso «Modo salida activado»', (await toast()).includes('Modo salida activado'));
+  ok('modo salida: inicio dice hasta qué hora', await until(() => /08:00/.test(document.querySelector('.going-out')?.textContent ?? '')));
+  ok('modo salida: ya no se ofrece «Hoy salgo»', (await page.locator('.limit-card__actions button', { hasText: 'Hoy salgo' }).count()) === 0);
+  ok('modo salida: la tarjeta rechaza una compra que cabía en el tope', (await payWithCard('5000', 'Cerveza de prueba')).includes('modo salida'));
+  await shot('09-tope-modo-salida');
   await page.reload({ waitUntil: 'networkidle' });
   await page.waitForTimeout(1500);
   ok('recargar no cierra la sesión', (await hash()) === '#/inicio', await hash());
