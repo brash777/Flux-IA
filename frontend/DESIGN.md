@@ -117,6 +117,8 @@ texto secundario sobre vidrio bajaría de 4,5:1.
 | `--expense` | `#FF93A6` | Ícono de gastos. **No** se usa en las cifras de gasto (ver abajo). |
 | `--danger` | `#FF8094` | Errores. |
 | `--warning` | `#FFCB6B` | Avisos. |
+| `--flux-soft` / `--flux-edge` | lila al 12 % / 38 % | Fondo y borde de lo que viene de la IA y del modo salida. |
+| `--income-edge` / `--expense-edge` | al 40 % | Borde de una compra aprobada o rechazada. |
 
 **El color nunca va solo.** Un ingreso lleva «+» y va en verde; un gasto lleva
 «−» y va en blanco. Que los gastos vayan en blanco es deliberado: una lista
@@ -246,6 +248,8 @@ iPhone hace zoom al enfocar.
   selector, el ojo de la contraseña y cada destino de la barra. Las filas de
   movimiento miden al menos 64 px de alto.
 - **Campos:** 52 px de alto. **Barra inferior:** 64 px.
+- **Barra del tope:** `--meter-h`, 8 px. **Tarjeta simulada:** `--card-max-w`,
+  280 px, con la proporción de una tarjeta real (`--card-ratio`, 1,586).
 
 ---
 
@@ -406,6 +410,36 @@ oculta, el campo queda justo encima del teclado y la cabecera arriba. En
 iPhone el teclado no achica la página, así que `js/keyboard.js` ajusta la
 app a la parte visible (`visualViewport`). Al enviar, el teclado se cierra y
 la respuesta se lee con la pantalla entera.
+
+### Tope de hoy
+
+Tarjeta de vidrio en Inicio, entre las cifras del mes y los recientes. Manda
+lo que queda del día (`--fs-money-lg`), en blanco; si ya se pasó, lo que se
+pasó, en `--expense`, con su texto («te pasaste del tope de…»): el color no va
+solo. La barra (`.meter`) toma su ancho de `progressPercent` de la API, ya
+limitado a 100: el frontend no calcula. Sin tope, la tarjeta invita a que la
+IA proponga uno.
+
+Con el modo salida, un aviso violeta (`.going-out`) dice hasta qué hora dura y
+qué pasa igual, y desaparece el botón «Hoy salgo». Activarlo pide
+confirmación, porque no se puede apagar antes.
+
+### Llenar con IA
+
+Al crear un movimiento, arriba del formulario, un recuadro violeta
+(`.ai-fill`) con el campo «Escríbelo como lo dirías» y el botón «Llenar».
+Llenar no guarda: deja los campos listos y avisa «Revisa los datos y toca
+Guardar». Al editar no aparece. Lo que viene de la IA siempre lleva el ícono
+de destellos (`sparkles`) y el tinte `--flux-soft`, para que se distinga de lo
+que escribió el usuario.
+
+### Tarjeta simulada
+
+Una hoja con la tarjeta dibujada (el mismo violeta de la tarjeta de saldo) y
+la palabra «Simulada» en ella, para que nadie la confunda con una real. El
+resultado de cada compra aparece dentro de la hoja, en verde si se aprobó y
+en rosa si se rechazó, con ícono y título («Aprobada» / «Rechazada»), y la
+hoja queda abierta para probar otra.
 
 ### Estados
 
