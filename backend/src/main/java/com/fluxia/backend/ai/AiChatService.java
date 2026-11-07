@@ -96,33 +96,41 @@ public class AiChatService {
     }
 
     public AiDtos.ChatResponse answer(UUID userId, AiDtos.ChatRequest request) {
-        FluxProperties.Ai config = properties.getAi();
-
-        if (!config.isEnabled()) {
-            throw ApiException.unavailable("AI_DISABLED",
-                    "El asistente de IA está desactivado en este servidor.");
-        }
-
-        ChatModel chatModel = chatModelProvider.getIfAvailable();
-        if (chatModel == null) {
-            throw ApiException.unavailable("AI_NOT_CONFIGURED",
-                    "El asistente de IA no está configurado en este servidor.");
-        }
+        // Primero se comprueba que haya IA: sin ella, armar el contexto
+        // serían cuatro consultas a la base para nada.
+        requireModel();
 
         // El contexto se arma SIEMPRE en el servidor, a partir del
         // userId del token. El cliente no puede influir en el.
         String context = contextBuilder.build(userId);
-        List<AiDtos.Turn> conversation = conversation(request, context, config.getMaxHistoryTurns());
+        List<AiDtos.Turn> conversation = conversation(request, context, properties.getAi().getMaxHistoryTurns());
+
+        ChatReply reply = complete(userId, SYSTEM_PROMPT, conversation);
+        return new AiDtos.ChatResponse(
+                reply.text(),
+                OffsetDateTime.now(),
+                new AiDtos.TokenUsage(reply.inputTokens(), reply.outputTokens()));
+    }
+
+    /**
+     * Le pregunta al modelo y, si no responde, a los de respaldo. Es la
+     * única puerta al modelo: la usan el chat, el llenado de movimientos y
+     * la propuesta de tope, con las mismas reglas de respaldo y los mismos
+     * mensajes de error.
+     *
+     * @return una respuesta con texto; nunca vacía
+     * @throws ApiException 503 si la IA está apagada o ningún modelo respondió
+     */
+    public ChatReply complete(UUID userId, String systemPrompt, List<AiDtos.Turn> conversation) {
+        FluxProperties.Ai config = properties.getAi();
+        ChatModel chatModel = requireModel();
 
         ChatModelException lastFailure = null;
         for (String model : config.modelChain()) {
             try {
-                ChatReply reply = chatModel.reply(model, SYSTEM_PROMPT, conversation);
+                ChatReply reply = chatModel.reply(model, systemPrompt, conversation);
                 if (!reply.text().isBlank()) {
-                    return new AiDtos.ChatResponse(
-                            reply.text(),
-                            OffsetDateTime.now(),
-                            new AiDtos.TokenUsage(reply.inputTokens(), reply.outputTokens()));
+                    return reply;
                 }
                 // Negativa del modelo, o tope de tokens agotado mientras
                 // razonaba: otro modelo puede responder.
@@ -151,6 +159,20 @@ public class AiChatService {
         log.error("Ningún modelo de IA respondió", lastFailure);
         throw ApiException.unavailable("AI_UNAVAILABLE",
                 "El asistente no está disponible en este momento. Intenta más tarde.");
+    }
+
+    /** El modelo configurado, o un 503 que explica por qué no hay. */
+    private ChatModel requireModel() {
+        if (!properties.getAi().isEnabled()) {
+            throw ApiException.unavailable("AI_DISABLED",
+                    "El asistente de IA está desactivado en este servidor.");
+        }
+        ChatModel chatModel = chatModelProvider.getIfAvailable();
+        if (chatModel == null) {
+            throw ApiException.unavailable("AI_NOT_CONFIGURED",
+                    "El asistente de IA no está configurado en este servidor.");
+        }
+        return chatModel;
     }
 
     /**
