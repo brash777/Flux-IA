@@ -4,6 +4,8 @@ import com.fluxia.backend.config.FluxProperties;
 import com.fluxia.backend.report.ReportDtos;
 import com.fluxia.backend.report.ReportPeriod;
 import com.fluxia.backend.report.ReportService;
+import com.fluxia.backend.spending.SpendingDtos;
+import com.fluxia.backend.spending.SpendingService;
 import com.fluxia.backend.transaction.TransactionDtos;
 import com.fluxia.backend.transaction.TransactionService;
 import com.fluxia.backend.transaction.TransactionType;
@@ -13,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -49,17 +50,20 @@ public class AiContextBuilder {
     private static final DateTimeFormatter DAY_FORMAT =
             DateTimeFormatter.ofPattern("dd/MM HH:mm");
 
-    private static final Locale SPANISH = Locale.forLanguageTag("es-CO");
+    private static final DateTimeFormatter UNTIL_FORMAT = DateTimeFormatter.ofPattern("HH:mm 'del' dd/MM");
 
     private final ReportService reportService;
     private final TransactionService transactionService;
+    private final SpendingService spendingService;
     private final FluxProperties properties;
 
     public AiContextBuilder(ReportService reportService,
                             TransactionService transactionService,
+                            SpendingService spendingService,
                             FluxProperties properties) {
         this.reportService = reportService;
         this.transactionService = transactionService;
+        this.spendingService = spendingService;
         this.properties = properties;
     }
 
@@ -80,6 +84,7 @@ public class AiContextBuilder {
                 reportService.monthlyTrend(userId, TREND_MONTHS);
         List<TransactionDtos.Response> recent =
                 transactionService.recent(userId, RECENT_LIMIT);
+        SpendingDtos.TodayResponse today = spendingService.today(userId);
 
         StringBuilder context = new StringBuilder(1024);
 
@@ -104,6 +109,8 @@ public class AiContextBuilder {
                     .append(percent(summary.comparison().expenseChangePercent()))
                     .append('\n');
         }
+
+        appendSpending(context, today);
 
         context.append("\nGastos por categoría (mes en curso)\n");
         if (expenses.slices().isEmpty()) {
@@ -154,14 +161,45 @@ public class AiContextBuilder {
         return context.toString();
     }
 
-    private String money(BigDecimal amount) {
-        if (amount == null) {
-            return "$0";
+    /**
+     * El tope diario y el modo salida: con esto el asistente puede contestar
+     * «¿me compro unos tenis de 300 mil?» con lo que le queda hoy, sin
+     * calcularlo él.
+     */
+    private void appendSpending(StringBuilder context, SpendingDtos.TodayResponse today) {
+        context.append("\nTope diario y modo salida\n");
+        if (today.dailyLimit() == null) {
+            context.append("  Tope diario: no tiene\n");
+        } else {
+            context.append("  Tope diario: ").append(money(today.dailyLimit()));
+            if (!today.excludedCategories().isEmpty()) {
+                context.append(" (no cuentan los gastos fijos: ")
+                        .append(names(today.excludedCategories())).append(')');
+            }
+            context.append('\n');
+            context.append("  Gastado hoy que cuenta para el tope: ").append(money(today.spentToday())).append('\n');
+            if (today.overBy().signum() > 0) {
+                context.append("  Hoy se pasó del tope por: ").append(money(today.overBy())).append('\n');
+            } else {
+                context.append("  Le queda hoy del tope: ").append(money(today.remaining())).append('\n');
+            }
         }
-        // Igual que en la app: sin centavos cuando no los hay, para que el
-        // modelo repita las cifras tal como se ven en pantalla.
-        String pattern = amount.stripTrailingZeros().scale() <= 0 ? "$%,.0f" : "$%,.2f";
-        return String.format(SPANISH, pattern, amount);
+        if (today.goingOut().active()) {
+            context.append("  Modo salida: activo hasta las ")
+                    .append(today.goingOut().until().atZoneSameInstant(properties.getTimezone()).format(UNTIL_FORMAT))
+                    .append("; la tarjeta solo aprueba ").append(names(today.alwaysAllowedCategories()))
+                    .append('\n');
+        } else {
+            context.append("  Modo salida: apagado\n");
+        }
+    }
+
+    private static String names(List<TransactionDtos.CategoryRef> categories) {
+        return String.join(", ", categories.stream().map(TransactionDtos.CategoryRef::name).toList());
+    }
+
+    private String money(BigDecimal amount) {
+        return AiFormat.money(amount);
     }
 
     /** Null se traduce a texto, no a "0 %", que seria enganoso. */

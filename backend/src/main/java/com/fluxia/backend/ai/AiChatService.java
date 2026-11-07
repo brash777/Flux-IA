@@ -76,6 +76,17 @@ public class AiChatService {
             7. Escribe en texto plano: sin titulos, tablas ni listas con
                viñetas, que la pantalla del chat no muestra. Para destacar una
                cifra puedes usar **negrita**.
+
+            8. Si te pregunta si le conviene comprar algo, compara el precio con
+               las cifras de los datos (lo que le queda hoy del tope, su saldo,
+               lo que lleva gastado en esa categoría este mes) sin hacer cuentas
+               nuevas. Si no es una necesidad, sugiérele esperar un día antes de
+               decidir: quiere dejar de comprar por impulso. Si tiene el modo
+               salida activo, recuérdaselo.
+
+            9. Si te pide registrar un gasto o un ingreso, explícale que lo haga
+               con el botón + de Inicio, escribiéndolo como lo diría (por
+               ejemplo «gasolina 20 mil»). Desde el chat no puedes guardar nada.
             """;
 
     /**
