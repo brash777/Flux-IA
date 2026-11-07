@@ -5,6 +5,18 @@ tus ingresos y gastos, ves a dónde va tu dinero en reportes y le preguntas al
 asistente cosas como «¿en qué gasté más este mes?». El asistente responde con
 tus movimientos reales, calculados en el servidor.
 
+La IA también hace cosas dentro de la app, pensadas para quien compra por
+impulso:
+
+- **Registrar escribiendo normal:** «gasolina 20 mil» y la IA llena el
+  movimiento; tú lo revisas y lo guardas.
+- **Tope diario:** la IA propone uno según lo que gastas, sin contar los gastos
+  fijos, e Inicio muestra cuánto te queda hoy.
+- **Modo salida y tarjeta simulada:** con «Hoy salgo», la tarjeta de
+  demostración rechaza todo hasta las 8:00 menos transporte y salud.
+- **«¿Me lo compro?»:** el chat compara el precio con tus cifras reales antes
+  de que decidas.
+
 El repositorio tiene todas las partes del proyecto:
 
 | Carpeta | Qué contiene |
@@ -175,7 +187,8 @@ con ejemplos, está en **http://localhost:8080/docs** y en
 | Cuentas y categorías | `GET` y `POST /accounts`, `GET` y `POST /categories`, `DELETE /categories/{id}` |
 | Movimientos | `GET /transactions` (filtros y totales), `GET /transactions/recent`, `GET`, `PATCH` y `DELETE /transactions/{id}`, `POST /transactions` |
 | Reportes | `GET /reports/summary`, `/reports/by-category`, `/reports/monthly-trend` |
-| Asistente | `POST /ai/chat` |
+| Tope diario y tarjeta simulada | `GET /spending/today`, `PUT /spending/settings`, `POST /spending/going-out`, `POST /spending/card-purchases` |
+| Asistente | `POST /ai/chat`, `POST /ai/movement-draft`, `POST /ai/daily-limit-proposal` |
 
 ## Decisiones de diseño
 
@@ -197,6 +210,13 @@ parámetro. Un recurso ajeno devuelve 404 y no 403, para no confirmar que existe
 **5. La clave de la IA vive solo en el servidor.** El frontend llama a
 `POST /api/v1/ai/chat`; el backend arma el contexto con los datos del usuario y
 habla con el modelo.
+
+**6. La IA propone; una regla fija decide.** La IA llena el formulario y
+propone el tope, pero no guarda nada: el usuario confirma y el backend valida
+igual que siempre. Aprobar o rechazar una compra con la tarjeta simulada lo
+decide una regla en el servidor, no el modelo, que puede tardar o equivocarse.
+La tarjeta es una demostración: rechazar compras de una tarjeta real solo lo
+puede hacer quien la emite.
 
 **6. Sesión en el frontend.** El `accessToken` (15 min) vive en memoria y el
 `refreshToken` en `localStorage`, para que recargar no cierre la sesión. El
