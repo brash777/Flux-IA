@@ -71,6 +71,11 @@
   --income-soft: rgb(75 227 164 / 0.14);
   --expense-soft: rgb(255 147 166 / 0.14);
   --danger-soft: rgb(255 128 148 / 0.12);
+  --income-edge: rgb(75 227 164 / 0.40);
+  --expense-edge: rgb(255 147 166 / 0.40);
+  /* Lo que viene de la IA o del modo salida: un tinte violeta suave. */
+  --flux-soft: rgb(183 149 255 / 0.12);
+  --flux-edge: rgb(183 149 255 / 0.38);
 
   /* --- Gráficos --------------------------------------------------- */
   /* Distintos de --income / --expense a propósito: esos son para TEXTO
@@ -209,6 +214,9 @@
   --touch: 44px;     /* área táctil mínima */
   --field-h: 52px;
   --nav-h: 64px;
+  --meter-h: 8px;           /* barra del tope diario */
+  --card-max-w: 280px;      /* tarjeta simulada */
+  --card-ratio: 1.586;      /* proporción de una tarjeta de pago real */
   --device-w: 390px;
   --device-h: 844px;
 
