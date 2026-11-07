@@ -29,8 +29,8 @@ Volver al [README del proyecto](../README.md).
 3. Correrlas (cambia el puerto si tu `backend/.env` usa otro):
 
    ```bash
-   node api.mjs http://localhost:8080          # 84 pruebas de la API
-   node ui.mjs  http://localhost:8080 390      # 46 de la interfaz, a 390 px
+   node api.mjs http://localhost:8080          # 109 pruebas de la API
+   node ui.mjs  http://localhost:8080 390      # 58 de la interfaz, a 390 px
    node ui.mjs  http://localhost:8080 360      # las mismas, a 360 px
    ```
 
@@ -51,6 +51,12 @@ Volver al [README del proyecto](../README.md).
   ajeno, y recibe 404, no 403.
 - Sesión y contraseñas: rotación del token de refresco, cierre de sesión,
   cambio y recuperación de contraseña (que cierra las demás sesiones).
+- Tope diario y tarjeta simulada: lo gastado hoy es la suma de los movimientos
+  del día que cuentan, una compra que pasa el tope se rechaza sin guardar nada,
+  los gastos fijos no cuentan, y con el modo salida solo pasan transporte y
+  salud hasta las 8:00 de Bogotá.
+- La IA: «gasolina 20 mil» se convierte en un gasto de 20.000 que no se guarda
+  solo, y sin gastos anteriores no se le pide un tope al modelo.
 
 **`ui.mjs`**: el recorrido de un usuario por todas las pantallas.
 
@@ -58,6 +64,8 @@ Volver al [README del proyecto](../README.md).
   movimiento, los tres períodos de reportes, el chat, el perfil y el cierre
   de sesión.
 - Registrarse, recargar sin perder la sesión y recuperar la contraseña.
+- Con la cuenta recién creada: guardar un tope, pagar con la tarjeta (una
+  compra rechazada y otra aprobada) y activar el modo salida.
 - Una caída de red simulada: la pantalla muestra el error y «Reintentar» la
   recupera.
 - Que la cifra animada del saldo termine exactamente en el valor de la API,
@@ -67,8 +75,10 @@ Deja capturas de cada pantalla en `capturas/<ancho>/`.
 
 ## Datos que dejan
 
-Cada corrida crea dos usuarios de prueba (`prueba.e2e.<n>@fluxia.test` y
-`ui.e2e.<n>@fluxia.test`). Los movimientos que crean en el usuario demo los
+Cada corrida crea tres usuarios de prueba (`prueba.e2e.<n>@fluxia.test`,
+`prueba.e2e.tope.<n>@fluxia.test` y `ui.e2e.<n>@fluxia.test`). El modo salida
+se prueba en ellos y no en el demo, porque no se puede apagar antes de las
+8:00. Los movimientos que crean en el usuario demo los
 borran al terminar, así que el demo queda como estaba.
 
 ## Cuenta de ejemplo: JoAn
@@ -85,3 +95,7 @@ JOAN_PASSWORD='la-contraseña' node seed-joan.mjs http://localhost:8080
 
 Corre de nuevo cuando empiece otro mes: agrega solo lo que falte hasta hoy y no
 duplica nada, pero vuelve a crear un movimiento del plan si se borró.
+
+También marca Universidad, Servicios y Supermercado como gastos fijos, que no
+cuentan para el tope diario, si JoAn todavía no configuró nada. El tope no lo
+pone: en la demostración lo propone la IA.
