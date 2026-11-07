@@ -1,11 +1,14 @@
 package com.fluxia.backend.ai;
 
+import com.fluxia.backend.transaction.TransactionType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.UUID;
 
 /** Contratos del chat con el asistente de IA. */
 public final class AiDtos {
@@ -55,5 +58,51 @@ public final class AiDtos {
 
     @Schema(description = "Consumo de tokens de la llamada")
     public record TokenUsage(long inputTokens, long outputTokens) {
+    }
+
+    @Schema(description = "Un movimiento escrito como lo diría el usuario")
+    public record DraftRequest(
+
+            @NotBlank(message = "Escribe el movimiento, por ejemplo «gasolina 20 mil».")
+            @Size(max = 300, message = "El texto no puede exceder 300 caracteres.")
+            String text
+    ) {
+    }
+
+    @Schema(description = """
+            Movimiento que propone la IA. No se guarda: el usuario lo revisa en el
+            formulario y lo guarda con POST /transactions, con sus validaciones.
+            """)
+    public record MovementDraft(
+            TransactionType type,
+            BigDecimal amount,
+            String description,
+            UUID categoryId,
+            OffsetDateTime occurredAt
+    ) {
+    }
+
+    @Schema(description = "Datos para proponer un tope diario")
+    public record ProposalRequest(
+
+            @Schema(description = """
+                    Gastos fijos que no cuentan para el tope. Si se omite, se usan los
+                    que el usuario ya guardó.
+                    """)
+            @Size(max = 50, message = "Se admiten como máximo 50 categorías.")
+            List<UUID> excludedCategoryIds
+    ) {
+    }
+
+    @Schema(description = "Tope diario que propone la IA. No se guarda hasta que el usuario lo acepta.")
+    public record LimitProposal(
+            BigDecimal dailyLimit,
+            @Schema(description = "Por qué ese tope, en una o dos frases")
+            String reason,
+            @Schema(description = "Cuántos días se miraron")
+            int days,
+            @Schema(description = "Gasto promedio por día de esos días, sin los gastos fijos")
+            BigDecimal averagePerDay
+    ) {
     }
 }
