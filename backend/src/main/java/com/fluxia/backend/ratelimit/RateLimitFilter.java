@@ -30,14 +30,16 @@ import java.time.Duration;
  * comparar la contraseña, porque BCrypt es lento a propósito y repetirlo sin
  * límite también sería un ataque.
  *
- * <p>En el chat cuenta cada pregunta, por usuario: la IA tiene una cuota
- * compartida y una sola persona no debería poder agotarla.
+ * <p>En el asistente cuenta cada consulta, por usuario: la IA tiene una cuota
+ * compartida y una sola persona no debería poder agotarla. Cuentan juntas las
+ * preguntas del chat, los movimientos que llena y los topes que propone,
+ * porque todas gastan la misma cuota.
  */
 @Component
 public class RateLimitFilter extends OncePerRequestFilter {
 
     private static final String LOGIN_PATH = "/api/v1/auth/login";
-    private static final String CHAT_PATH = "/api/v1/ai/chat";
+    private static final String AI_PATHS = "/api/v1/ai/";
 
     private final RateLimiter limiter;
     private final FluxProperties.RateLimit limits;
@@ -61,7 +63,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         if (LOGIN_PATH.equals(path)) {
             filterLogin(request, response, filterChain);
-        } else if (CHAT_PATH.equals(path)) {
+        } else if (path.startsWith(AI_PATHS)) {
             filterChat(request, response, filterChain);
         } else {
             filterChain.doFilter(request, response);
