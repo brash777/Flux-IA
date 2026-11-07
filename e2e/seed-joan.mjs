@@ -206,6 +206,21 @@ function planUntil(now) {
   return moves.filter((move) => new Date(move.occurredAt) <= now);
 }
 
+/**
+ * La matrícula, los servicios y el mercado no son compras por impulso: no
+ * cuentan para el tope diario. Solo se marcan si JoAn todavía no configuró
+ * nada, para no pisar lo que haya elegido en la app. El tope en sí no se
+ * pone: en la demostración lo propone la IA.
+ */
+async function markFixedExpenses(categories) {
+  const { data: today } = await call('GET', '/spending/today');
+  if (today.dailyLimit !== null || today.excludedCategories.length > 0) return;
+  const fixed = ['Universidad', 'servicios', 'supermercado'].map((key) => categories[key]);
+  const saved = await call('PUT', '/spending/settings', { dailyLimit: null, excludedCategoryIds: fixed });
+  if (saved.status >= 300) throw new Error(`Gastos fijos: ${saved.data?.message}`);
+  console.log('Gastos fijos marcados: Universidad, Servicios y Supermercado');
+}
+
 const keyOf = (description, amount, occurredAt) => `${description}|${Number(amount)}|${new Date(occurredAt).getTime()}`;
 
 async function existingKeys() {
@@ -234,6 +249,8 @@ async function main() {
     }
   };
   await Promise.all(Array.from({ length: CONCURRENT_REQUESTS }, worker));
+
+  await markFixedExpenses(categories);
 
   const { data: summary } = await call('GET', '/reports/summary?period=MONTH');
   console.log(`Movimientos nuevos: ${pending.length - failures.length}; ya estaban: ${existing.size}`);
