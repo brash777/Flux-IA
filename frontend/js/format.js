@@ -104,6 +104,15 @@ export function time(date) {
   return timeFormat.format(new Date(date));
 }
 
+/** «mañana a las 08:00»: hasta cuándo dura algo, como el modo salida. */
+export function untilText(date) {
+  const key = dayKey(date);
+  let day = `el ${relativeDay(date)}`;
+  if (key === dayKey(Date.now())) day = 'hoy';
+  else if (key === dayKey(Date.now() + 86_400_000)) day = 'mañana';
+  return `${day} a las ${time(date)}`;
+}
+
 /** «Octubre», con mayúscula, para rótulos de período. */
 export function currentMonthName() {
   const text = monthName.format(new Date());
