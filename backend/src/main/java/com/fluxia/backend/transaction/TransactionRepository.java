@@ -9,7 +9,9 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -129,6 +131,41 @@ public interface TransactionRepository extends
                                      @Param("from") OffsetDateTime from,
                                      @Param("to") OffsetDateTime to,
                                      @Param("zone") String zone);
+
+    /**
+     * Gastos de un rango sin contar ciertas categorías: lo que cuenta para
+     * el tope diario, que deja fuera los gastos fijos del usuario.
+     *
+     * <p>Conviene llamarla con {@link #sumExpensesBetween}, que nunca le pasa
+     * una lista vacía: {@code NOT IN ()} no es SQL válido.
+     */
+    @Query("""
+            SELECT COALESCE(SUM(t.amount), 0)
+            FROM Transaction t
+            WHERE t.user.id = :userId
+              AND t.type = com.fluxia.backend.transaction.TransactionType.EXPENSE
+              AND t.occurredAt >= :from
+              AND t.occurredAt < :to
+              AND t.category.id NOT IN :excluded
+            """)
+    BigDecimal sumExpensesExcluding(@Param("userId") UUID userId,
+                                    @Param("from") OffsetDateTime from,
+                                    @Param("to") OffsetDateTime to,
+                                    @Param("excluded") Collection<UUID> excluded);
+
+    /** Un id que ninguna categoría tiene: ocupa el lugar de una lista vacía. */
+    UUID NO_CATEGORY = new UUID(0, 0);
+
+    default BigDecimal sumExpensesBetween(UUID userId,
+                                          OffsetDateTime from,
+                                          OffsetDateTime to,
+                                          Collection<UUID> excluded) {
+        return sumExpensesExcluding(userId, from, to, excluded.isEmpty() ? List.of(NO_CATEGORY) : excluded);
+    }
+
+    /** El primer movimiento del usuario, o null si no tiene ninguno. */
+    @Query("SELECT MIN(t.occurredAt) FROM Transaction t WHERE t.user.id = :userId")
+    OffsetDateTime firstOccurredAt(@Param("userId") UUID userId);
 
     /**
      * Los movimientos mas recientes, ya con categoria cargada.
