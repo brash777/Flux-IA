@@ -91,7 +91,7 @@ que lo evita.
   En producción esa carpeta no se incluye.
   Una base que ya aplicó la semilla solo arranca con el perfil `dev`: Flyway no
   acepta una migración aplicada que no encuentra.
-- La siguiente migración es la `V902`: Flyway rechaza una versión menor que la
+- La siguiente migración es la `V903`: Flyway rechaza una versión menor que la
   última aplicada, y las bases de desarrollo ya aplicaron la `V900` de la semilla.
 - Toda columna que se filtre o se ordene necesita índice. Los que ya existen
   están justificados con un comentario en la migración.
@@ -281,3 +281,6 @@ Vive en `mobile/`: Expo SDK 58, para Expo Go y para compilar el APK con EAS.
    local. Entonces la app móvil ya no necesita texto en claro
    (`usesCleartextTraffic`, `NSAllowsArbitraryLoads` en `mobile/app.json`).
    Esa base no debe tener la semilla: ver «Base de datos».
+6. **Tarjeta real.** La de la app es simulada: rechazar compras de una tarjeta
+   de verdad exige un emisor que le pregunte al servidor por cada compra. La
+   regla ya está en `SpendingService.decide`.
