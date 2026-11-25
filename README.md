@@ -1,3 +1,4 @@
+enlace de video : https://drive.google.com/file/d/1kAG5rFdLIe_WS3n5aMEqrOlR5WxgZfbF/view?usp=sharing
 # Flux IA
 
 **Flux IA** es una app de finanzas personales con un asistente de IA. Registras
