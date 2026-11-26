@@ -1,6 +1,9 @@
 enlace de video : https://drive.google.com/file/d/1kAG5rFdLIe_WS3n5aMEqrOlR5WxgZfbF/view?usp=sharing
 # Flux IA
+profe este es el link de mi repo del juego profe https://github.com/SantiagooOrtega/7Days 
 
+no lo pude subir al campus profe 
+solo este me hace falta entregarle profe 
 **Flux IA** es una app de finanzas personales con un asistente de IA. Registras
 tus ingresos y gastos, ves a dónde va tu dinero en reportes y le preguntas al
 asistente cosas como «¿en qué gasté más este mes?». El asistente responde con
