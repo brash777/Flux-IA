@@ -1,4 +1,6 @@
+Video explicativo En este video se explica mi app movil : su diseño, secciones y funcionamiento.
 enlace de video : https://drive.google.com/file/d/1kAG5rFdLIe_WS3n5aMEqrOlR5WxgZfbF/view?usp=sharing
+
 profe este es el link de mi repo del juego profe https://github.com/SantiagooOrtega/7Days 
 
 no lo pude subir al campus profe 
